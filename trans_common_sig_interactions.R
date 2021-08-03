@@ -84,21 +84,33 @@ dat2$chrA <- gsub("A", "", dat2$chrA)
 dat2$chrB <- gsub("B", "", dat2$chrB)
 ps_df <- dat2 %>% select(chrA, chrB)
 ps_df <- unique(ps_df)
-ps_df$fake <- rep(1,length(ps_df$chrA))
 ps_df<- ps_df %>%
-  gather_set_data(1:3)
+  gather_set_data(1:2)
 ps_df
 #plot
-ps <- (ggplot(data =ps_df, aes(chrA, id=id, split = chrB, value = 1))
+ps <- (ggplot(data =ps_df, aes(x, id=id, split = chrB, value = 1))
        #  + geom_parallel_sets(aes(fill = U00096000))
-       + geom_parallel_sets()
+       + geom_parallel_sets(alpha = 0.8)
 #       + scale_fill_manual(values = c("#2E294E","#BEBEBE"))
        #  + geom_parallel_sets(aes(fill = U00096 ))
-       + xlab("test") 
-       + ylab("Genomic Position")
+       + xlab("") 
+       + ylab("")
        + coord_flip()
 #       + scale_x_discrete(expand = c(0,0))
 #       + theme(legend.title=element_blank())
+      + geom_parallel_sets_axes(axis.width = 0.1)
+      + geom_parallel_sets_labels(
+        color = 'white',
+#        family = dviz_font_family,
+        size = 10/.pt,
+        angle = 0
+      )
+      + theme(axis.text.x = element_blank(),
+              axis.ticks.x = element_blank(),
+              axis.text.y = element_blank(),
+              axis.ticks.y = element_blank(),
+              axis.line = element_blank(),
+              panel.background = element_rect(color = "white"))
 )
 ps
 
