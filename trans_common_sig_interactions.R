@@ -6,25 +6,19 @@
 #            github: https://github.com/dlato
 ######
 # arguments: 3Dflow output data
-#            first interacting region bed file (tab separated)
-#            second interacting region bed file (tab separated)
-#            type of analysis/plot title. (words must be separated by underscore "_")
-# NOTE: at the moment only ONE interacting region can be searched at a time
-#       i.e. chrA:1-10 interacting with chrB:40-50
 ########################################
 
 options(echo=F)
 args <- commandArgs(trailingOnly = TRUE)
 dat_file <- args[1]
-roi1_file <- args[2]
-roi2_file <- args[3]
 Atype <- args[4]
 
 ##########
 library(dplyr)
 library(tidyr)
-library(GenomicRanges)
+#library(GenomicRanges)
 library(ggplot2)
+library(ggforce)
 ##########
 
 #########################################################################
@@ -62,13 +56,63 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 print("#read in files")
 #interaction data
 #Atype <- "1_vs_All"
-#dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
-#dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
+dat <- read.table("test_pairwise_dat.txt", header = TRUE)
 dat <- read.table(dat_file, header = TRUE)
 dat <- as.data.frame(dat)
 print("summary of ALL sig zscores per cell type")
 summary(dat)
-head(dat)
+dat$ID <- as.character(dat$ID)
+
+#remove interactions involving x and y chrs
+#dat <- dat[grep("chrY", df$ID, invert=TRUE), ]
+#dat2 <- dat[grep("chrY", df$ID), ]
+#dat <- dat[grep("chrX", df$ID, invert=TRUE), ]
+
+#select only rows with NO NAs in any cell type
+df <- na.omit(dat)
+print("percent of ALL common interactions across genome")
+(length(df$ID)/length(dat$ID)) *100
+
+
+#prep data for parallel sets plot
+#split ID col
+colnm <- c("chrA", "st1", "end1","chrB","st2","end2")
+df$ID <- sub("B", "\\.B", as.character(df$ID))
+dat2 <- df %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
+#remove A and B from chrom names
+dat2$chrA <- gsub("A", "", dat2$chrA)
+dat2$chrB <- gsub("B", "", dat2$chrB)
+ps_df <- dat2 %>% select(chrA, chrB)
+ps_df <- unique(ps_df)
+ps_df$fake <- rep(1,length(ps_df$chrA))
+ps_df<- ps_df %>%
+  gather_set_data(1:3)
+ps_df
+#plot
+ps <- (ggplot(data =ps_df, aes(chrA, id=id, split = chrB, value = 1))
+       #  + geom_parallel_sets(aes(fill = U00096000))
+       + geom_parallel_sets()
+#       + scale_fill_manual(values = c("#2E294E","#BEBEBE"))
+       #  + geom_parallel_sets(aes(fill = U00096 ))
+       + xlab("test") 
+       + ylab("Genomic Position")
+       + coord_flip()
+#       + scale_x_discrete(expand = c(0,0))
+#       + theme(legend.title=element_blank())
+)
+ps
+
+
+data <- reshape2::melt(Titanic)
+head(data)
+data <- gather_set_data(data, 1:4)
+tail(data)
+
+
+
+
+
+
 #roi1
 #roi1 <- read.table("CISTR.bed", header = FALSE)
 #roi1 <- read.table("FIRRE.bed", header = FALSE)
