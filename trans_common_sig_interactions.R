@@ -19,6 +19,8 @@ library(tidyr)
 #library(GenomicRanges)
 library(ggplot2)
 library(ggforce)
+##remotes::install_github("R-CoderDotCom/ridgeline@main")
+library(ridgeline)
 ##########
 
 #########################################################################
@@ -84,13 +86,35 @@ dat2$chrA <- gsub("A", "", dat2$chrA)
 dat2$chrB <- gsub("B", "", dat2$chrB)
 ps_df <- dat2 %>% select(chrA, chrB)
 ps_df <- unique(ps_df)
+ps_df$chrA <- as.factor(ps_df$chrA)
+ps_df$chrB <- as.factor(ps_df$chrB)
+#re-order chroms based on chrom len
+chrs_len_ord <- c("chr1","chr2",
+                  "chr3","chr4",
+                  "chr5","chr6",
+                  "chr7","chrX",
+                  "chr8","chr9",
+                  "chr11","chr10",
+                  "chr12","chr13",
+                  "chr14","chr15",
+                  "chr16","chr17",
+                  "chr18","chr20",
+                  "chr19","chrY",
+                  "chr22","chr21")
+levels(ps_df$chrB)
+ps_df$chrA <- factor(ps_df$chrA, levels=chrs_len_ord)
+ps_df$chrB <- factor(ps_df$chrB, levels=chrs_len_ord)
 ps_df<- ps_df %>%
   gather_set_data(1:2)
 ps_df
+
+
+
+
 #plot
-ps <- (ggplot(data =ps_df, aes(x, id=id, split = chrB, value = 1))
+ps <- (ggplot(data =ps_df, aes(x, id=id, split = y, value = 1))
        #  + geom_parallel_sets(aes(fill = U00096000))
-       + geom_parallel_sets(alpha = 0.8)
+       + geom_parallel_sets(alpha = 0.8, fill ="grey")
 #       + scale_fill_manual(values = c("#2E294E","#BEBEBE"))
        #  + geom_parallel_sets(aes(fill = U00096 ))
        + xlab("") 
@@ -103,6 +127,7 @@ ps <- (ggplot(data =ps_df, aes(x, id=id, split = chrB, value = 1))
         color = 'white',
 #        family = dviz_font_family,
         size = 10/.pt,
+        background = "blue",
         angle = 0
       )
       + theme(axis.text.x = element_blank(),
@@ -112,14 +137,19 @@ ps <- (ggplot(data =ps_df, aes(x, id=id, split = chrB, value = 1))
               axis.line = element_blank(),
               panel.background = element_rect(color = "white"))
 )
+pdf("parallel_sets_common_interactions_all_cells.pdf", width = 14, height = 8)
 ps
+dev.off()
 
 
 data <- reshape2::melt(Titanic)
 head(data)
 data <- gather_set_data(data, 1:4)
 tail(data)
-
+ggplot(data, aes(x, id = id, split = y, value = value)) +
+  geom_parallel_sets(aes(fill = Sex), alpha = 0.3, axis.width = 0.1) +
+  geom_parallel_sets_axes(axis.width = 0.1) +
+  geom_parallel_sets_labels(colour = 'white')
 
 
 
