@@ -107,7 +107,7 @@ chrs_len_ord <- c("chr1","chr2",
                   "chr19","chrY",
                   "chr22","chr21")
 r_dat$chrA <- factor(r_dat$chrA, levels=chrs_len_ord)
-r_dat$chrB <- factor(ps_df$chrB, levels=chrs_len_ord)
+r_dat$chrB <- factor(r_dat$chrB, levels=chrs_len_ord)
 r_dat$st1 <- as.numeric(as.character(r_dat$st1))
 r_dat$st2 <- as.numeric(as.character(r_dat$st2))
 #counting each interaction twice (once for each chrom in interaction)
