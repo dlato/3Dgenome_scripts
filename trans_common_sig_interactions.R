@@ -18,8 +18,11 @@ library(dplyr)
 library(tidyr)
 #library(GenomicRanges)
 library(ggplot2)
-library(ggforce)
-library(ggridges)
+library(ggforce)#for ridgeline
+library(ggridges)#for ridgeline
+library(ggbiplot)#for PCA
+library(devtools)#for PCA
+#install_github("vqv/ggbiplot")
 ##remotes::install_github("R-CoderDotCom/ridgeline@main")
 #library(ridgeline)
 ##########
@@ -86,7 +89,36 @@ dat2 <- df %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
 #remove A and B from chrom names
 dat2$chrA <- gsub("A", "", dat2$chrA)
 dat2$chrB <- gsub("B", "", dat2$chrB)
-head(dat2)
+
+# PCA 
+pca_dat <- dat2 %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2)
+row.names(pca_dat) <- pca_dat$ID
+pca_dat <- pca_dat %>% select(-ID)
+head(pca_dat)
+pca_dat <- as.data.frame(t(pca_dat))
+commonInter.pca <- prcomp(pca_dat[,c(2:ncol(pca_dat))], center = TRUE,scale. = TRUE)
+summary(commonInter.pca)
+commonInter.pca
+cells <- colnames(pca_dat)
+cells <- cells[-c(1:7)]
+ggbiplot(commonInter.pca)
+g <- (ggbiplot(commonInter.pca,
+              obs.scale = 1,
+              var.axes=FALSE,
+              var.scale = 1,
+              labels = row.names(pca_dat),
+#              groups = row.names(pca_dat),
+              ellipse = TRUE,
+#              circle = TRUE,
+#              ellipse.prob = 0.68
+      )
+      + labs(title = "Common Trans-chromosomal Interactions")
+)
+pdf("zscore_PCA_common_interactions_all_cells.pdf", width = 14, height = 8)
+g
+dev.off()
+
+
 
 #ridgeline plot of all chroms and number of interactions per genomic region
 #wide to long format
