@@ -59,7 +59,7 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 print("#read in files")
 #interaction data
 #Atype <- "1_vs_All"
-#dat <- read.table("test_pairwise_dat.txt", header = TRUE)
+dat <- read.table("test_pairwise_dat.txt", header = TRUE)
 dat <- read.table(dat_file, header = TRUE)
 dat <- as.data.frame(dat)
 print("summary of ALL sig zscores per cell type")
@@ -124,12 +124,27 @@ p <- (ggplot(r_dat2, aes(x = AllSt, y = AllChr))
   + geom_density_ridges(scale = 4, alpha = 0.3) 
   + labs(x="Genomic Position [10Mb]",
          y="",
-         title = "Location of Common Interactions")
+         title = "Location of Common Trans-chromosomal Interactions")
 #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
   + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
   + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
 )
 pdf("chr_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
+p
+dev.off()
+
+#ridgeline of all zscores (in all chroms) across cell types
+head(r_dat2)
+p <- (ggplot(r_dat2, aes(x = zscore, y = cell))
+      + geom_density_ridges(scale = 4, alpha = 0.3) 
+      + labs(x="z-score",
+             y="Cell",
+             title = "z-scores of Common Trans-chromosomal Interactions")
+      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
+      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
+      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+)
+pdf("zscore_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
 p
 dev.off()
 
