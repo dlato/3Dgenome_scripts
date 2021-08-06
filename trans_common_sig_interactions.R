@@ -63,7 +63,7 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 print("#read in files")
 #interaction data
 #Atype <- "1_vs_All"
-#dat <- read.table("test_pairwise_dat.txt", header = TRUE)
+dat <- read.table("test_pairwise_dat.txt", header = TRUE)
 dat <- read.table(dat_file, header = TRUE)
 dat <- as.data.frame(dat)
 print("summary of ALL sig zscores per cell type")
@@ -105,8 +105,8 @@ g <- (ggbiplot(commonInter.pca,
               labels = row.names(pca_dat),
 #              groups = row.names(pca_dat),
               ellipse = TRUE,
-#              circle = TRUE,
-#              ellipse.prob = 0.68
+              circle = TRUE,
+              ellipse.prob = 0.68
       )
       + labs(title = "Common Trans-chromosomal Interactions")
 )
@@ -134,8 +134,9 @@ chrs_len_ord <- c("chr1","chr2",
                   "chr18","chr20",
                   "chr19","chrY",
                   "chr22","chr21")
-r_dat$chrA <- factor(r_dat$chrA, levels=chrs_len_ord)
-r_dat$chrB <- factor(r_dat$chrB, levels=chrs_len_ord)
+rev_chrs_len_ord <- rev(chrs_len_ord)
+r_dat$chrA <- factor(r_dat$chrA, levels=rev_chrs_len_ord)
+r_dat$chrB <- factor(r_dat$chrB, levels=rev_chrs_len_ord)
 r_dat$st1 <- as.numeric(as.character(r_dat$st1))
 r_dat$st2 <- as.numeric(as.character(r_dat$st2))
 #counting each interaction twice (once for each chrom in interaction)
@@ -164,7 +165,8 @@ dev.off()
 #ridgeline of all zscores (in all chroms) across cell types
 head(r_dat2)
 p <- (ggplot(r_dat2, aes(x = zscore, y = cell))
-      + geom_density_ridges(scale = 4, alpha = 0.3) 
+      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=4, quantiles = 2)
+      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
       + labs(x="z-score",
              y="Cell",
              title = "z-scores of Common Trans-chromosomal Interactions")
@@ -177,12 +179,14 @@ p
 dev.off()
 
 #heatmap of common interactions z-scores by cell type and chromosome
+r_dat2$AllChr <- gsub("chr","",r_dat2$AllChr)
 hm <- (ggplot(r_dat2, aes(AllChr, cell))
        + geom_tile(aes(fill = zscore), colour = "white")
        + scale_fill_gradient(low = "white", high = "steelblue", name = "z-score")
-       + labs(x = "",
+       + labs(x = "Chromosome",
               y = "Cell",
               title = "Common Trans-chromosomal Interactions z-scores")
+#       + theme(axis.text.x = element_text(angle = 90))
 )
 pdf("zscore_heatmap_common_interactions_chroms_all_cells.pdf", width = 14, height = 8)
 hm
@@ -194,8 +198,9 @@ ps_df <- unique(ps_df)
 ps_df$chrA <- as.factor(ps_df$chrA)
 ps_df$chrB <- as.factor(ps_df$chrB)
 #re-order chroms based on chrom len
-ps_df$chrA <- factor(ps_df$chrA, levels=chrs_len_ord)
-ps_df$chrB <- factor(ps_df$chrB, levels=chrs_len_ord)
+ps_df$chrA <- factor(ps_df$chrA, levels=rev_chrs_len_ord)
+ps_df$chrB <- factor(ps_df$chrB, levels=rev_chrs_len_ord)
+ps_df <- as.data.frame(cbind(as.character(ps_df$chrB),as.character(ps_df$chrA)))
 ps_df<- ps_df %>%
   gather_set_data(1:2)
 #ps_df
