@@ -208,7 +208,7 @@ ps_df<- ps_df %>%
 #plot parallel sets
 ps <- (ggplot(data =ps_df, aes(x, id=id, split = y, value = 1))
        #  + geom_parallel_sets(aes(fill = U00096000))
-       + geom_parallel_sets(alpha = 0.8, fill ="grey")
+       + geom_parallel_sets(alpha = 0.8, fill ="#cbc0d3")
 #       + scale_fill_manual(values = c("#2E294E","#BEBEBE"))
        #  + geom_parallel_sets(aes(fill = U00096 ))
        + xlab("") 
@@ -216,12 +216,11 @@ ps <- (ggplot(data =ps_df, aes(x, id=id, split = y, value = 1))
        + coord_flip()
 #       + scale_x_discrete(expand = c(0,0))
 #       + theme(legend.title=element_blank())
-      + geom_parallel_sets_axes(axis.width = 0.1)
+      + geom_parallel_sets_axes(axis.width = 0.1, fill = "grey90", color = "black")
       + geom_parallel_sets_labels(
-        color = 'white',
+        color = 'black',
 #        family = dviz_font_family,
         size = 10/.pt,
-        background = "blue",
         angle = 0
       )
       + theme(axis.text.x = element_blank(),
