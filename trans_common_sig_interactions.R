@@ -180,9 +180,14 @@ dev.off()
 
 #heatmap of common interactions z-scores by cell type and chromosome
 r_dat2$AllChr <- gsub("chr","",r_dat2$AllChr)
+r_dat2$AllChr <- as.factor(r_dat2$AllChr)
+#calculate mean zscore per chrom per cell type so heat map is accutate
+hm_dat = r_dat2 %>% group_by(AllChr,cell) %>% dplyr::summarize(mzscore=mean(zscore))
 hm <- (ggplot(r_dat2, aes(AllChr, cell))
+#hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
+#       + geom_tile(aes(fill = mzscore), colour = "white")
        + geom_tile(aes(fill = zscore), colour = "white")
-       + scale_fill_gradient(low = "white", high = "steelblue", name = "z-score")
+       + scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
        + labs(x = "Chromosome",
               y = "Cell",
               title = "Common Trans-chromosomal Interactions z-scores")
