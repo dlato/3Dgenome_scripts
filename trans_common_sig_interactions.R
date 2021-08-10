@@ -63,7 +63,7 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 print("#read in files")
 #interaction data
 #Atype <- "1_vs_All"
-dat <- read.table("test_pairwise_dat.txt", header = TRUE)
+#dat <- read.table("test_pairwise_dat.txt", header = TRUE)
 dat <- read.table(dat_file, header = TRUE)
 dat <- as.data.frame(dat)
 print("summary of ALL sig zscores per cell type")
