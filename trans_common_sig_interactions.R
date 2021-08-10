@@ -150,7 +150,7 @@ r_dat2 <- rbind(anchD,tarD)
 #scale genomic position by 10Mb
 r_dat2$AllSt <- r_dat2$AllSt/10000000
 p <- (ggplot(r_dat2, aes(x = AllSt, y = AllChr))
-  + geom_density_ridges(scale = 4, alpha = 0.3) 
+  + stat_density_ridges(scale = 2, alpha = 0.3,) 
   + labs(x="Genomic Position [10Mb]",
          y="",
          title = "Location of Common Trans-chromosomal Interactions")
@@ -165,7 +165,7 @@ dev.off()
 #ridgeline of all zscores (in all chroms) across cell types
 head(r_dat2)
 p <- (ggplot(r_dat2, aes(x = zscore, y = cell))
-      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=4, quantiles = 2)
+      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
       #+ geom_density_ridges(scale = 4, alpha = 0.3) 
       + labs(x="z-score",
              y="Cell",
