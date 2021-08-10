@@ -184,11 +184,11 @@ chrInf2$chrom <- factor(chrInf2$chrom, levels=rev_chrs_len_ord)
 chrInf2$centromere <- chrInf2$centromere/10000000
 #chrInf2$chrom <-gsub("chr","",chrInf2$chrom)
 colnames(chrInf2) <- c("AllChr","centromere","chrClass")
-chrInf2 <- chrInf2 %>% filter(AllChr %in% r_dat2$AllChr)
+#chrInf2 <- chrInf2 %>% filter(AllChr %in% r_dat2$AllChr)
 p <- (ggplot(r_dat2, aes(x = AllSt, y = AllChr))
-  + stat_density_ridges(scale = 2, alpha = 0.3,) 
+  + geom_density_ridges(scale = 2, alpha = 0.3) 
   + geom_segment(data = chrInf2, aes(x=centromere, xend=centromere, 
-                                     y=as.numeric(AllChr), yend=as.numeric(AllChr)+ .9),
+                                     y=as.numeric(AllChr), yend=as.numeric(AllChr) +0.9),
                 color = "red")
   + labs(x="Genomic Position [10Mb]",
          y="",
