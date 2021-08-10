@@ -135,7 +135,7 @@ chrs_len_ord <- c("chr1","chr2",
                   "chr19","chrY",
                   "chr22","chr21")
 rev_chrs_len_ord <- rev(chrs_len_ord)
-#chrom info: centromere, chrom class
+#chrom info: centromere (midpoint calculated from UCSC, aprox), chrom class
 chrInf <- data.frame( chrom = chrs_len_ord,
                       centromere = c(123252373.5,93787431.5,
                                      90856062,50074452.5,
@@ -163,6 +163,7 @@ chrInf <- data.frame( chrom = chrs_len_ord,
                                    "Acrocentric","Acrocentric")
   
 )
+chrInf
 r_dat$chrA <- factor(r_dat$chrA, levels=rev_chrs_len_ord)
 r_dat$chrB <- factor(r_dat$chrB, levels=rev_chrs_len_ord)
 r_dat$st1 <- as.numeric(as.character(r_dat$st1))
@@ -177,8 +178,18 @@ tarD$AllSt <- tarD$st2
 r_dat2 <- rbind(anchD,tarD)
 #scale genomic position by 10Mb
 r_dat2$AllSt <- r_dat2$AllSt/10000000
+head(r_dat2)
+chrInf2 <- chrInf
+chrInf2$chrom <- factor(chrInf2$chrom, levels=rev_chrs_len_ord)
+chrInf2$centromere <- chrInf2$centromere/10000000
+#chrInf2$chrom <-gsub("chr","",chrInf2$chrom)
+colnames(chrInf2) <- c("AllChr","centromere","chrClass")
+chrInf2 <- chrInf2 %>% filter(AllChr %in% r_dat2$AllChr)
 p <- (ggplot(r_dat2, aes(x = AllSt, y = AllChr))
   + stat_density_ridges(scale = 2, alpha = 0.3,) 
+  + geom_segment(data = chrInf2, aes(x=centromere, xend=centromere, 
+                                     y=as.numeric(AllChr), yend=as.numeric(AllChr)+ .9),
+                color = "red")
   + labs(x="Genomic Position [10Mb]",
          y="",
          title = "Location of Common Trans-chromosomal Interactions")
