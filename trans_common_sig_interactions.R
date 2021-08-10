@@ -135,6 +135,34 @@ chrs_len_ord <- c("chr1","chr2",
                   "chr19","chrY",
                   "chr22","chr21")
 rev_chrs_len_ord <- rev(chrs_len_ord)
+#chrom info: centromere, chrom class
+chrInf <- data.frame( chrom = chrs_len_ord,
+                      centromere = c(123252373.5,93787431.5,
+                                     90856062,50074452.5,
+                                     48585285.5,60557102.5,
+                                     60058972.5,61016889,
+                                     45249872,43893383.5,
+                                     53454152,39800499.5,
+                                     35764400,17692000.5,
+                                     17117352,19037747.5,
+                                     36878628.5,25067566.5,
+                                     18464134,28099979.5,
+                                     26161912,10470308,
+                                     15520235.5,11917946),
+                      chrClass = c("Metacentric","Metacentric",
+                                   "Metacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Acrocentric",
+                                   "Acrocentric","Acrocentric",
+                                   "Metacentric","Submetacentric",
+                                   "Submetacentric","Metacentric",
+                                   "Metacentric","Acrocentric",
+                                   "Acrocentric","Acrocentric")
+  
+)
 r_dat$chrA <- factor(r_dat$chrA, levels=rev_chrs_len_ord)
 r_dat$chrB <- factor(r_dat$chrB, levels=rev_chrs_len_ord)
 r_dat$st1 <- as.numeric(as.character(r_dat$st1))
