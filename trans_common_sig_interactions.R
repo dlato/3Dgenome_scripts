@@ -351,12 +351,25 @@ totInter <- pair_dat %>%
   select(pair, ID) %>%
   group_by(pair) %>%
   dplyr::summarise(n = n())
-totInter
-
+#df with total number of common interactions per chrom pair
+commonInter <- gather(dat2, cell, zscore, 8:ncol(dat2), factor_key=TRUE)
+#new col for chrom pair
+commonInter$pair <- paste0(commonInter$chrA,commonInter$chrB)
+commonInter <- commonInter %>%
+  select(pair, ID) %>%
+  group_by(pair) %>%
+  dplyr::summarise(n = n())
+#df combining above 2 dfs
+prop_pairAll <- totInter
+prop_pairAll$commonInter <- prop_pairAll$n
+colnames(prop_pairAll) <- c("chrom", "totInter","commonInter")
+prop_pairAll$commonInter <- as.numeric(commonInter$n[match(prop_pairAll$chrom, commonInter$pair)])
+prop_pairAll$commonInter[is.na(prop_pairAll$commonInter)] <- 0
+prop_pairAll$percent <- (prop_pairAll$commonInter/prop_pairAll$totInter)*100 
+prop_pairAll$chrom <- as.factor(prop_pairAll$chrom)
+print("# chromosome pair(s) with highest (proportional) number of interactions")
+prop_pairAll[which(prop_pairAll$percent == max(prop_pairAll$percent)),]
 #################
-
-
-
 
 #################
 #heatmap of common interactions z-scores by cell type and chromosome
