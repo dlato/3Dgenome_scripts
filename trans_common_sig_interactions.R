@@ -91,7 +91,9 @@ dat2 <- df %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
 dat2$chrA <- gsub("A", "", dat2$chrA)
 dat2$chrB <- gsub("B", "", dat2$chrB)
 
+#################
 # PCA 
+#################
 pca_dat <- dat2 %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2)
 row.names(pca_dat) <- pca_dat$ID
 pca_dat <- pca_dat %>% select(-ID)
@@ -113,10 +115,11 @@ g <- (ggbiplot(commonInter.pca,
 pdf("zscore_PCA_common_interactions_all_cells.pdf", width = 14, height = 8)
 g
 dev.off()
+#################
 
-
-
+#################
 #ridgeline plot of all chroms and number of interactions per genomic region
+#################
 #wide to long format
 r_dat <- gather(dat2, cell, zscore, 8:ncol(dat2), factor_key=TRUE)
 head(r_dat)
@@ -160,7 +163,19 @@ chrInf <- data.frame( chrom = chrs_len_ord,
                                    "Metacentric","Submetacentric",
                                    "Submetacentric","Metacentric",
                                    "Metacentric","Acrocentric",
-                                   "Acrocentric","Acrocentric")
+                                   "Acrocentric","Acrocentric"),
+                      size = c(249300000,243200000,
+                               198000000,191200000,
+                               180900000,171100000,
+                               159100000,155300000,
+                               146400000,141200000,
+                               135000000,135500000,
+                               133900000,115200000,
+                               107300000,102500000,
+                               90400000,81200000,
+                               78100000,63000000,
+                               59100000,59400000,
+                               51300000,48100000)
   
 )
 chrInf
@@ -216,8 +231,11 @@ p <- (ggplot(r_dat2, aes(x = zscore, y = cell))
 pdf("zscore_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
 p
 dev.off()
+#################
 
+#################
 #common interactions z-scores broken down by chrom class
+#################
 chrClass_dat <- r_dat2
 #add metacentric chrom info to df
 chrClass_dat$chrClass <- chrClass_dat$AllChr
@@ -265,9 +283,84 @@ p <- (ggplot(chrClass_dat, aes(y = cell, x = zscore))
 pdf("chrClass_cell_facet_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
 p
 dev.off()
+#################
+
+#################
+#proportional interactions per chrom
+#################
+prop_dat <- r_dat2
+#re-format all interactions df
+#split ID col
+dat$ID <- sub("B", "\\.B", as.character(dat$ID))
+dat <- dat %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
+#remove A and B from chrom names
+dat$chrA <- gsub("A", "", dat$chrA)
+dat$chrB <- gsub("B", "", dat$chrB)
+dat_long <- gather(dat, cell, zscore, 8:ncol(dat2), factor_key=TRUE)
+#counting each interaction twice (once for each chrom in interaction)
+anchD <- dat_long
+anchD$AllChr <- anchD$chrA
+anchD$AllSt <- anchD$st1
+tarD <- dat_long
+tarD$AllChr <- tarD$chrB
+tarD$AllSt <- tarD$st2
+dat_long2 <- rbind(anchD,tarD)
+#scale genomic position by 10Mb
+dat_long2$AllSt <- as.numeric(as.character(dat_long2$AllSt))/10000000
+#df with total number of interactions per chrom
+totInter <- dat_long2 %>%
+  select(AllChr, ID) %>%
+  group_by(AllChr) %>%
+  dplyr::summarise(n = n())
+totInter$AllChr <- factor(totInter$AllChr, levels=rev_chrs_len_ord)
+#df with total number of common interactions per chrom
+commonInter <- prop_dat %>%
+  select(AllChr, ID) %>%
+  group_by(AllChr) %>%
+  dplyr::summarise(n = n())
+commonInter$AllChr <- factor(commonInter$AllChr, levels=rev_chrs_len_ord)
+#df combining above 2 dfs
+prop_datAll <- totInter
+prop_datAll$commonInter <- prop_datAll$n
+colnames(prop_datAll) <- c("chrom", "totInter","commonInter")
+prop_datAll$commonInter <- as.numeric(commonInter$n[match(prop_datAll$chrom, commonInter$AllChr)])
+prop_datAll$commonInter[is.na(prop_datAll$commonInter)] <- 0
+prop_datAll$percent <- (prop_datAll$commonInter/prop_datAll$totInter)*100 
+prop_datAll$chrom <- as.factor(prop_datAll$chrom)
+prop_datAll$chrom <- as.factor(gsub("chr","", prop_datAll$chrom))
+chrs_len_ord_num <- gsub("chr","",chrs_len_ord)
+prop_datAll$chrom <- factor(prop_datAll$chrom, levels=chrs_len_ord_num)
+levels(prop_datAll$chrom)
+#plot
+p <- (ggplot(prop_datAll, aes(y = percent,x=chrom))
+      + geom_bar(fill="grey90", color="black", stat = "identity")
+      + labs(y="Percent of Total Interactions [%]",
+             x="Chromosome",
+             title = "Percentage of Common Trans-chromosomal Interactions per Chromosome")
+)
+pdf("proportion_per_chrom_common_interactions_all_cells.pdf", width = 14, height = 8)
+p
+dev.off()
+
+#proportional interactions per chrom pair
+pair_dat <- dat_long
+#new col for chrom pair
+pair_dat$pair <- paste0(pair_dat$chrA,pair_dat$chrB)
+#df with total number of interactions per chrom pair
+totInter <- pair_dat %>%
+  select(pair, ID) %>%
+  group_by(pair) %>%
+  dplyr::summarise(n = n())
+totInter
+
+#################
 
 
+
+
+#################
 #heatmap of common interactions z-scores by cell type and chromosome
+#################
 r_dat2$AllChr <- gsub("chr","",r_dat2$AllChr)
 r_dat2$AllChr <- as.factor(r_dat2$AllChr)
 #calculate mean zscore per chrom per cell type so heat map is accutate
@@ -285,7 +378,11 @@ hm <- (ggplot(r_dat2, aes(AllChr, cell))
 pdf("zscore_heatmap_common_interactions_chroms_all_cells.pdf", width = 14, height = 8)
 hm
 dev.off()
+#################
 
+#################
+#parallel sets
+#################
 #prep data for parallel sets plot
 ps_df <- dat2 %>% select(chrA, chrB)
 ps_df <- unique(ps_df)
@@ -327,4 +424,5 @@ ps <- (ggplot(data =ps_df, aes(x, id=id, split = y, value = 1))
 pdf("parallel_sets_common_interactions_all_cells.pdf", width = 14, height = 8)
 ps
 dev.off()
+#################
 
