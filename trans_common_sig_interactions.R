@@ -217,6 +217,56 @@ pdf("zscore_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8
 p
 dev.off()
 
+#common interactions z-scores broken down by chrom class
+chrClass_dat <- r_dat2
+#add metacentric chrom info to df
+chrClass_dat$chrClass <- chrClass_dat$AllChr
+chrClass_dat$chrClass <- chrInf$chrClass[match(chrClass_dat$AllChr, chrInf$chrom)]
+head(chrClass_dat)
+p <- (ggplot(chrClass_dat, aes(x = chrClass, y = zscore))
+      + geom_violin(fill="grey90")
+#      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
+#      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
+      + labs(y="z-score",
+             x="Chromosome Class",
+             title = "z-scores of Common Trans-chromosomal Interactions")
+#      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
+#      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
+#      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+)
+pdf("chrClass_violin_common_interactions_all_cells.pdf", width = 14, height = 8)
+p
+dev.off()
+#with cell info
+#p <- (ggplot(chrClass_dat, aes(y = cell, x = zscore))
+#      + geom_violin(fill="grey90")
+#      #      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
+#      #      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
+#      + facet_grid(.~ chrClass)
+#      + labs(x="z-score",
+#             y="Cell",
+#             title = "z-scores of Common Trans-chromosomal Interactions")
+#      #      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
+#      #      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
+#      #      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+#)
+p <- (ggplot(chrClass_dat, aes(y = cell, x = zscore))
+      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
+      #      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
+      #      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
+      + facet_grid(.~ chrClass)
+      + labs(x="z-score",
+             y="Cell",
+             title = "z-scores of Common Trans-chromosomal Interactions")
+      #      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
+      #      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
+      #      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+)
+pdf("chrClass_cell_facet_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
+p
+dev.off()
+
+
 #heatmap of common interactions z-scores by cell type and chromosome
 r_dat2$AllChr <- gsub("chr","",r_dat2$AllChr)
 r_dat2$AllChr <- as.factor(r_dat2$AllChr)
@@ -277,5 +327,4 @@ ps <- (ggplot(data =ps_df, aes(x, id=id, split = y, value = 1))
 pdf("parallel_sets_common_interactions_all_cells.pdf", width = 14, height = 8)
 ps
 dev.off()
-
 
