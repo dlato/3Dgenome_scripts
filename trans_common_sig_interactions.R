@@ -191,6 +191,22 @@ chrInf <- data.frame( chrom = chrs_len_ord,
                                51300000,48100000)
   
 )
+#re-order chrInf df based on order Phil wants
+p_chr_ord <- c("chr1","chr2",
+               "chr3","chr4",
+               "chr5","chr6",
+               "chr7",
+               "chr8","chr9",
+               "chr11","chr10",
+               "chr12","chr13",
+               "chr14","chr15",
+               "chr16","chr17",
+               "chr18","chr20",
+               "chr19","chr22",
+               "chr21","chrX","chrY")
+chrInf$chrom <- factor(chrInf$chrom, levels=p_chr_ord)
+rev_chrs_len_ord <- rev(p_chr_ord)
+chrs_len_ord <- p_chr_ord
 chrInf
 r_dat$chrA <- factor(r_dat$chrA, levels=rev_chrs_len_ord)
 r_dat$chrB <- factor(r_dat$chrB, levels=rev_chrs_len_ord)
