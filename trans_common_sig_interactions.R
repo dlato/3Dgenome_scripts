@@ -286,7 +286,8 @@ chrClass_dat$chrClass <- chrClass_dat$AllChr
 chrClass_dat$chrClass <- chrInf$chrClass[match(chrClass_dat$AllChr, chrInf$chrom)]
 head(chrClass_dat)
 p <- (ggplot(chrClass_dat, aes(x = chrClass, y = zscore))
-      + geom_violin(fill="grey90")
+      + geom_violin(fill="grey90", scale = "count")#"count" makes width of violins proportional to number of values
+      + geom_boxplot(fill="grey95",width = 0.1,outlier.size=4)
 #      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
 #      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
       + labs(y="z-score",
