@@ -1,0 +1,44 @@
+3Dflow normalized_data name	Germ Layer
+Dorsolateral_Prefrontal_cortex	ectoderm
+Hippocampus	ectoderm
+Cortical.plate_Won	ectoderm
+Germinal_zone_Won	ectoderm
+Neurons_dopaminergic_EspesoGil_arima_rep1	ectoderm
+Glia_Nurr1neg_NeuNneg_Midbrain_EspesoGil_arima_rep1	ectoderm
+NPCs_Dixon_rep1	ectoderm
+Astrocytes_cerebellum_pooled	ectoderm
+HMEC	ectoderm/mesoderm
+Mesendoderm_SC	bipotent
+Mesenchymal_SC	mesoderm
+Trophectoderm_SC	outer layer of blastocyst
+hESC_Dixon	inner cell mass
+hESC_Dekker	inner cell mass
+Adrenal.gland	ectoderm/mesoderm
+Small_bowell	endoderm
+Cardiomyocites_Progenitors_rep1	mesoderm
+Cardiomyocites_Progenitors_rep2	mesoderm
+Cardiomyocites_primitive_rep1	mesoderm
+Cardiomyocites_primitive_rep2	mesoderm
+Cardiomyocites_ventricular_rep1	mesoderm
+Cardiomyocites_ventricular_rep2	mesoderm
+Aorta	mesoderm
+Left_ventricle	mesoderm
+Right_Ventricle	mesoderm
+Liver	endoderm
+Lung	endoderm
+IMR90	endoderm
+Psoas_rep1	mesoderm
+Psoas_rep2	mesoderm
+Bladder_rep1	mesoderm
+Bladder_rep2	mesoderm
+Ovary	mesoderm
+Pancreas_rep1	endoderm
+Pancreas_rep2	endoderm
+Pancreas_rep3	endoderm
+Islet	endoderm
+Spleen	mesoderm
+Keratinocytes_Day0.pooled	ectoderm
+Keratinocytes_Day6.pooled	ectoderm
+Keratinocytes_Day3.rep1	ectoderm
+Keratinocytes_Day3.rep2	ectoderm
+Thymus	endoderm
