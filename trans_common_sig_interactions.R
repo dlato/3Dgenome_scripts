@@ -24,6 +24,7 @@ library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 library(ggbiplot)#for PCA
 library(devtools)#for PCA
+library(harrypotter)
 #install_github("vqv/ggbiplot")
 ##remotes::install_github("R-CoderDotCom/ridgeline@main")
 #library(ridgeline)
@@ -65,7 +66,7 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 print("#read in files")
 #interaction data
 #Atype <- "1_vs_All"
-#dat <- read.table("test_pairwise_dat.txt", header = TRUE)
+dat <- read.table("test_pairwise_dat.txt", header = TRUE)
 dat <- read.table(dat_file, header = TRUE)
 dat <- as.data.frame(dat)
 print("summary of ALL sig zscores per cell type")
@@ -76,6 +77,11 @@ gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
 gl_df <- read.table(germlayer_file, header = TRUE)
 colnames(gl_df) <- c("cell","germLayer")
 summary(gl_df)
+#order of germlayer
+gl_ord <- c("ectoderm", "mesoderm", "endoderm", "bipotent", "ectoderm/mesoderm")
+#gl_colours <- c("#0D3B66","#F4D35E","#F95738","#66999B","#EE964B")
+#darker shades
+gl_colours <- c("#071F36","#F2CB40","#ED2E07","#517A7B","#EA7E1F")
 
 #remove interactions involving x and y chrs
 #dat <- dat[grep("chrY", df$ID, invert=TRUE), ]
@@ -224,13 +230,28 @@ p
 dev.off()
 
 #ridgeline of all zscores (in all chroms) across cell types
+#adding germlayer info
+r_dat2$germL <- r_dat2$cell
+r_dat2$germL <- as.factor(gl_df$germLayer[match(r_dat2$cell, gl_df$cell)])
+#re-order based on gl_ord
+r_dat2$germL <- factor(r_dat2$germL, levels=gl_ord)
+r_dat2 <- r_dat2[order(r_dat2$germL),]
+gl_cell_ord <- unique(r_dat2$cell)
+gl_cell_ord
+r_dat2$cell <- factor(r_dat2$cell, levels=rev(gl_cell_ord))
+#r_dat2 <- r_dat2 %>% mutate(cell = factor(cell,levels=cell))
+levels(r_dat2$germL)
+levels(r_dat2$cell)
 head(r_dat2)
-p <- (ggplot(r_dat2, aes(x = zscore, y = cell))
+p <- (ggplot(r_dat2, aes(x = zscore, y = cell, fill = germL))
       + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
       #+ geom_density_ridges(scale = 4, alpha = 0.3) 
       + labs(x="z-score",
              y="Cell",
-             title = "z-scores of Common Trans-chromosomal Interactions")
+             title = "z-scores of Common Trans-chromosomal Interactions",
+             fill = "Germ Layer")
+      + scale_fill_manual(values = gl_colours)
+#                                     gsub("F", "A", my_colors)))
       #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
       + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
       + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
@@ -275,14 +296,16 @@ dev.off()
 #      #      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
 #      #      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
 #)
-p <- (ggplot(chrClass_dat, aes(y = cell, x = zscore))
+p <- (ggplot(chrClass_dat, aes(y = cell, x = zscore, fill = germL))
       + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
       #      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
       #      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
       + facet_grid(.~ chrClass)
       + labs(x="z-score",
              y="Cell",
-             title = "z-scores of Common Trans-chromosomal Interactions")
+             title = "z-scores of Common Trans-chromosomal Interactions",
+             fill = "Germ Layer")
+      + scale_fill_manual(values = gl_colours)
       #      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
       #      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
       #      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
@@ -393,6 +416,7 @@ hm <- (ggplot(r_dat2, aes(AllChr, cell))
        + labs(x = "Chromosome",
               y = "Cell",
               title = "Common Trans-chromosomal Interactions z-scores")
+#       + facet_wrap(.~germL)
 #       + theme(axis.text.x = element_text(angle = 90))
 )
 pdf("zscore_heatmap_common_interactions_chroms_all_cells.pdf", width = 14, height = 8)
