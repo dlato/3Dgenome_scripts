@@ -5,12 +5,14 @@
 #            email:  daniellalato@gmail.com
 #            github: https://github.com/dlato
 ######
-# arguments: 3Dflow output data
+# arguments: 3Dflow output data (tsv)
+#            germlayer df (tsv)
 ########################################
 
 options(echo=F)
 args <- commandArgs(trailingOnly = TRUE)
 dat_file <- args[1]
+germlayer_file <- args[2]
 #Atype <- args[4]
 
 ##########
@@ -69,6 +71,11 @@ dat <- as.data.frame(dat)
 print("summary of ALL sig zscores per cell type")
 summary(dat)
 dat$ID <- as.character(dat$ID)
+#read in germlayer info file
+gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
+gl_df <- read.table(germlayer_file, header = TRUE)
+colnames(gl_df) <- c("cell","germLayer")
+summary(gl_df)
 
 #remove interactions involving x and y chrs
 #dat <- dat[grep("chrY", df$ID, invert=TRUE), ]
