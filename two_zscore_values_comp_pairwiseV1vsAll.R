@@ -88,11 +88,14 @@ p<-(ggplot(data=cistr_sox_df, aes(x=hESC_o, y=hESC_p))
     + geom_point(size=3, alpha=.3)
     + labs(x = "1vsAll z-score",
            y = "pairwise z-score",
-           title = "pairwise and 1vsAll z-score comparison")
+           title = "hESC Dekker Interactions between chr 12 and chr 17")
     + geom_hline(yintercept = 0, color = "red", linetype = "dashed")
     + geom_vline(xintercept = 0, color = "red", linetype = "dashed")
 )
+pdf("1vsAll_pairwise_zscore_comparison_hESCDekker_chr12chr17.pdf", width = 14, height = 8)
 p
+dev.off()
+
 
 
 
