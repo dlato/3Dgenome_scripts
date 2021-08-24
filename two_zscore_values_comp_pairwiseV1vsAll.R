@@ -62,7 +62,7 @@ head(o_df)
 summary(o_df)
 #subset df
 #o_hESC <- o_df %>% select(ID,Thymus) 
-o_hESC <- o_df %>% select(hESC_Dekker) 
+o_hESC <- o_df %>% select(ID,hESC_Dekker) 
 colnames(o_hESC) <- c("ID", "hESC_o")
 #pairwise
 p_df<-read.table(pairwise, header = TRUE)
@@ -70,7 +70,7 @@ head(p_df)
 summary(p_df)
 #subset df
 #p_hESC <- p_df %>% select(ID,Thymus) 
-p_hESC <- p_df %>% select(hESC_Dekker)
+p_hESC <- p_df %>% select(ID,hESC_Dekker)
 colnames(p_hESC) <- c("ID", "hESC_p")
 head(p_hESC)
 
