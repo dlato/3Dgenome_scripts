@@ -82,6 +82,14 @@ cistr_sox_df <- m_df[grep("chr12", m_df$ID), ]
 #cistr_sox_df <- cistr_sox_df[grep("chr10", cistr_sox_df$ID), ]
 cistr_sox_df <- cistr_sox_df[grep("chr17", cistr_sox_df$ID), ]
 head(cistr_sox_df)
+print("info on the whole dataframe (cistr sox9")
+summary(cistr_sox_df)
+
+print("info on values unique to each calculation (1vsAll or pairwise")
+dfNA <- cistr_sox_df[which(!complete.cases(cistr_sox_df)),]
+head(dfNA)
+summary(dfNA)
+
 
 #plot matching zscores in pairwise and 1vsAll
 p<-(ggplot(data=cistr_sox_df, aes(x=hESC_o, y=hESC_p)) 
