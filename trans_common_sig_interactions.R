@@ -241,9 +241,20 @@ p <- (ggplot(r_dat2, aes(x = AllSt, y = AllChr))
   + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
   + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
 )
+######################################
+# NOTE: THE RIDGELINE PLOT HEIGHT CURRENTLY IS SCALED AMONG ALL Y-AXIS POINTS AND IS THE SAME FOR ALL Y-AXIS POINTS. IT DOES NOT REPRESENT ACTUAL AMOUNTS OF INTERACTIONS
+######################################
 pdf("chr_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
 p
 dev.off()
+##test ridgeline with ACTUAL height representing ACTUAL values of the y-axis
+#d <- data.frame(x = rep(1:5, 3), y = c(rep(0, 5), rep(1, 5), rep(3, 5)),
+#                height = c(0, 1, 3, 4, 0, 1, 2, 3, 5, 4, 0, 5, 4, 4, 1))
+#ggplot(d, aes(x, y, height = height, group = y)) + geom_ridgeline(fill="lightblue")
+#
+
+
+
 
 #ridgeline of all zscores (in all chroms) across cell types
 #adding germlayer info
