@@ -1,5 +1,5 @@
 ########################################
-#validating known trans-chromosomal interactions
+#looking at replicated in 3Dflow pipeline
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com
