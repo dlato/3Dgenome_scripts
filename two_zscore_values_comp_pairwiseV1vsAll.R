@@ -12,6 +12,7 @@ pairwise <- args[2]
 #library(mclust)
 library(dplyr)
 library(ggplot2)
+library(tidyr)
 #library(FSA)
 
 #library(msir)
@@ -69,8 +70,8 @@ p_df<-read.table(pairwise, header = TRUE)
 head(p_df)
 summary(p_df)
 #subset df
-#p_hESC <- p_df %>% select(ID,Thymus) 
-p_hESC <- p_df %>% select(ID,hESC_Dekker)
+p_hESC <- p_df %>% select(ID,Thymus) 
+#p_hESC <- p_df %>% select(ID,hESC_Dekker)
 colnames(p_hESC) <- c("ID", "hESC_p")
 head(p_hESC)
 
@@ -90,21 +91,63 @@ dfNA <- cistr_sox_df[which(!complete.cases(cistr_sox_df)),]
 head(dfNA)
 summary(dfNA)
 
+#new col to colour pts based on where they fall in the graph
+cistr_sox_df$posneg <- rep("black", length(cistr_sox_df$ID))
+cistr_sox_df$posneg[cistr_sox_df$hESC_o > 0 & cistr_sox_df$hESC_p < 0] <- "red"
+cistr_sox_df$posneg[cistr_sox_df$hESC_p > 0 & cistr_sox_df$hESC_o < 0] <- "red"
+cistr_sox_df[which(cistr_sox_df$posneg == "red"),]
+head(cistr_sox_df)
 
 #plot matching zscores in pairwise and 1vsAll
-p<-(ggplot(data=cistr_sox_df, aes(x=hESC_o, y=hESC_p)) 
+p<-(ggplot(data=cistr_sox_df, aes(x=hESC_o, y=hESC_p, color = posneg)) 
     + geom_point(size=3, alpha=.3)
     + labs(x = "1vsAll z-score",
            y = "pairwise z-score",
            title = "hESC Dekker Interactions between chr 12 and chr 17")
     + geom_hline(yintercept = 0, color = "red", linetype = "dashed")
     + geom_vline(xintercept = 0, color = "red", linetype = "dashed")
+    + scale_color_manual(values = unique(cistr_sox_df$posneg))
+    + theme(legend.position = "none")
 )
 pdf("1vsAll_pairwise_zscore_comparison_hESCDekker_chr12chr17.pdf", width = 14, height = 8)
 p
 dev.off()
 
 
+#new cols with start and end positions
+colnm <- c("chrA", "st1", "end1","chrB","st2","end2")
+cistr_sox_df$ID <- sub("B", "\\.B", as.character(cistr_sox_df$ID))
+dat2 <- cistr_sox_df %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
+#remove A and B from chrom names
+dat2$chrA <- gsub("A", "", dat2$chrA)
+dat2$chrB <- gsub("B", "", dat2$chrB)
+#scale starts by 1Mb
+dat2$st1 <- as.numeric(dat2$st1) / 1000000
+dat2$st2 <- as.numeric(dat2$st2) / 1000000
+head(dat2)
+tail(dat2)
+#plot positions of interactions based on zscore colours
+p<-(ggplot(data=dat2, aes(x=st1, y=st2, color = posneg, group = posneg)) 
+    + geom_point(size=3, alpha=.3)
+    + labs(x = "Chromosome 12 Position [Mbp]",
+           y = "Chromosome 17 Position [Mbp]",
+           title = "hESC Dekker Interactions between chr 12 and chr 17")
+    + scale_color_manual(values = unique(dat2$posneg))
+    + theme(legend.position = "none")
+)
+pdf("1vsAll_pairwise_zscore_comparison_hESCDekker_chr12chr17_interaction_pos.pdf", width = 14, height = 8)
+p
+dev.off()
+
+print("# summary of points with opposite signs in 1vsAll or pairwise")
+oppSign <- dat2 %>% filter(posneg == "red")
+summary(oppSign)
+print("# summary of points with POSITIVE 1vsAll and NEGATIVE pairwise")
+oppSign$posneg[oppSign$hESC_o >0 & oppSign$hESC_p <0] <- "Opos"
+oppSign$posneg[oppSign$hESC_p >0 & oppSign$hESC_o <0] <- "Ppos"
+oppSign %>% filter(posneg == "Opos") %>% summary()
+print("# summary of points with POSITIVE pairwise and NEGATIVE 1vsAll")
+oppSign %>% filter(posneg == "Ppos") %>% summary()
 
 
 ###pairwise
