@@ -26,7 +26,7 @@ library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 library(ggbiplot)#for PCA
 library(devtools)#for PCA
-library(harrypotter)
+library(inauguration,, lib="/hpf/largeprojects/pmaass/Daniella/R-lib")
 #install_github("vqv/ggbiplot")
 ##remotes::install_github("R-CoderDotCom/ridgeline@main")
 #library(ridgeline)
@@ -68,6 +68,7 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 print("#read in files")
 #interaction data
 #Atype <- "1_vs_All"
+library(inauguration)
 zscoreFile <- "test_1vsAll_dat.txt"
 pvaluFile <- "test_1vsAll_pvalues.txt"
 datz <- read.table(zscoreFile, header = TRUE)
@@ -283,7 +284,9 @@ dev.off()
 #ridgeline plot of all chroms and number of interactions per genomic region
 #################
 #wide to long format
-r_dat <- gather(dat2, cell, zscore, 8:ncol(dat2), factor_key=TRUE)
+head(dat2)
+r_dat <- dat2
+#r_dat <- gather(dat2, cell, zscore, 8:ncol(dat2), factor_key=TRUE)
 head(r_dat)
 tail(r_dat)
 #re-order chroms based on chrom len
@@ -377,206 +380,206 @@ chrInf2$chrom <- factor(chrInf2$chrom, levels=rev_chrs_len_ord)
 chrInf2$centromere <- chrInf2$centromere/10000000
 #chrInf2$chrom <-gsub("chr","",chrInf2$chrom)
 colnames(chrInf2) <- c("AllChr","centromere","chrClass")
-#chrInf2 <- chrInf2 %>% filter(AllChr %in% r_dat2$AllChr)
-p <- (ggplot(r_dat2, aes(x = AllSt, y = AllChr))
-  + geom_density_ridges(scale = 2, alpha = 0.3) 
-  + geom_segment(data = chrInf2, aes(x=centromere, xend=centromere, 
-                                     y=as.numeric(AllChr), yend=as.numeric(AllChr) +0.9),
-                color = "red")
-  + labs(x="Genomic Position [10Mb]",
-         y="",
-         title = "Location of Common Trans-chromosomal Interactions")
-#  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
-  + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
-  + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
-)
-######################################
-# NOTE: THE RIDGELINE PLOT HEIGHT CURRENTLY IS SCALED AMONG ALL Y-AXIS POINTS AND IS THE SAME FOR ALL Y-AXIS POINTS. IT DOES NOT REPRESENT ACTUAL AMOUNTS OF INTERACTIONS
-######################################
-pdf("chr_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
-p
-dev.off()
-##test ridgeline with ACTUAL height representing ACTUAL values of the y-axis
-#d <- data.frame(x = rep(1:5, 3), y = c(rep(0, 5), rep(1, 5), rep(3, 5)),
-#                height = c(0, 1, 3, 4, 0, 1, 2, 3, 5, 4, 0, 5, 4, 4, 1))
-#ggplot(d, aes(x, y, height = height, group = y)) + geom_ridgeline(fill="lightblue")
-#
+##chrInf2 <- chrInf2 %>% filter(AllChr %in% r_dat2$AllChr)
+#p <- (ggplot(r_dat2, aes(x = AllSt, y = AllChr))
+#  + geom_density_ridges(scale = 2, alpha = 0.3) 
+#  + geom_segment(data = chrInf2, aes(x=centromere, xend=centromere, 
+#                                     y=as.numeric(AllChr), yend=as.numeric(AllChr) +0.9),
+#                color = "red")
+#  + labs(x="Genomic Position [10Mb]",
+#         y="",
+#         title = "Location of Common Trans-chromosomal Interactions")
+##  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
+#  + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
+#  + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+#)
+#######################################
+## NOTE: THE RIDGELINE PLOT HEIGHT CURRENTLY IS SCALED AMONG ALL Y-AXIS POINTS AND IS THE SAME FOR ALL Y-AXIS POINTS. IT DOES NOT REPRESENT ACTUAL AMOUNTS OF INTERACTIONS
+#######################################
+#pdf("chr_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
+#p
+#dev.off()
+###test ridgeline with ACTUAL height representing ACTUAL values of the y-axis
+##d <- data.frame(x = rep(1:5, 3), y = c(rep(0, 5), rep(1, 5), rep(3, 5)),
+##                height = c(0, 1, 3, 4, 0, 1, 2, 3, 5, 4, 0, 5, 4, 4, 1))
+##ggplot(d, aes(x, y, height = height, group = y)) + geom_ridgeline(fill="lightblue")
+##
 
 
 
 
-#ridgeline of all zscores (in all chroms) across cell types
-#adding germlayer info
-r_dat2$germL <- r_dat2$cell
-r_dat2$germL <- as.factor(gl_df$germLayer[match(r_dat2$cell, gl_df$cell)])
-#re-order based on gl_ord
-r_dat2$germL <- factor(r_dat2$germL, levels=gl_ord)
-r_dat2 <- r_dat2[order(r_dat2$germL),]
-gl_cell_ord <- unique(r_dat2$cell)
-gl_cell_ord
-r_dat2$cell <- factor(r_dat2$cell, levels=rev(gl_cell_ord))
-#r_dat2 <- r_dat2 %>% mutate(cell = factor(cell,levels=cell))
-levels(r_dat2$germL)
-levels(r_dat2$cell)
+##ridgeline of all zscores (in all chroms) across cell types
+##adding germlayer info
+#r_dat2$germL <- r_dat2$cell
+#r_dat2$germL <- as.factor(gl_df$germLayer[match(r_dat2$cell, gl_df$cell)])
+##re-order based on gl_ord
+#r_dat2$germL <- factor(r_dat2$germL, levels=gl_ord)
+#r_dat2 <- r_dat2[order(r_dat2$germL),]
+#gl_cell_ord <- unique(r_dat2$cell)
+#gl_cell_ord
+#r_dat2$cell <- factor(r_dat2$cell, levels=rev(gl_cell_ord))
+##r_dat2 <- r_dat2 %>% mutate(cell = factor(cell,levels=cell))
+#levels(r_dat2$germL)
+#levels(r_dat2$cell)
 head(r_dat2)
-p <- (ggplot(r_dat2, aes(x = zscore, y = cell, fill = germL))
+p <- (ggplot(r_dat2, aes(x = zscore, y = cell, fill = cell_noreps))
       + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
       #+ geom_density_ridges(scale = 4, alpha = 0.3) 
       + labs(x="z-score",
              y="Cell",
-             title = "z-scores of Common Trans-chromosomal Interactions",
-             fill = "Germ Layer")
-      + scale_fill_manual(values = gl_colours)
+             title = "z-scores of Trans-chromosomal Interactions",
+             fill = "")
+      + scale_fill_manual(values = inauguration("inauguration_2021"))
 #                                     gsub("F", "A", my_colors)))
       #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
       + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
       + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
 )
-pdf("zscore_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
+pdf("zscore_ridgeline_interactions_all_cells_reps.pdf", width = 14, height = 8)
 p
 dev.off()
 #################
 
-#################
-#common interactions z-scores broken down by chrom class
-#################
-chrClass_dat <- r_dat2
-#add metacentric chrom info to df
-chrClass_dat$chrClass <- chrClass_dat$AllChr
-chrClass_dat$chrClass <- chrInf$chrClass[match(chrClass_dat$AllChr, chrInf$chrom)]
-head(chrClass_dat)
-p <- (ggplot(chrClass_dat, aes(x = chrClass, y = zscore))
-      + geom_violin(fill="grey90", scale = "count")#"count" makes width of violins proportional to number of values
-      + geom_boxplot(fill="grey95",width = 0.1,outlier.size=4)
+##################
+##common interactions z-scores broken down by chrom class
+##################
+#chrClass_dat <- r_dat2
+##add metacentric chrom info to df
+#chrClass_dat$chrClass <- chrClass_dat$AllChr
+#chrClass_dat$chrClass <- chrInf$chrClass[match(chrClass_dat$AllChr, chrInf$chrom)]
+#head(chrClass_dat)
+#p <- (ggplot(chrClass_dat, aes(x = chrClass, y = zscore))
+#      + geom_violin(fill="grey90", scale = "count")#"count" makes width of violins proportional to number of values
+#      + geom_boxplot(fill="grey95",width = 0.1,outlier.size=4)
+##      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
+##      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
+#      + labs(y="z-score",
+#             x="Chromosome Class",
+#             title = "z-scores of Common Trans-chromosomal Interactions")
+##      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
+##      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
+##      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+#)
+#pdf("chrClass_violin_common_interactions_all_cells.pdf", width = 14, height = 8)
+#p
+#dev.off()
+##with cell info
+##p <- (ggplot(chrClass_dat, aes(y = cell, x = zscore))
+##      + geom_violin(fill="grey90")
+##      #      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
+##      #      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
+##      + facet_grid(.~ chrClass)
+##      + labs(x="z-score",
+##             y="Cell",
+##             title = "z-scores of Common Trans-chromosomal Interactions")
+##      #      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
+##      #      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
+##      #      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+##)
+#p <- (ggplot(chrClass_dat, aes(y = cell, x = zscore, fill = germL))
 #      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
-#      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
-      + labs(y="z-score",
-             x="Chromosome Class",
-             title = "z-scores of Common Trans-chromosomal Interactions")
-#      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
-#      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
-#      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
-)
-pdf("chrClass_violin_common_interactions_all_cells.pdf", width = 14, height = 8)
-p
-dev.off()
-#with cell info
-#p <- (ggplot(chrClass_dat, aes(y = cell, x = zscore))
-#      + geom_violin(fill="grey90")
 #      #      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
 #      #      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
 #      + facet_grid(.~ chrClass)
 #      + labs(x="z-score",
 #             y="Cell",
-#             title = "z-scores of Common Trans-chromosomal Interactions")
+#             title = "z-scores of Common Trans-chromosomal Interactions",
+#             fill = "Germ Layer")
+#      + scale_fill_manual(values = gl_colours)
 #      #      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
 #      #      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
 #      #      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
 #)
-p <- (ggplot(chrClass_dat, aes(y = cell, x = zscore, fill = germL))
-      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
-      #      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
-      #      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
-      + facet_grid(.~ chrClass)
-      + labs(x="z-score",
-             y="Cell",
-             title = "z-scores of Common Trans-chromosomal Interactions",
-             fill = "Germ Layer")
-      + scale_fill_manual(values = gl_colours)
-      #      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
-      #      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
-      #      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
-)
-pdf("chrClass_cell_facet_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
-p
-dev.off()
-#################
-
-#################
-#proportional interactions per chrom
-#################
-prop_dat <- r_dat2
-#re-format all interactions df
-#split ID col
-dat$ID <- sub("B", "\\.B", as.character(dat$ID))
-dat <- dat %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
-#remove A and B from chrom names
-dat$chrA <- gsub("A", "", dat$chrA)
-dat$chrB <- gsub("B", "", dat$chrB)
-dat_long <- gather(dat, cell, zscore, 8:ncol(dat2), factor_key=TRUE)
-#counting each interaction twice (once for each chrom in interaction)
-anchD <- dat_long
-anchD$AllChr <- anchD$chrA
-anchD$AllSt <- anchD$st1
-tarD <- dat_long
-tarD$AllChr <- tarD$chrB
-tarD$AllSt <- tarD$st2
-dat_long2 <- rbind(anchD,tarD)
-#scale genomic position by 10Mb
-dat_long2$AllSt <- as.numeric(as.character(dat_long2$AllSt))/10000000
-#df with total number of interactions per chrom
-totInter <- dat_long2 %>%
-  select(AllChr, ID) %>%
-  group_by(AllChr) %>%
-  dplyr::summarise(n = n())
-totInter$AllChr <- factor(totInter$AllChr, levels=rev_chrs_len_ord)
-#df with total number of common interactions per chrom
-commonInter <- prop_dat %>%
-  select(AllChr, ID) %>%
-  group_by(AllChr) %>%
-  dplyr::summarise(n = n())
-commonInter$AllChr <- factor(commonInter$AllChr, levels=rev_chrs_len_ord)
-#df combining above 2 dfs
-prop_datAll <- totInter
-prop_datAll$commonInter <- prop_datAll$n
-colnames(prop_datAll) <- c("chrom", "totInter","commonInter")
-prop_datAll$commonInter <- as.numeric(commonInter$n[match(prop_datAll$chrom, commonInter$AllChr)])
-prop_datAll$commonInter[is.na(prop_datAll$commonInter)] <- 0
-prop_datAll$percent <- (prop_datAll$commonInter/prop_datAll$totInter)*100 
-prop_datAll$chrom <- as.factor(prop_datAll$chrom)
-prop_datAll$chrom <- as.factor(gsub("chr","", prop_datAll$chrom))
-chrs_len_ord_num <- gsub("chr","",chrs_len_ord)
-prop_datAll$chrom <- factor(prop_datAll$chrom, levels=chrs_len_ord_num)
-levels(prop_datAll$chrom)
-#plot
-p <- (ggplot(prop_datAll, aes(y = percent,x=chrom))
-      + geom_bar(fill="grey90", color="black", stat = "identity")
-      + labs(y="Percent of Total Interactions [%]",
-             x="Chromosome",
-             title = "Percentage of Common Trans-chromosomal Interactions per Chromosome")
-)
-pdf("proportion_per_chrom_common_interactions_all_cells.pdf", width = 14, height = 8)
-p
-dev.off()
-
-#proportional interactions per chrom pair
-pair_dat <- dat_long
-#new col for chrom pair
-pair_dat$pair <- paste0(pair_dat$chrA,pair_dat$chrB)
-#df with total number of interactions per chrom pair
-totInter <- pair_dat %>%
-  select(pair, ID) %>%
-  group_by(pair) %>%
-  dplyr::summarise(n = n())
-#df with total number of common interactions per chrom pair
-commonInter <- gather(dat2, cell, zscore, 8:ncol(dat2), factor_key=TRUE)
-#new col for chrom pair
-commonInter$pair <- paste0(commonInter$chrA,commonInter$chrB)
-commonInter <- commonInter %>%
-  select(pair, ID) %>%
-  group_by(pair) %>%
-  dplyr::summarise(n = n())
-#df combining above 2 dfs
-prop_pairAll <- totInter
-prop_pairAll$commonInter <- prop_pairAll$n
-colnames(prop_pairAll) <- c("chrom", "totInter","commonInter")
-prop_pairAll$commonInter <- as.numeric(commonInter$n[match(prop_pairAll$chrom, commonInter$pair)])
-prop_pairAll$commonInter[is.na(prop_pairAll$commonInter)] <- 0
-prop_pairAll$percent <- (prop_pairAll$commonInter/prop_pairAll$totInter)*100 
-prop_pairAll$chrom <- as.factor(prop_pairAll$chrom)
-print("# chromosome pair(s) with highest (proportional) number of interactions")
-prop_pairAll[which(prop_pairAll$percent == max(prop_pairAll$percent)),]
-#################
+#pdf("chrClass_cell_facet_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
+#p
+#dev.off()
+##################
+#
+##################
+##proportional interactions per chrom
+##################
+#prop_dat <- r_dat2
+##re-format all interactions df
+##split ID col
+#dat$ID <- sub("B", "\\.B", as.character(dat$ID))
+#dat <- dat %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
+##remove A and B from chrom names
+#dat$chrA <- gsub("A", "", dat$chrA)
+#dat$chrB <- gsub("B", "", dat$chrB)
+#dat_long <- gather(dat, cell, zscore, 8:ncol(dat2), factor_key=TRUE)
+##counting each interaction twice (once for each chrom in interaction)
+#anchD <- dat_long
+#anchD$AllChr <- anchD$chrA
+#anchD$AllSt <- anchD$st1
+#tarD <- dat_long
+#tarD$AllChr <- tarD$chrB
+#tarD$AllSt <- tarD$st2
+#dat_long2 <- rbind(anchD,tarD)
+##scale genomic position by 10Mb
+#dat_long2$AllSt <- as.numeric(as.character(dat_long2$AllSt))/10000000
+##df with total number of interactions per chrom
+#totInter <- dat_long2 %>%
+#  select(AllChr, ID) %>%
+#  group_by(AllChr) %>%
+#  dplyr::summarise(n = n())
+#totInter$AllChr <- factor(totInter$AllChr, levels=rev_chrs_len_ord)
+##df with total number of common interactions per chrom
+#commonInter <- prop_dat %>%
+#  select(AllChr, ID) %>%
+#  group_by(AllChr) %>%
+#  dplyr::summarise(n = n())
+#commonInter$AllChr <- factor(commonInter$AllChr, levels=rev_chrs_len_ord)
+##df combining above 2 dfs
+#prop_datAll <- totInter
+#prop_datAll$commonInter <- prop_datAll$n
+#colnames(prop_datAll) <- c("chrom", "totInter","commonInter")
+#prop_datAll$commonInter <- as.numeric(commonInter$n[match(prop_datAll$chrom, commonInter$AllChr)])
+#prop_datAll$commonInter[is.na(prop_datAll$commonInter)] <- 0
+#prop_datAll$percent <- (prop_datAll$commonInter/prop_datAll$totInter)*100 
+#prop_datAll$chrom <- as.factor(prop_datAll$chrom)
+#prop_datAll$chrom <- as.factor(gsub("chr","", prop_datAll$chrom))
+#chrs_len_ord_num <- gsub("chr","",chrs_len_ord)
+#prop_datAll$chrom <- factor(prop_datAll$chrom, levels=chrs_len_ord_num)
+#levels(prop_datAll$chrom)
+##plot
+#p <- (ggplot(prop_datAll, aes(y = percent,x=chrom))
+#      + geom_bar(fill="grey90", color="black", stat = "identity")
+#      + labs(y="Percent of Total Interactions [%]",
+#             x="Chromosome",
+#             title = "Percentage of Common Trans-chromosomal Interactions per Chromosome")
+#)
+#pdf("proportion_per_chrom_common_interactions_all_cells.pdf", width = 14, height = 8)
+#p
+#dev.off()
+#
+##proportional interactions per chrom pair
+#pair_dat <- dat_long
+##new col for chrom pair
+#pair_dat$pair <- paste0(pair_dat$chrA,pair_dat$chrB)
+##df with total number of interactions per chrom pair
+#totInter <- pair_dat %>%
+#  select(pair, ID) %>%
+#  group_by(pair) %>%
+#  dplyr::summarise(n = n())
+##df with total number of common interactions per chrom pair
+#commonInter <- gather(dat2, cell, zscore, 8:ncol(dat2), factor_key=TRUE)
+##new col for chrom pair
+#commonInter$pair <- paste0(commonInter$chrA,commonInter$chrB)
+#commonInter <- commonInter %>%
+#  select(pair, ID) %>%
+#  group_by(pair) %>%
+#  dplyr::summarise(n = n())
+##df combining above 2 dfs
+#prop_pairAll <- totInter
+#prop_pairAll$commonInter <- prop_pairAll$n
+#colnames(prop_pairAll) <- c("chrom", "totInter","commonInter")
+#prop_pairAll$commonInter <- as.numeric(commonInter$n[match(prop_pairAll$chrom, commonInter$pair)])
+#prop_pairAll$commonInter[is.na(prop_pairAll$commonInter)] <- 0
+#prop_pairAll$percent <- (prop_pairAll$commonInter/prop_pairAll$totInter)*100 
+#prop_pairAll$chrom <- as.factor(prop_pairAll$chrom)
+#print("# chromosome pair(s) with highest (proportional) number of interactions")
+#prop_pairAll[which(prop_pairAll$percent == max(prop_pairAll$percent)),]
+##################
 
 #################
 #heatmap of common interactions z-scores by cell type and chromosome
@@ -596,54 +599,75 @@ hm <- (ggplot(r_dat2, aes(AllChr, cell))
 #       + facet_wrap(.~germL)
 #       + theme(axis.text.x = element_text(angle = 90))
 )
-pdf("zscore_heatmap_common_interactions_chroms_all_cells.pdf", width = 14, height = 8)
+pdf("zscore_heatmap_interactions_chroms_all_cells_reps.pdf", width = 14, height = 8)
 hm
 dev.off()
 #################
 
 #################
-#parallel sets
+# violin and box plot
 #################
-#prep data for parallel sets plot
-ps_df <- dat2 %>% select(chrA, chrB)
-ps_df <- unique(ps_df)
-ps_df$chrA <- as.factor(ps_df$chrA)
-ps_df$chrB <- as.factor(ps_df$chrB)
-#re-order chroms based on chrom len
-ps_df$chrA <- factor(ps_df$chrA, levels=rev_chrs_len_ord)
-ps_df$chrB <- factor(ps_df$chrB, levels=rev_chrs_len_ord)
-ps_df <- as.data.frame(cbind(as.character(ps_df$chrB),as.character(ps_df$chrA)))
-ps_df<- ps_df %>%
-  gather_set_data(1:2)
-#ps_df
-
-#plot parallel sets
-ps <- (ggplot(data =ps_df, aes(x, id=id, split = y, value = 1))
-       #  + geom_parallel_sets(aes(fill = U00096000))
-       + geom_parallel_sets(alpha = 0.8, fill ="#cbc0d3")
-#       + scale_fill_manual(values = c("#2E294E","#BEBEBE"))
-       #  + geom_parallel_sets(aes(fill = U00096 ))
-       + xlab("") 
-       + ylab("")
-       + coord_flip()
-#       + scale_x_discrete(expand = c(0,0))
-#       + theme(legend.title=element_blank())
-      + geom_parallel_sets_axes(axis.width = 0.1, fill = "grey90", color = "black")
-      + geom_parallel_sets_labels(
-        color = 'black',
-#        family = dviz_font_family,
-        size = 10/.pt,
-        angle = 0
-      )
-      + theme(axis.text.x = element_blank(),
-              axis.ticks.x = element_blank(),
-              axis.text.y = element_blank(),
-              axis.ticks.y = element_blank(),
-              axis.line = element_blank(),
-              panel.background = element_rect(color = "white"))
+head(dat2)
+v <- (ggplot(dat2, aes(y=cell, x=zscore, fill = cell_noreps))
+      + geom_violin(scale = "count")#height of violin proportional to data
+      + geom_boxplot(alpha = 0.4, outlier.shape = NA)
+      + scale_fill_manual(values = inauguration("inauguration_2021"))
+      + labs(x = "z-score",
+         y = "Cell",
+         title = "Trans-chromosomal Interactions z-scores",
+         fill = "")
 )
-pdf("parallel_sets_common_interactions_all_cells.pdf", width = 14, height = 8)
-ps
+pdf("zscore_violin_interactions_reps.pdf", width = 14, height = 8)
+v
 dev.off()
+
 #################
+# Pearson Correlation 
+#################
+head(dat2)
+pcDat <- dat2
+cell_nr <- as.character(unique(pcDat$cell_noreps))
+cor_df <- data.frame(cell=character(),
+                     correlation=numeric(),
+                     value=character(),
+                     stringsAsFactors=FALSE)
+i=as.character(cell_nr[6])
+i
+for(i in cell_nr){
+    tmpD <- pcDat %>% filter(cell_noreps == cell_nr[6])
+    #zscore correlation
+    tmp_zW <- tmpD %>% select(ID,cell, zscore) %>% spread(key=cell, value = zscore)
+    result = cor.test(tmp_zW[,2],tmp_zW[,3] , method = "pearson")
+    cor_val <- round(result$estimate,digits = 2)
+    cor_df <- rbind(cor_df, c(i,cor_val,"zscore"))
+    #pvalue correlation
+    tmp_zW <- tmpD %>% select(ID,cell, pvalue) %>% spread(key=cell, value = pvalue)
+    result = cor.test(tmp_zW[,2],tmp_zW[,3] , method = "pearson")
+    cor_val <- round(result$estimate,digits = 2)
+    cor_df <- rbind(cor_df, c(i,cor_val,"zscore"))
+}    
+colnames(cor_df) <- c("cell","cor_val","value")
+print("#correlation test results")
+cor_df
+#cn <- gsub("_", " ", i)
+#corTit <- paste(cn,"Replicates\n correlation coefficient =",cor_val)
+#corTit
+#p <- (ggplot(tmp_zW, aes(x=zscore,y=zscoreDup))
+#      #      +  geom_dotplot(binwidth = 0.5,stackdir = "centerwhole", dotsize = 12, alpha = 0.2)
+#      #+ geom_point(alpha=0.4,size=3)
+#      + geom_smooth(method="lm")
+#      + labs(x = "z-score B",
+#             y = "z-score A",
+#             title = corTit)
+#      # change ylim
+#      #      + ylim(-0.25, 0.25)
+#      # reference line at 0
+#      #     + geom_hline(yintercept = 0, color="red")
+#      # remove x-axis ticks and text
+#      #      + theme(axis.ticks.x = element_blank(),
+#      #             axis.text.x = element_blank())
+#)
+#p
+
+#[grepl("Cardiomyocites_primitive",pcDat$cell)
 
