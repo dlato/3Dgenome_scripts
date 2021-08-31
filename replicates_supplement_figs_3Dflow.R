@@ -18,6 +18,8 @@ pvaluFile <- args[2]
 ##########
 library(dplyr)
 library(tidyr)
+library(VIN)#for KNN imputation
+library(class)#for KNN imputation (picking k)
 #library(GenomicRanges)
 library(ggplot2)
 library(ggforce)#for ridgeline
@@ -122,32 +124,160 @@ dat2 <- df %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
 #remove A and B from chrom names
 dat2$chrA <- gsub("A", "", dat2$chrA)
 dat2$chrB <- gsub("B", "", dat2$chrB)
+head(dat2)
+dat2$cell <- as.factor(dat2$cell)
+dat2$cell_noreps <- as.factor(dat2$cell_noreps)
+#NAs are a problem with PCA. need to be removed or dealt with
+#https://www.edureka.co/blog/knn-algorithm-in-r/
+#using KNN imputation to fill in the missing values (NAs)
+#optimizing value for k (using zscore col)
+set.seed(123)
+datsimple <- dat2 %>% select(zscore,pvalue)
+#datsimple <- dat2 %>% select(pvalue,zscore)
+datsimple <- na.omit(datsimple)
+datsub <- dat2 %>% select(zscore,pvalue) %>% select(-zscore)
+#datsub <- dat2 %>% select(pvalue,zscore) %>% select(-pvalue)
+datsub <- na.omit(datsub)
+dat.d <- sample(1:nrow(datsub),size=nrow(datsub)*0.7,replace = FALSE) #random selection of 70% data.
+train.loan <- datsimple[dat.d,] # 70% training data
+test.loan <- datsimple[-dat.d,] # remaining 30% test data
+#Creating seperate dataframe for 'zscore' feature which is our target.
+train.loan_labels <- datsimple[dat.d,1]
+test.loan_labels <-datsimple[-dat.d,1]
+i=1
+k.optm=1
+k.optmvec <- c()
+for (i in 1:100){
+   knn.mod <- as.numeric(as.character(class::knn(train=train.loan, test=test.loan, cl=train.loan_labels, k=i)))
+   k.optm[i] <- 100 * sum(test.loan_labels == knn.mod)/NROW(test.loan_labels)
+   k=i
+   k.optmvec <- c(k.optmvec, k.optm[i])
+   #cat(k,'=',k.optm[i],'')
+}
+optK <- which(k.optmvec == max(k.optmvec))
+summary(dat2)
+dat.knn <- VIM::kNN(dat2, variable = c("zscore", "pvalue"), k=50)
+#dat.knn <- VIM::kNN(dat2, variable = c("zscore", "pvalue"), k=optK)
+dat.knn <- dat.knn %>% select(-zscore_imp, -pvalue_imp)
+summary(dat.knn)
 
 #################
-# PCA 
+# PCA with z-score and p-value as cols 
 #################
-pca_dat <- dat2 %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2)
+#NAs are a problem with PCA. need to be removed.
+pca_dat <- dat.knn %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2, -ID, -cell)
+head(pca_dat)
 #row.names(pca_dat) <- pca_dat$ID
 #pca_dat <- pca_dat %>% select(-ID)
 #pca_dat <- as.data.frame(t(pca_dat))
-commonInter.pca <- prcomp(pca_dat[,c(3,4)], center = TRUE,scale. = TRUE)
+commonInter.pca <- prcomp(pca_dat[,-3], center = TRUE,scale. = TRUE)
+summary(commonInter.pca)
+g <- (ggbiplot(commonInter.pca,
+              obs.scale = 1,
+#              var.axes=FALSE,
+              var.scale = 1,
+#              labels = row.names(pca_dat),
+              groups = dat2$cell,
+              ellipse = TRUE,
+              circle = TRUE,
+              ellipse.prob = 0.68
+      )
+      + labs(title = "Trans-chromosomal Interactions")
+)
+pdf("zscore_PCA_trans_interactions_zscore_pvalue_replicates.pdf", width = 14, height = 8)
+g
+dev.off()
+#################
+#################
+# PCA with cells as rows (zscore only) 
+#################
+datW <- dat.knn %>% select(-pvalue, -cell_noreps) %>% spread(key = "cell", "zscore")
+pca_dat <- datW %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2)
+head(pca_dat)
+row.names(pca_dat) <- pca_dat$ID
+pca_dat <- pca_dat %>% select(-ID)
+pca_dat <- as.data.frame(t(pca_dat))
+head(pca_dat)
+commonInter.pca <- prcomp(pca_dat, center = TRUE,scale. = TRUE)
 summary(commonInter.pca)
 g <- (ggbiplot(commonInter.pca,
               obs.scale = 1,
               var.axes=FALSE,
               var.scale = 1,
               labels = row.names(pca_dat),
-#              groups = row.names(pca_dat),
+#              groups = colnames(pca_dat),
               ellipse = TRUE,
               circle = TRUE,
               ellipse.prob = 0.68
       )
-      + labs(title = "Common Trans-chromosomal Interactions")
+      + labs(title = "Trans-chromosomal Interactions")
 )
-pdf("zscore_PCA_common_interactions_all_cells.pdf", width = 14, height = 8)
+pdf("zscore_PCA_common_interactions_zscore_cells_as_cols_replicates.pdf", width = 14, height = 8)
 g
 dev.off()
 #################
+# REMOAVING NAs PCAs
+#################
+dat3 <- na.omit(dat2)
+#################
+# REMOVING NAs, PCA with z-score and p-value as cols 
+#################
+#NAs are a problem with PCA. need to be removed.
+pca_dat <- dat3 %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2, -ID, -cell)
+head(pca_dat)
+#row.names(pca_dat) <- pca_dat$ID
+#pca_dat <- pca_dat %>% select(-ID)
+#pca_dat <- as.data.frame(t(pca_dat))
+commonInter.pca <- prcomp(pca_dat[,-3], center = TRUE,scale. = TRUE)
+summary(commonInter.pca)
+g <- (ggbiplot(commonInter.pca,
+               obs.scale = 1,
+               #              var.axes=FALSE,
+               var.scale = 1,
+               #              labels = row.names(pca_dat),
+               groups = dat3$cell,
+               ellipse = TRUE,
+               circle = TRUE,
+               ellipse.prob = 0.68
+)
++ labs(title = "Trans-chromosomal Interactions")
+)
+pdf("zscore_PCA_trans_interactions_zscore_pvalue_replicates_NArm.pdf", width = 14, height = 8)
+g
+dev.off()
+#################
+#################
+# REMOVING NAs, PCA with cells as rows (zscore only) 
+#################
+datW <- dat3 %>% select(-pvalue, -cell_noreps) %>% spread(key = "cell", "zscore")
+datW <- na.omit(datW)
+pca_dat <- datW %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2)
+head(pca_dat)
+row.names(pca_dat) <- pca_dat$ID
+pca_dat <- pca_dat %>% select(-ID)
+pca_dat <- as.data.frame(t(pca_dat))
+head(pca_dat)
+commonInter.pca <- prcomp(pca_dat, center = TRUE,scale. = TRUE)
+summary(commonInter.pca)
+g <- (ggbiplot(commonInter.pca,
+               obs.scale = 1,
+               var.axes=FALSE,
+               var.scale = 1,
+               labels = row.names(pca_dat),
+               #              groups = colnames(pca_dat),
+               ellipse = TRUE,
+               circle = TRUE,
+               ellipse.prob = 0.68
+)
++ labs(title = "Trans-chromosomal Interactions")
+)
+pdf("zscore_PCA_common_interactions_zscore_cells_as_cols_replicates_NArm.pdf", width = 14, height = 8)
+g
+dev.off()
+#################
+
+
+
 
 #################
 #ridgeline plot of all chroms and number of interactions per genomic region
