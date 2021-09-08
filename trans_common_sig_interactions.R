@@ -24,6 +24,7 @@ library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 library(ggbiplot)#for PCA
 library(devtools)#for PCA
+library(factoextra)#for PCA
 library(harrypotter)
 #install_github("vqv/ggbiplot")
 ##remotes::install_github("R-CoderDotCom/ridgeline@main")
@@ -107,6 +108,7 @@ dat2$chrB <- gsub("B", "", dat2$chrB)
 #################
 # PCA 
 #################
+#PCA with cells as rows
 pca_dat <- dat2 %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2)
 row.names(pca_dat) <- pca_dat$ID
 pca_dat <- pca_dat %>% select(-ID)
@@ -125,9 +127,31 @@ g <- (ggbiplot(commonInter.pca,
       )
       + labs(title = "Common Trans-chromosomal Interactions")
 )
-pdf("zscore_PCA_common_interactions_all_cells.pdf", width = 14, height = 8)
+pdf("zscore_PCAcellpts_common_interactions_all_cells.pdf", width = 14, height = 8)
 g
 dev.off()
+
+#PCA with cells as cols
+pca_dat <- as.data.frame(t(pca_dat))
+head(pca_dat)
+commonInter.pca <- prcomp(pca_dat, center = TRUE,scale. = TRUE)
+summary(commonInter.pca)
+g <- (ggbiplot(commonInter.pca,
+               obs.scale = 1,
+               #              var.axes=FALSE,
+               var.scale = 1,
+               #              labels = row.names(pca_dat),
+               groups = colnames(commonInter.pca),
+               ellipse = TRUE,
+               circle = TRUE,
+               ellipse.prob = 0.68
+)
++ labs(title = "Trans-chromosomal Interactions")
+)
+pdf("zscore_PCAcellarrs_common_interactions_all_cells.pdf", width = 14, height = 8)
+g
+dev.off()
+
 #################
 
 #################
