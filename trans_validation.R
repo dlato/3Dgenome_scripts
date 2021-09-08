@@ -63,11 +63,11 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-Atype <- "1_vs_All"
-zdat_file <- read.table("test_1vsAll_dat.txt", header = TRUE)
-pdat_file <- read.table("test_1vsAll_pvalues.txt", header = TRUE)
-roi1_file <- "FIRRE.bed"
-roi2_file <- "ATF4.bed"
+#Atype <- "1_vs_All"
+#zdat_file <- read.table("test_1vsAll_dat.txt", header = TRUE)
+#pdat_file <- read.table("test_1vsAll_pvalues.txt", header = TRUE)
+#roi1_file <- "FIRRE.bed"
+#roi2_file <- "ATF4.bed"
 #dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 #dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
 #dat <- read.table(dat_file, header = TRUE)
@@ -140,7 +140,7 @@ print("# Validated interaction specific region")
 print("#######")
 chrs_df <- Vinter[grep(chrs[1], Vinter$ID), ]
 chrs_df <- chrs_df[grep(chrs[2],chrs_df$ID),]
-chrs_df2 <- chrs_df
+chrs_df_allInters <- chrs_df
 chrs_df <- chrs_df %>% select(-pvalue) %>% spread(key = cell, value = zscore)
 summary(chrs_df)
 print("cells/datasets that have interactions btwn validated chromosomes")
@@ -199,6 +199,7 @@ dev.off()
 
 #sig interactions
 print("cells/datasets that have interactions btwn validated chromosomes")
+chrs_df2 <- chrs_df_allInters
 chrs_df2$zscore[as.numeric(chrs_df2$pvalue)>=0.05]  <- NA 
 chrs_df <- chrs_df2 %>% select(-pvalue) %>% spread(key = cell, value = zscore)
 summary(chrs_df)
@@ -257,12 +258,13 @@ dev.off()
 print("#######")
 print("# Validated interaction chromosomes (not specific region)")
 print("#######")
-#df with ALL sig interactions btwn validated chroms
+#df with ALL interactions btwn validated chroms
 chrs_df <- dat2[grep(chrs[1], dat2$ID), ]
 chrs_df <- chrs_df[grep(chrs[2],chrs_df$ID),]
+chrs_df <- chrs_df %>% select(-pvalue) %>% spread(key = cell, value = zscore)
 summary(chrs_df)
 
-print("cells/datasets that have sig interactions btwn validated chromosomes")
+print("cells/datasets that have interactions btwn validated chromosomes")
 allmisscols <- sapply(chrs_df, function(x) all(is.na(x) | x == '' ))
 all_cells <- colnames(chrs_df)
 sig_cells <- all_cells[which(allmisscols == FALSE)]
@@ -277,23 +279,13 @@ nonsig_cells
 print("# only plot our 6 test cell types")
 #######
 #df with just these cells
-sixcells_all <- select(dat2,c("ID",
-                              "Dorsolateral_Prefrontal_cortex", 
-                              "Small_bowell", 
-                              "Aorta", 
-                              "Right_Ventricle", 
-                              "Cardiomyocites_primitive_rep1",
-                              #                            "Spleen"))
-                              "hESC_Dekker"))
+sixcells_all <- filter(dat2, cell == "Dorsolateral_Prefrontal_cortex" | cell == "Small_bowell" |
+                         cell == "Aorta" | cell == "Right_Ventricle" | cell == "Cardiomyocites_primitive_rep1" |
+                         cell == "hESC_Dekker")
 head(sixcells_all)
-sixcells_Vinter <- select(Vinter,c("ID",
-                                   "Dorsolateral_Prefrontal_cortex", 
-                                   "Small_bowell", 
-                                   "Aorta", 
-                                   "Right_Ventricle", 
-                                   "Cardiomyocites_primitive_rep1",
-                                   #                                 "Spleen"))
-                                   "hESC_Dekker"))
+sixcells_Vinter <- filter(Vinter, cell == "Dorsolateral_Prefrontal_cortex" | cell == "Small_bowell" |
+                         cell == "Aorta" | cell == "Right_Ventricle" | cell == "Cardiomyocites_primitive_rep1" |
+                         cell == "hESC_Dekker")
 
 head(sixcells_Vinter)
 sixcells_chr <- select(chrs_df,c("ID",
@@ -307,12 +299,14 @@ sixcells_chr <- select(chrs_df,c("ID",
 head(sixcells_chr)
 
 #wide to long
-#all data (six cells)
-all_long <- gather(sixcells_all, cell, zscore, 2:length(colnames(sixcells_all)), factor_key=TRUE)
+##all data (six cells)
+#all_long <- gather(sixcells_all, cell, zscore, 2:length(colnames(sixcells_all)), factor_key=TRUE)
+all_long <- sixcells_all %>% select(-pvalue, -chrA, -st1, -end1, -chrB, -st2, -end2)
 all_long$validType <- rep("all", length(all_long$ID))
 
 #valid inter (six cells)
-valid_inter_long <- gather(sixcells_Vinter, cell, zscore, 2:length(colnames(sixcells_Vinter)), factor_key=TRUE)
+#valid_inter_long <- gather(sixcells_Vinter, cell, zscore, 2:length(colnames(sixcells_Vinter)), factor_key=TRUE)
+valid_inter_long <- sixcells_Vinter %>% select(-pvalue, -chrA, -st1, -end1, -chrB, -st2, -end2)
 valid_inter_long$validType <- rep("validInter", length(valid_inter_long$ID))
 
 #valid chrs (six cells)
@@ -327,7 +321,7 @@ plot_df$validType <- as.factor(plot_df$validType)
 plot_df$cell <- as.factor(plot_df$cell)
 levels(plot_df$validType) <- list("Interactions from valid inter" = "validInter",
                                   "Interactions from chrs"="validChr",
-                                  "All significant interactions"="all")
+                                  "All interactions"="all")
 levels(plot_df$cell) <- list("hESCDekker" = "hESC_Dekker",
                              #levels(plot_df$cell) <- list("Spleen" = "Spleen",
                              "CardPrimRep1" = "Cardiomyocites_primitive_rep1",
@@ -375,7 +369,7 @@ geom_split_violin <- function (mapping = NULL, data = NULL, stat = "ydensity", p
 
 
 print("#plot above data for valid chroms")
-target <- c("Interactions from chrs", "All significant interactions")
+target <- c("Interactions from chrs", "All interactions")
 plot_d <- plot_df %>% filter(validType %in% target)
 interLab <- paste("Interactions between",roi1_inter1$seqnames,"and",roi2_inter1$seqnames)
 #p <- (ggplot(plot_d, aes(cell, zscore, fill = validType))
@@ -390,8 +384,133 @@ interLab <- paste("Interactions between",roi1_inter1$seqnames,"and",roi2_inter1$
 #      + scale_fill_manual(values =c("plum4", "cadetblue"),labels=c(interLab, 'All significant interactions'))
 #      #  + facet_grid(seqDep ~ cell )
 #)
-levels(plot_d$validType) <- list("All significant interactions" = "All significant interactions",
+levels(plot_d$validType) <- list("All interactions" = "All interactions",
                                  "Interactions from chrs" = "Interactions from chrs")
+p <- (ggplot(plot_d, aes(x=zscore, fill = validType))
+      #  + geom_split_violin()
+      + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
+      #  + coord_flip()
+      + labs(title = mytitle,
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = "z-score", y = "Density")
+      #         tag = "A")
+      #  + scale_fill_manual(values =c("plum4", "cadetblue"))
+      + scale_fill_manual(values =c("plum4", "cadetblue"),labels=c(interLab, 'All interactions'))
+      + facet_grid(cell~. )
+)
+#p
+f_name <- gsub(" ","",paste("6testCells_valid_interaction_chroms_density_allInters",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
+
+######
+#sig interactions
+######
+#df with ALL sig interactions btwn validated chroms
+chrs_df <- dat2[grep(chrs[1], dat2$ID), ]
+chrs_df$zscore[as.numeric(chrs_df$pvalue)>=0.05]  <- NA 
+chrs_df <- chrs_df[grep(chrs[2],chrs_df$ID),]
+chrs_df <- chrs_df %>% select(-pvalue) %>% spread(key = cell, value = zscore)
+summary(chrs_df)
+
+print("cells/datasets that have sig interactions btwn validated chromosomes")
+allmisscols <- sapply(chrs_df, function(x) all(is.na(x) | x == '' ))
+all_cells <- colnames(chrs_df)
+sig_cells <- all_cells[which(allmisscols == FALSE)]
+sig_cells <- sig_cells[-c(1,2,3,4,5,6,7)]
+sig_cells
+print("cells/datasets that have NO sig interactions btwn validated chromosomes")
+nonsig_cells <- all_cells[which(allmisscols == TRUE)]
+nonsig_cells <- nonsig_cells[-c(1,2,3,4,5,6,7)]
+nonsig_cells
+
+#######
+print("# only plot our 6 test cell types")
+#######
+#df with just these cells
+sixcells_all <- filter(dat2, cell == "Dorsolateral_Prefrontal_cortex" | cell == "Small_bowell" |
+                         cell == "Aorta" | cell == "Right_Ventricle" | cell == "Cardiomyocites_primitive_rep1" |
+                         cell == "hESC_Dekker")
+sixcells_all$zscore[as.numeric(sixcells_all$pvalue)>=0.05]  <- NA 
+head(sixcells_all)
+sixcells_Vinter <- filter(Vinter, cell == "Dorsolateral_Prefrontal_cortex" | cell == "Small_bowell" |
+                            cell == "Aorta" | cell == "Right_Ventricle" | cell == "Cardiomyocites_primitive_rep1" |
+                            cell == "hESC_Dekker")
+sixcells_Vinter$zscore[as.numeric(sixcells_Vinter$pvalue)>=0.05]  <- NA 
+
+head(sixcells_Vinter)
+sixcells_chr <- select(chrs_df,c("ID",
+                                 "Dorsolateral_Prefrontal_cortex", 
+                                 "Small_bowell", 
+                                 "Aorta", 
+                                 "Right_Ventricle", 
+                                 "Cardiomyocites_primitive_rep1",
+                                 #                                 "Spleen"))
+                                 "hESC_Dekker"))
+head(sixcells_chr)
+
+#wide to long
+##all data (six cells)
+#all_long <- gather(sixcells_all, cell, zscore, 2:length(colnames(sixcells_all)), factor_key=TRUE)
+all_long <- sixcells_all %>% select(-pvalue, -chrA, -st1, -end1, -chrB, -st2, -end2)
+all_long$validType <- rep("all", length(all_long$ID))
+
+#valid inter (six cells)
+#valid_inter_long <- gather(sixcells_Vinter, cell, zscore, 2:length(colnames(sixcells_Vinter)), factor_key=TRUE)
+valid_inter_long <- sixcells_Vinter %>% select(-pvalue, -chrA, -st1, -end1, -chrB, -st2, -end2)
+valid_inter_long$validType <- rep("validInter", length(valid_inter_long$ID))
+
+#valid chrs (six cells)
+valid_chrs_long <- gather(sixcells_chr, cell, zscore, 2:length(colnames(sixcells_chr)), factor_key=TRUE)
+valid_chrs_long$validType <- rep("validChr", length(valid_chrs_long$ID))
+
+#combine the dfs
+plot_df <- rbind(all_long, valid_inter_long, valid_chrs_long)
+
+# rename levels
+plot_df$validType <- as.factor(plot_df$validType)
+plot_df$cell <- as.factor(plot_df$cell)
+levels(plot_df$validType) <- list("Interactions from valid inter" = "validInter",
+                                  "Interactions from chrs"="validChr",
+                                  "All significant interactions"="all")
+levels(plot_df$cell) <- list("hESCDekker" = "hESC_Dekker",
+                             #levels(plot_df$cell) <- list("Spleen" = "Spleen",
+                             "CardPrimRep1" = "Cardiomyocites_primitive_rep1",
+                             "RightVentricle" = "Right_Ventricle",
+                             "Aorta"="Aorta",
+                             "SmallBowel"="Small_bowell",
+                             "DorsoPreCort" = "Dorsolateral_Prefrontal_cortex")
+#new col for seq depth
+plot_df$seqDep <- plot_df$cell
+levels(plot_df$seqDep) <- list("High" = "hESCDekker",
+                               #levels(plot_df$seqDep) <- list("High" = "Spleen",
+                               "High" = "CardPrimRep1",
+                               "Medium" = "RightVentricle",
+                               "Medium"="Aorta",
+                               "Low" = "SmallBowel",
+                               "Low" = "DorsoPreCort")
+
+
+print("#plot above data for valid chroms")
+target <- c("Significant interactions from chrs", "All significant interactions")
+plot_d <- plot_df %>% filter(validType %in% target)
+interLab <- paste("Significant interactions between",roi1_inter1$seqnames,"and",roi2_inter1$seqnames)
+#p <- (ggplot(plot_d, aes(cell, zscore, fill = validType))
+#      + geom_density(alpha=.3, stat= "identity")
+#      + coord_flip()
+#      + labs(title = mytitle,
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = "", y = "z-score")
+#      #         tag = "A")
+#      #  + scale_fill_manual(values =c("plum4", "cadetblue"))
+#      + scale_fill_manual(values =c("plum4", "cadetblue"),labels=c(interLab, 'All significant interactions'))
+#      #  + facet_grid(seqDep ~ cell )
+#)
+levels(plot_d$validType) <- list("All significant interactions" = "All significant interactions",
+                                 "Significant interactions from chrs" = "Significant interactions from chrs")
 p <- (ggplot(plot_d, aes(x=zscore, fill = validType))
       #  + geom_split_violin()
       + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
@@ -406,10 +525,12 @@ p <- (ggplot(plot_d, aes(x=zscore, fill = validType))
       + facet_grid(cell~. )
 )
 #p
-f_name <- gsub(" ","",paste("6testCells_valid_interaction_chroms_density_",Atype,".pdf"))
+f_name <- gsub(" ","",paste("6testCells_valid_interaction_chroms_density_sigInters",Atype,".pdf"))
 pdf(f_name, width = 14, height = 8)
 p
 dev.off()
+
+
 
 #dealing with cases where the specified interaction is not sig in any cell type
 sixcells_Vinter <- gather(sixcells_Vinter, cell, zscore, 2:length(colnames(sixcells_all)), factor_key=TRUE)
@@ -426,7 +547,8 @@ if (dim(Vinter)[1] == 0){
   inter_d <- plot_df %>% filter(validType == "Interactions from valid inter")
   head(inter_d)
   p <- (ggplot(plot_d, aes(x=zscore))
-        + geom_density(fill = "cadetblue")
+#        + geom_density(fill = "cadetblue")
+      + stat_density(fill = "cadetblue",position="identity")#identity = based on counts of data, height proportional to total
         #        + coord_flip()
         + geom_vline(data = sixcells_Vinter, aes(xintercept = zscore, 
                                                  color = cell), size=1.5)
@@ -438,7 +560,7 @@ if (dim(Vinter)[1] == 0){
         #        + scale_color_manual(values =c("plum4"))
         #  + facet_grid(seqDep ~ cell )
   )
-  #  p
+    p
   f_name <- gsub(" ","",paste("6testCells_valid_interaction_density_",Atype,".pdf"))
   pdf(f_name, width = 14, height = 8)
   print(p)
