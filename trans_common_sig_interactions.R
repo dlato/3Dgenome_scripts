@@ -70,6 +70,7 @@ print("#read in files")
 #Atype <- "1_vs_All"
 dat <- read.table("test_pairwise_dat.txt", header = TRUE)
 allinters <- read.table("all_trans_interactions_1Mb.txt", header = FALSE)
+gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
 
 allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
@@ -80,7 +81,6 @@ print("summary of ALL sig zscores per cell type")
 summary(dat)
 dat$ID <- as.character(dat$ID)
 #read in germlayer info file
-gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
 gl_df <- read.table(germlayer_file, header = TRUE)
 colnames(gl_df) <- c("cell","germLayer")
 summary(gl_df)
@@ -245,6 +245,31 @@ r_dat$chrA <- factor(r_dat$chrA, levels=rev_chrs_len_ord)
 r_dat$chrB <- factor(r_dat$chrB, levels=rev_chrs_len_ord)
 r_dat$st1 <- as.numeric(as.character(r_dat$st1))
 r_dat$st2 <- as.numeric(as.character(r_dat$st2))
+#adding missing interactions so ridgeline lengths are accurate for each chrom
+#add ID column to all inters df
+allinters$ID <- with(allinters, paste0("A",chrA, ".", startA,".", endA,".B", chrB,".", startB,".", endB))
+#get which inters are missing from dataset
+missInters <- as.data.frame(allinters$ID[! allinters$ID %in% unique(r_dat$ID)])
+colnames(missInters) <- c("ID")
+head(missInters)
+#newdf with just missing inters
+#split ID col
+colnm <- c("chrA", "st1", "end1","chrB","st2","end2")
+missInters <- missInters %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
+#remove A and B from chrom names
+missInters$chrA <- gsub("A", "", missInters$chrA)
+missInters$chrB <- gsub("B", "", missInters$chrB)
+missInters$cell <- rep("fake_cell", length(missInters$ID))
+missInters$zscore <- rep(0, length(missInters$ID))
+missInters$st1 <- as.numeric(missInters$st1)
+missInters$end1 <- as.numeric(missInters$end1)
+missInters$st2 <- as.numeric(missInters$st2)
+missInters$end2 <- as.numeric(missInters$end2)
+missInters$zscore <- as.numeric(missInters$zscore)
+
+r_dat <- rbind(r_dat,missInters)
+
+head(r_dat)
 #counting each interaction twice (once for each chrom in interaction)
 anchD <- r_dat
 anchD$AllChr <- anchD$chrA
@@ -263,7 +288,7 @@ chrInf2$centromere <- chrInf2$centromere/10000000
 colnames(chrInf2) <- c("AllChr","centromere","chrClass")
 #chrInf2 <- chrInf2 %>% filter(AllChr %in% r_dat2$AllChr)
 p <- (ggplot(r_dat2, aes(x = AllSt, y = AllChr))
-  + geom_density_ridges(scale = 2, alpha = 0.3) 
+  + geom_density_ridges(scale = 2, alpha = 0.3, rel_min_height = 0.001) 
   + geom_segment(data = chrInf2, aes(x=centromere, xend=centromere, 
                                      y=as.numeric(AllChr), yend=as.numeric(AllChr) +0.9),
                 color = "red")
@@ -276,6 +301,7 @@ p <- (ggplot(r_dat2, aes(x = AllSt, y = AllChr))
 )
 ######################################
 # NOTE: THE RIDGELINE PLOT HEIGHT CURRENTLY IS SCALED AMONG ALL Y-AXIS POINTS AND IS THE SAME FOR ALL Y-AXIS POINTS. IT DOES NOT REPRESENT ACTUAL AMOUNTS OF INTERACTIONS
+# NOTE: THE PER CHROM RIDGELINE PLOT HAS FAKE DATA ADDED SO THAT THE LENGTH OF THE CHROMOSOMES IS ACCURATE, THIS COULD MAKE THE GRAPH LOOK FUNNY! 
 ######################################
 pdf("chr_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
 p
@@ -285,9 +311,6 @@ dev.off()
 #                height = c(0, 1, 3, 4, 0, 1, 2, 3, 5, 4, 0, 5, 4, 4, 1))
 #ggplot(d, aes(x, y, height = height, group = y)) + geom_ridgeline(fill="lightblue")
 #
-
-
-
 
 #ridgeline of all zscores (in all chroms) across cell types
 #adding germlayer info
@@ -303,6 +326,7 @@ r_dat2$cell <- factor(r_dat2$cell, levels=rev(gl_cell_ord))
 levels(r_dat2$germL)
 levels(r_dat2$cell)
 head(r_dat2)
+r_dat2 <- r_dat2 %>% filter(cell != "fake_cell")
 p <- (ggplot(r_dat2, aes(x = zscore, y = cell, fill = germL))
       + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
       #+ geom_density_ridges(scale = 4, alpha = 0.3) 
