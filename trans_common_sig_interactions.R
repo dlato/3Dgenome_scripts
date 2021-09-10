@@ -72,16 +72,16 @@ dat <- read.table("test_pairwise_dat.txt", header = TRUE)
 allinters <- read.table("all_trans_interactions_1Mb.txt", header = FALSE)
 gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
 
-allinters <- read.table(allinters_file, header = FALSE)
+#allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
 head(allinters)
-dat <- read.table(dat_file, header = TRUE)
+#dat <- read.table(dat_file, header = TRUE)
 dat <- as.data.frame(dat)
 print("summary of ALL sig zscores per cell type")
 summary(dat)
 dat$ID <- as.character(dat$ID)
 #read in germlayer info file
-gl_df <- read.table(germlayer_file, header = TRUE)
+#gl_df <- read.table(germlayer_file, header = TRUE)
 colnames(gl_df) <- c("cell","germLayer")
 summary(gl_df)
 #order of germlayer
@@ -404,22 +404,48 @@ dev.off()
 #proportional interactions per chrom
 #################
 prop_dat <- r_dat2
+prop_dat %>% filter(ID == "Achr10.0.1000000.Bchr18.79000000.80000000")
+##re-format all interactions df
+##split ID col
+#dat$ID <- sub("B", "\\.B", as.character(dat$ID))
+#dat <- dat %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
+##remove A and B from chrom names
+#dat$chrA <- gsub("A", "", dat$chrA)
+#dat$chrB <- gsub("B", "", dat$chrB)
+#dat_long <- gather(dat, cell, zscore, 8:ncol(dat2), factor_key=TRUE)
+##counting each interaction twice (once for each chrom in interaction)
+#anchD <- dat_long
+#anchD$AllChr <- anchD$chrA
+#anchD$AllSt <- anchD$st1
+#tarD <- dat_long
+#tarD$AllChr <- tarD$chrB
+#tarD$AllSt <- tarD$st2
+#dat_long2 <- rbind(anchD,tarD)
+##scale genomic position by 10Mb
+#dat_long2$AllSt <- as.numeric(as.character(dat_long2$AllSt))/10000000
+##df with total number of interactions per chrom
+#totInter <- dat_long2 %>%
+#  select(AllChr, ID) %>%
+#  group_by(AllChr) %>%
+#  dplyr::summarise(n = n())
+#totInter$AllChr <- factor(totInter$AllChr, levels=rev_chrs_len_ord)
+
 #re-format all interactions df
-#split ID col
-dat$ID <- sub("B", "\\.B", as.character(dat$ID))
-dat <- dat %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
-#remove A and B from chrom names
-dat$chrA <- gsub("A", "", dat$chrA)
-dat$chrB <- gsub("B", "", dat$chrB)
-dat_long <- gather(dat, cell, zscore, 8:ncol(dat2), factor_key=TRUE)
+head(allinters)
 #counting each interaction twice (once for each chrom in interaction)
-anchD <- dat_long
+anchD <- allinters
 anchD$AllChr <- anchD$chrA
-anchD$AllSt <- anchD$st1
-tarD <- dat_long
+anchD$AllSt <- anchD$startA
+tarD <- allinters
 tarD$AllChr <- tarD$chrB
-tarD$AllSt <- tarD$st2
+tarD$AllSt <- tarD$startB
 dat_long2 <- rbind(anchD,tarD)
+#head(dat_long2)
+#tail(dat_long2)
+#allinters %>% filter(ID == "Achr1.0.1000000.Bchr2.0.1000000")
+#dat_long2 %>% filter(ID == "Achr1.0.1000000.Bchr2.0.1000000")
+#allinters %>% filter(ID == "Achr22.50000000.50818468.Bchr21.44000000.45000000")
+#dat_long2 %>% filter(ID == "Achr22.50000000.50818468.Bchr21.44000000.45000000")
 #scale genomic position by 10Mb
 dat_long2$AllSt <- as.numeric(as.character(dat_long2$AllSt))/10000000
 #df with total number of interactions per chrom
@@ -428,8 +454,14 @@ totInter <- dat_long2 %>%
   group_by(AllChr) %>%
   dplyr::summarise(n = n())
 totInter$AllChr <- factor(totInter$AllChr, levels=rev_chrs_len_ord)
-#df with total number of common interactions per chrom
-commonInter <- prop_dat %>%
+totInter
+#df with total number of common interactions per chrom (ALL POSSIBLE INTERACTIONS)
+#remove cell info (which makes interactions duplicated)
+prop_dat2 <- prop_dat %>% select(AllChr, ID)
+prop_dat2 %>% filter(ID == "Achr10.0.1000000.Bchr13.113000000.114000000")
+prop_dat2 <- unique(prop_dat2)
+prop_dat2 %>% filter(ID == "Achr10.0.1000000.Bchr13.113000000.114000000")
+commonInter <- prop_dat2 %>%
   select(AllChr, ID) %>%
   group_by(AllChr) %>%
   dplyr::summarise(n = n())
@@ -446,16 +478,35 @@ prop_datAll$chrom <- as.factor(gsub("chr","", prop_datAll$chrom))
 chrs_len_ord_num <- gsub("chr","",chrs_len_ord)
 prop_datAll$chrom <- factor(prop_datAll$chrom, levels=chrs_len_ord_num)
 levels(prop_datAll$chrom)
+##plot
+#p <- (ggplot(prop_datAll, aes(y = percent,x=chrom))
+#      + geom_bar(fill="grey90", color="black", stat = "identity")
+#      + labs(y="Percent of Total Interactions [%]",
+#             x="Chromosome",
+#             title = "Percentage of Common Trans-chromosomal Interactions per Chromosome")
+#)
+#pdf("proportion_per_chrom_common_interactions_all_cells.pdf", width = 14, height = 8)
+#p
+#dev.off()
+prop_datAll2 <- prop_datAll %>% select(chrom, totInter, commonInter) %>% gather(key = "name", value = "num", 2:3)
+head(prop_datAll2)
+prop_datAll2$name <- factor(prop_datAll2$name, levels = c("totInter", "commonInter"))
+#scaling number of interactions by 100,000
+prop_datAll2$num <- prop_datAll2$num / 100000
 #plot
-p <- (ggplot(prop_datAll, aes(y = percent,x=chrom))
-      + geom_bar(fill="grey90", color="black", stat = "identity")
-      + labs(y="Percent of Total Interactions [%]",
+p <- (ggplot(prop_datAll2, aes(y =num,x=chrom, fill = name))
+      + geom_bar(color="black",position = "dodge", stat = "identity")
+      + scale_fill_manual(values =c("#FAC9A1", "#013040"), labels= c("Total Interactions", "Common Interactions"))
+      + labs(y="Number of Interactions [100,000]",
              x="Chromosome",
-             title = "Percentage of Common Trans-chromosomal Interactions per Chromosome")
+             title = "Trans-chromosomal Interactions per Chromosome",
+             fill = "")
 )
 pdf("proportion_per_chrom_common_interactions_all_cells.pdf", width = 14, height = 8)
 p
 dev.off()
+
+
 
 #proportional interactions per chrom pair
 pair_dat <- dat_long
