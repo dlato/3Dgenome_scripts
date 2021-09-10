@@ -18,15 +18,15 @@ pvaluFile <- args[2]
 ##########
 library(dplyr)
 library(tidyr)
-library(VIN)#for KNN imputation
+library(VIM, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3")#for KNN imputation
 library(class)#for KNN imputation (picking k)
 #library(GenomicRanges)
 library(ggplot2)
 library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
-library(ggbiplot)#for PCA
+library(ggbiplot, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3")#for PCA
 library(devtools)#for PCA
-library(inauguration,, lib="/hpf/largeprojects/pmaass/Daniella/R-lib")
+library(inauguration, lib="/hpf/largeprojects/pmaass/Daniella/R-lib")
 #install_github("vqv/ggbiplot")
 ##remotes::install_github("R-CoderDotCom/ridgeline@main")
 #library(ridgeline)
@@ -69,8 +69,8 @@ print("#read in files")
 #interaction data
 #Atype <- "1_vs_All"
 library(inauguration)
-zscoreFile <- "test_1vsAll_dat.txt"
-pvaluFile <- "test_1vsAll_pvalues.txt"
+#zscoreFile <- "test_1vsAll_dat.txt"
+#pvaluFile <- "test_1vsAll_pvalues.txt"
 datz <- read.table(zscoreFile, header = TRUE)
 datz <- as.data.frame(datz)
 datp <- read.table(pvaluFile, header = TRUE)
@@ -130,7 +130,7 @@ dat2$cell <- as.factor(dat2$cell)
 dat2$cell_noreps <- as.factor(dat2$cell_noreps)
 #NAs are a problem with PCA. need to be removed or dealt with
 #https://www.edureka.co/blog/knn-algorithm-in-r/
-#using KNN imputation to fill in the missing values (NAs)
+print("#using KNN imputation to fill in the missing values (NAs)")
 #optimizing value for k (using zscore col)
 set.seed(123)
 datsimple <- dat2 %>% select(zscore,pvalue)
@@ -163,7 +163,7 @@ dat.knn <- dat.knn %>% select(-zscore_imp, -pvalue_imp)
 summary(dat.knn)
 
 #################
-# PCA with z-score and p-value as cols 
+print("# PCA with z-score and p-value as cols ")
 #################
 #NAs are a problem with PCA. need to be removed.
 pca_dat <- dat.knn %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2, -ID, -cell)
@@ -173,6 +173,7 @@ head(pca_dat)
 #pca_dat <- as.data.frame(t(pca_dat))
 commonInter.pca <- prcomp(pca_dat[,-3], center = TRUE,scale. = TRUE)
 summary(commonInter.pca)
+print("graph 1")
 g <- (ggbiplot(commonInter.pca,
               obs.scale = 1,
 #              var.axes=FALSE,
@@ -190,7 +191,7 @@ g
 dev.off()
 #################
 #################
-# PCA with cells as rows (zscore only) 
+print("# PCA with cells as rows (zscore only) ")
 #################
 datW <- dat.knn %>% select(-pvalue, -cell_noreps) %>% spread(key = "cell", "zscore")
 pca_dat <- datW %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2)
@@ -201,6 +202,7 @@ pca_dat <- as.data.frame(t(pca_dat))
 head(pca_dat)
 commonInter.pca <- prcomp(pca_dat, center = TRUE,scale. = TRUE)
 summary(commonInter.pca)
+print("graph 2")
 g <- (ggbiplot(commonInter.pca,
               obs.scale = 1,
               var.axes=FALSE,
@@ -217,11 +219,11 @@ pdf("zscore_PCA_common_interactions_zscore_cells_as_cols_replicates.pdf", width 
 g
 dev.off()
 #################
-# REMOAVING NAs PCAs
+# REMOVING NAs PCAs
 #################
 dat3 <- na.omit(dat2)
 #################
-# REMOVING NAs, PCA with z-score and p-value as cols 
+print("# REMOVING NAs, PCA with z-score and p-value as cols ")
 #################
 #NAs are a problem with PCA. need to be removed.
 pca_dat <- dat3 %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2, -ID, -cell)
