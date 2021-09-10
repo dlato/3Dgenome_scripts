@@ -13,6 +13,7 @@ options(echo=F)
 args <- commandArgs(trailingOnly = TRUE)
 dat_file <- args[1]
 germlayer_file <- args[2]
+allinters_file <- args[3]
 #Atype <- args[4]
 
 ##########
@@ -68,6 +69,11 @@ print("#read in files")
 #interaction data
 #Atype <- "1_vs_All"
 dat <- read.table("test_pairwise_dat.txt", header = TRUE)
+allinters <- read.table("all_trans_interactions_1Mb.txt", header = FALSE)
+
+allinters <- read.table(allinters_file, header = FALSE)
+colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
+head(allinters)
 dat <- read.table(dat_file, header = TRUE)
 dat <- as.data.frame(dat)
 print("summary of ALL sig zscores per cell type")
@@ -91,11 +97,14 @@ gl_colours <- c("#071F36","#F2CB40","#ED2E07","#517A7B","#EA7E1F")
 
 #select only rows with NO NAs in any cell type
 df <- na.omit(dat)
-print("percent of ALL common interactions across genome")
+print("Total number of common interactions")
+length(df$ID)
+print("Total number of ALL possible interactions")
+length(allinters$chrA)
+print("percent of ALL common interactions across genome: all possible interactions")
+(length(df$ID)/length(allinters$chrA)) *100
+print("percent of ALL common interactions across genome: interactions in dataset")
 (length(df$ID)/length(dat$ID)) *100
-head(df)
-
-
 
 #split ID col
 colnm <- c("chrA", "st1", "end1","chrB","st2","end2")
@@ -449,7 +458,7 @@ prop_pairAll$commonInter <- as.numeric(commonInter$n[match(prop_pairAll$chrom, c
 prop_pairAll$commonInter[is.na(prop_pairAll$commonInter)] <- 0
 prop_pairAll$percent <- (prop_pairAll$commonInter/prop_pairAll$totInter)*100 
 prop_pairAll$chrom <- as.factor(prop_pairAll$chrom)
-print("# chromosome pair(s) with highest (proportional) number of interactions")
+print("# chromosome pair(s) with highest (proportional) number of common interactions")
 prop_pairAll[which(prop_pairAll$percent == max(prop_pairAll$percent)),]
 #################
 
