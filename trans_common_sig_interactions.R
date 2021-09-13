@@ -506,25 +506,31 @@ pdf("proportion_per_chrom_common_interactions_all_cells.pdf", width = 14, height
 p
 dev.off()
 
-
-
 #proportional interactions per chrom pair
-pair_dat <- dat_long
+pair_dat <- dat_long2
+head(pair_dat)
 #new col for chrom pair
 pair_dat$pair <- paste0(pair_dat$chrA,pair_dat$chrB)
-#df with total number of interactions per chrom pair
+pair_dat <- pair_dat %>% select(ID, pair) %>% unique()
+#df with total number of interactions per chrom pair ALL POSSIBLE INTERACTIONS
 totInter <- pair_dat %>%
   select(pair, ID) %>%
   group_by(pair) %>%
   dplyr::summarise(n = n())
 #df with total number of common interactions per chrom pair
-commonInter <- gather(dat2, cell, zscore, 8:ncol(dat2), factor_key=TRUE)
+commonInter <- prop_dat
+head(prop_dat)
+#commonInter <- gather(dat2, cell, zscore, 8:ncol(dat2), factor_key=TRUE)
 #new col for chrom pair
 commonInter$pair <- paste0(commonInter$chrA,commonInter$chrB)
+commonInter <- commonInter %>% select(ID, pair) %>% unique()
+head(commonInter)
+commonInter %>% filter(ID == "Achr10.0.1000000.Bchr13.113000000.114000000")
 commonInter <- commonInter %>%
   select(pair, ID) %>%
   group_by(pair) %>%
   dplyr::summarise(n = n())
+commonInter
 #df combining above 2 dfs
 prop_pairAll <- totInter
 prop_pairAll$commonInter <- prop_pairAll$n
@@ -533,6 +539,8 @@ prop_pairAll$commonInter <- as.numeric(commonInter$n[match(prop_pairAll$chrom, c
 prop_pairAll$commonInter[is.na(prop_pairAll$commonInter)] <- 0
 prop_pairAll$percent <- (prop_pairAll$commonInter/prop_pairAll$totInter)*100 
 prop_pairAll$chrom <- as.factor(prop_pairAll$chrom)
+print("# chrom pairs proportional number of common interactions")
+prop_pairAll
 print("# chromosome pair(s) with highest (proportional) number of common interactions")
 prop_pairAll[which(prop_pairAll$percent == max(prop_pairAll$percent)),]
 #################
