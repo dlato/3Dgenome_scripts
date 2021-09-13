@@ -7,13 +7,14 @@
 ######
 # arguments: 3Dflow z-score output data (tsv)
 #            3Dflow p-value output data (tsv)
+#            output path
 ########################################
 
 options(echo=F)
 args <- commandArgs(trailingOnly = TRUE)
 zscoreFile <- args[1]
 pvaluFile <- args[2]
-#Atype <- args[4]
+output <- args[3]
 
 ##########
 library(dplyr)
@@ -180,9 +181,9 @@ g <- (ggbiplot(commonInter.pca,
               var.scale = 1,
 #              labels = row.names(pca_dat),
               groups = dat2$cell,
-              ellipse = TRUE,
+#              ellipse = TRUE,
               circle = TRUE,
-              ellipse.prob = 0.68
+#              ellipse.prob = 0.68
       )
       + labs(title = "Trans-chromosomal Interactions")
 )
@@ -248,13 +249,16 @@ g <- (ggbiplot(commonInter.pca,
 pdf("zscore_PCA_trans_interactions_zscore_pvalue_replicates_NArm.pdf", width = 14, height = 8)
 g
 dev.off()
+##################
+##Had to remove this section because when removing NAs for the PCA there are no points left (i.e. no interactions that are sig in all the cells
 #################
+print("# REMOVING NAs, PCA with cells as rows (zscore only) ")
 #################
-# REMOVING NAs, PCA with cells as rows (zscore only) 
-#################
-datW <- dat3 %>% select(-pvalue, -cell_noreps) %>% spread(key = "cell", "zscore")
+datW <- dat2 %>% select(-pvalue, -cell_noreps) %>% spread(key = "cell", "zscore")
+head(datW)
 datW <- na.omit(datW)
 pca_dat <- datW %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2)
+print("head pca_dat")
 head(pca_dat)
 row.names(pca_dat) <- pca_dat$ID
 pca_dat <- pca_dat %>% select(-ID)
@@ -624,31 +628,35 @@ v
 dev.off()
 
 #################
-# Pearson Correlation 
+print("# Pearson Correlation ")
 #################
-head(dat2)
+#pcDat <- dat2 %>% filter(cell_noreps != "Astrocytes_Cerebellum")
 pcDat <- dat2
 cell_nr <- as.character(unique(pcDat$cell_noreps))
+cell_nr
 cor_df <- data.frame(cell=character(),
                      correlation=numeric(),
+                     cor_pvalue=numeric(),
                      value=character(),
                      stringsAsFactors=FALSE)
-i=as.character(cell_nr[6])
-i
+#i=as.character(cell_nr[6])
+#i
 for(i in cell_nr){
-    tmpD <- pcDat %>% filter(cell_noreps == cell_nr[6])
+    tmpD <- pcDat %>% filter(cell_noreps == i)
     #zscore correlation
     tmp_zW <- tmpD %>% select(ID,cell, zscore) %>% spread(key=cell, value = zscore)
     result = cor.test(tmp_zW[,2],tmp_zW[,3] , method = "pearson")
     cor_val <- round(result$estimate,digits = 2)
-    cor_df <- rbind(cor_df, c(i,cor_val,"zscore"))
+    cor_pval <- round(result$p.value,digits = 2)
+    cor_df <- rbind(cor_df, c(i,cor_val,cor_pval,"zscore"))
     #pvalue correlation
     tmp_zW <- tmpD %>% select(ID,cell, pvalue) %>% spread(key=cell, value = pvalue)
     result = cor.test(tmp_zW[,2],tmp_zW[,3] , method = "pearson")
     cor_val <- round(result$estimate,digits = 2)
-    cor_df <- rbind(cor_df, c(i,cor_val,"zscore"))
+    cor_pval <- round(result$p.value,digits = 2)
+    cor_df <- rbind(cor_df, c(i,cor_val,cor_pval,"pvalue"))
 }    
-colnames(cor_df) <- c("cell","cor_val","value")
+colnames(cor_df) <- c("cell","cor_val","cor_pval","value")
 print("#correlation test results")
 cor_df
 #cn <- gsub("_", " ", i)
