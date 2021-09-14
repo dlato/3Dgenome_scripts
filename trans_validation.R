@@ -63,14 +63,16 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-#Atype <- "1_vs_All"
-#zdat_file <- read.table("test_1vsAll_dat.txt", header = TRUE)
-#pdat_file <- read.table("test_1vsAll_pvalues.txt", header = TRUE)
-#roi1_file <- "FIRRE.bed"
-#roi2_file <- "ATF4.bed"
+Atype <- "1_vs_All"
+zdat_file <- "test_1vsAll_dat.txt"
+pdat_file <- "test_1vsAll_pvalues.txt"
+roi1_file <- "FIRRE.bed"
+roi2_file <- "ATF4.bed"
 #dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 #dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
 #dat <- read.table(dat_file, header = TRUE)
+zdat <- read.table(zdat_file, header = TRUE)
+pdat <- read.table(pdat_file, header = TRUE)
 zdat <- as.data.frame(zdat_file)
 print("summary of ALL zscores per cell type")
 summary(zdat)
@@ -395,8 +397,8 @@ p <- (ggplot(plot_d, aes(x=zscore, fill = validType))
              #         caption = "Data source: ToothGrowth",
              x = "z-score", y = "Density")
       #         tag = "A")
-      #  + scale_fill_manual(values =c("plum4", "cadetblue"))
-      + scale_fill_manual(values =c("plum4", "cadetblue"),labels=c(interLab, 'All interactions'))
+     #   + scale_fill_manual(values =c("plum4", "cadetblue"))
+      + scale_fill_manual(values =c("grey", "cadetblue"),labels=c('All interactions', interLab))
       + facet_grid(cell~. )
 )
 #p
@@ -404,6 +406,18 @@ f_name <- gsub(" ","",paste("6testCells_valid_interaction_chroms_density_allInte
 pdf(f_name, width = 14, height = 8)
 p
 dev.off()
+print("#test between means of all interactions and interactions btwn valid pair of chroms")
+print("#Test each group for normality")
+print("sig = reject normality null")
+plot_d$validType <- as.factor(plot_d$validType)
+plot_d %>%
+  group_by(validType) %>%
+  summarise(W = shapiro.test(zscore)$statistic,
+            p.value = shapiro.test(zscore)$p.value)
+print("#Perform the Mann-Whitney test (when dists are not normal)")
+print("sig = mean is diff btwn groups")
+wilcox.test(zscore ~ validType, data=plot_d, na.rm=TRUE, paired=FALSE, exact=FALSE, conf.int=TRUE)
+
 
 ######
 #sig interactions
