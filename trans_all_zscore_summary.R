@@ -97,6 +97,53 @@ head(allinters)
 dat <- as.data.frame(dat)
 print("summary of ALL sig zscores per cell type")
 summary(dat %>% filter(pvalue <= 0.05))
+###
+# ALL zscores
+###
+print("highest zscore info per cell: ALL zscores")
+# sorting the cell and zscore.
+sorted_dat <- dat[order(dat$cell, -dat$zscore),]
+# removing duplicates
+ans <- sorted_dat[!duplicated(sorted_dat$cell),]
+ans
+print("lowest zscore info per cell: ALL zscores")
+# sorting the cell and zscore.
+sorted_dat <- dat[order(dat$cell, dat$zscore),]
+# removing duplicates
+ans <- sorted_dat[!duplicated(sorted_dat$cell),]
+ans
+###
+# SIG zscores
+###
+sigD <- dat %>% filter(pvalue <= 0.05)
+print("highest zscore info per cell: SIG zscores")
+# sorting the cell and zscore.
+sorted_dat <- sigD[order(sigD$cell, -sigD$zscore),]
+# removing duplicates
+ans <- sorted_dat[!duplicated(sorted_dat$cell),]
+ans
+print("lowest zscore info per cell: SIG zscores")
+# sorting the cell and zscore.
+sorted_dat <- sigD[order(sigD$cell, sigD$zscore),]
+# removing duplicates
+ans <- sorted_dat[!duplicated(sorted_dat$cell),]
+ans
+###
+# NON-SIG zscores
+###
+sigD <- dat %>% filter(pvalue >= 0.05)
+print("highest zscore info per cell: SIG zscores")
+# sorting the cell and zscore.
+sorted_dat <- sigD[order(sigD$cell, -sigD$zscore),]
+# removing duplicates
+ans <- sorted_dat[!duplicated(sorted_dat$cell),]
+ans
+print("lowest zscore info per cell: SIG zscores")
+# sorting the cell and zscore.
+sorted_dat <- sigD[order(sigD$cell, sigD$zscore),]
+# removing duplicates
+ans <- sorted_dat[!duplicated(sorted_dat$cell),]
+ans
 dat$ID <- as.character(dat$ID)
 #read in germlayer info file
 gl_df <- read.table(germlayer_file, header = TRUE, sep = "\t")
