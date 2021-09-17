@@ -73,10 +73,8 @@ roi2_file <- "ATF4.bed"
 #dat <- read.table(dat_file, header = TRUE)
 zdat <- read.table(zdat_file, header = TRUE)
 pdat <- read.table(pdat_file, header = TRUE)
-zdat <- as.data.frame(zdat_file)
 print("summary of ALL zscores per cell type")
 summary(zdat)
-pdat <- as.data.frame(pdat_file)
 print("summary of ALL pvalues per cell type")
 summary(pdat)
 #combine zscore and pvalue into one df
@@ -104,6 +102,7 @@ dat2 <- dat %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
 #remove A and B from chrom names
 dat2$chrA <- gsub("A", "", dat2$chrA)
 dat2$chrB <- gsub("B", "", dat2$chrB)
+hm_zscore_df <- dat2
 #convert data to GRanges object
 dat_bed1 <- dat2 %>% select(chrA, st1, end1)
 dat_bed1$st1 <- as.numeric(dat_bed1$st1)
@@ -544,7 +543,28 @@ pdf(f_name, width = 14, height = 8)
 p
 dev.off()
 
-
+##############
+# heatmap along chromosome positions
+##############
+head(hm_zscore_df)
+hm_zscore_df$chrs <- paste0(hm_zscore_df$chrA,hm_zscore_df$chrB)
+dirA <- paste0(unique(roi1$chrom),unique(roi2$chrom))
+dirB <- paste0(unique(roi2$chrom),unique(roi1$chrom))
+hm_df <- hm_zscore_df %>% filter(chrs == dirA | chrs == dirB)
+head(hm_df)
+testdf <- hm_df %>% filter(cell == "Aorta")
+xchr <- gsub("chr", "", unique(roi1$chrom))
+ychr <- gsub("chr", "", unique(roi2$chrom))
+#hm <- (ggplot(testdf, aes(x=st1, y=st2, fill= zscore)) 
+hm <- (ggplot(hm_df, aes(x=st1, y=st2, fill= zscore)) 
+           + geom_tile()
+      + labs(title = "Distribution of z-scores along valid interacting chromosome",
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = paste0("Chromosome ", xchr), y = paste0("Chromosome ", ychr))
+      + facet_grid(cell ~.)
+)
+hm
 
 #dealing with cases where the specified interaction is not sig in any cell type
 sixcells_Vinter <- gather(sixcells_Vinter, cell, zscore, 2:length(colnames(sixcells_all)), factor_key=TRUE)
