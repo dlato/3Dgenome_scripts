@@ -27,6 +27,7 @@ library(dplyr)
 library(tidyr)
 library(GenomicRanges)
 library(ggplot2)
+library(harrypotter)
 ##########
 
 #########################################################################
@@ -45,7 +46,7 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
                   #plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm"),
                   #for second legend on y-axis
                   axis.text.y.right = element_text(size=18),
-                  legend.title = element_blank(),
+                 # legend.title = element_blank(),
                   legend.text = element_text(size = 18),
                   #change the colour of facet label background
                   strip.background = element_rect(fill = "#E6E1EA"),
@@ -544,9 +545,15 @@ p
 dev.off()
 
 ##############
-# heatmap along chromosome positions
+# zscore
+##############
+##############
+# heatmap along chromosome positions: ALL INTERACTIONS (including non-sig)
 ##############
 head(hm_zscore_df)
+hm_zscore_df$st1 <- as.numeric(hm_zscore_df$st1)
+hm_zscore_df$st2 <- as.numeric(hm_zscore_df$st2)
+summary(hm_zscore_df)
 hm_zscore_df$chrs <- paste0(hm_zscore_df$chrA,hm_zscore_df$chrB)
 dirA <- paste0(unique(roi1$chrom),unique(roi2$chrom))
 dirB <- paste0(unique(roi2$chrom),unique(roi1$chrom))
@@ -558,13 +565,110 @@ ychr <- gsub("chr", "", unique(roi2$chrom))
 #hm <- (ggplot(testdf, aes(x=st1, y=st2, fill= zscore)) 
 hm <- (ggplot(hm_df, aes(x=st1, y=st2, fill= zscore)) 
            + geom_tile()
-      + labs(title = "Distribution of z-scores along valid interacting chromosome",
+      + labs(title = "Distribution of z-scores along valid interacting chromosome (all interactions)",
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", xchr), y = paste0("Chromosome ", ychr))
+             x = paste0("Chromosome ", xchr, " Genomic Position"),
+             y = paste0("Chromosome ", ychr, " Genomic Position"))
+      + scale_fill_hp(discrete = FALSE, option = "Always", name = "z-score")
       + facet_grid(cell ~.)
+      + theme(panel.spacing = unit(0, "lines"),
+              strip.text.y.right = element_text(angle = 0), #rotate facet labels
+              strip.background = element_rect(fill = "white"),
+              axis.text.x = element_blank(),
+              axis.ticks.x = element_blank(),
+              axis.text.y = element_blank(),
+              axis.ticks.y = element_blank())
 )
+f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_heatmap_allInters",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
 hm
+dev.off()
+
+##############
+# heatmap along chromosome positions: SIG INTERACTIONS (only sig)
+##############
+hm_dfsig <- hm_df %>% filter(pvalue <= 0.05)
+#hm <- (ggplot(testdf, aes(x=st1, y=st2, fill= zscore)) 
+hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= zscore)) 
+       + geom_tile()
+       + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
+              #         subtitle = "Plot of length by dose",
+              #         caption = "Data source: ToothGrowth",
+              x = paste0("Chromosome ", xchr, " Genomic Position"),
+              y = paste0("Chromosome ", ychr, " Genomic Position"))
+       + scale_fill_hp(discrete = FALSE, option = "Always", name = "z-score")
+       + facet_grid(cell ~.)
+       + theme(panel.spacing = unit(0, "lines"),
+               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+               strip.background = element_rect(fill = "white"),
+               axis.text.x = element_blank(),
+               axis.ticks.x = element_blank(),
+               axis.text.y = element_blank(),
+               axis.ticks.y = element_blank())
+)
+f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_heatmap_sigInters",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+hm
+dev.off()
+
+##############
+# Pvalue
+##############
+##############
+# heatmap along chromosome positions: ALL INTERACTIONS (including non-sig)
+##############
+#hm <- (ggplot(testdf, aes(x=st1, y=st2, fill= zscore)) 
+hm <- (ggplot(hm_df, aes(x=st1, y=st2, fill= pvalue)) 
+       + geom_tile()
+       + labs(title = "Distribution of p-value along valid interacting chromosome (all interactions)",
+              #         subtitle = "Plot of length by dose",
+              #         caption = "Data source: ToothGrowth",
+              x = paste0("Chromosome ", xchr, " Genomic Position"),
+              y = paste0("Chromosome ", ychr, " Genomic Position"))
+       + scale_fill_hp(discrete = FALSE, option = "Always", name = "p-value")
+       + facet_grid(cell ~.)
+       + theme(panel.spacing = unit(0, "lines"),
+               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+               strip.background = element_rect(fill = "white"),
+               axis.text.x = element_blank(),
+               axis.ticks.x = element_blank(),
+               axis.text.y = element_blank(),
+               axis.ticks.y = element_blank())
+)
+f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_pvalue_heatmap_allInters",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+hm
+dev.off()
+
+##############
+# heatmap along chromosome positions: SIG INTERACTIONS (only sig)
+##############
+#hm <- (ggplot(testdf, aes(x=st1, y=st2, fill= zscore)) 
+hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= pvalue)) 
+       + geom_tile()
+       + labs(title = "Distribution of p-value along valid interacting chromosome (significant interactions)",
+              #         subtitle = "Plot of length by dose",
+              #         caption = "Data source: ToothGrowth",
+              x = paste0("Chromosome ", xchr, " Genomic Position"),
+              y = paste0("Chromosome ", ychr, " Genomic Position"))
+       + scale_fill_hp(discrete = FALSE, option = "Always", name = "p-value")
+       + facet_grid(cell ~.)
+       + theme(panel.spacing = unit(0, "lines"),
+               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+               strip.background = element_rect(fill = "white"),
+               axis.text.x = element_blank(),
+               axis.ticks.x = element_blank(),
+               axis.text.y = element_blank(),
+               axis.ticks.y = element_blank())
+)
+f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_pvalue_heatmap_sigInters",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+hm
+dev.off()
+
+
+
 
 #dealing with cases where the specified interaction is not sig in any cell type
 sixcells_Vinter <- gather(sixcells_Vinter, cell, zscore, 2:length(colnames(sixcells_all)), factor_key=TRUE)
