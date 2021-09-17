@@ -41,4 +41,4 @@ Keratinocytes_Day0.pooled	Skin
 Keratinocytes_Day6.pooled	Skin
 Keratinocytes_Day3.rep1	Skin
 Keratinocytes_Day3.rep2	Skin
-Thymus	endoderm
+Thymus	Thymus
