@@ -131,94 +131,94 @@ dat2$cell <- as.factor(dat2$cell)
 dat2$cell_noreps <- as.factor(dat2$cell_noreps)
 #NAs are a problem with PCA. need to be removed or dealt with
 #https://www.edureka.co/blog/knn-algorithm-in-r/
-print("#using KNN imputation to fill in the missing values (NAs)")
-#optimizing value for k (using zscore col)
-set.seed(123)
-datsimple <- dat2 %>% select(zscore,pvalue)
-#datsimple <- dat2 %>% select(pvalue,zscore)
-datsimple <- na.omit(datsimple)
-datsub <- dat2 %>% select(zscore,pvalue) %>% select(-zscore)
-#datsub <- dat2 %>% select(pvalue,zscore) %>% select(-pvalue)
-datsub <- na.omit(datsub)
-dat.d <- sample(1:nrow(datsub),size=nrow(datsub)*0.7,replace = FALSE) #random selection of 70% data.
-train.loan <- datsimple[dat.d,] # 70% training data
-test.loan <- datsimple[-dat.d,] # remaining 30% test data
-#Creating seperate dataframe for 'zscore' feature which is our target.
-train.loan_labels <- datsimple[dat.d,1]
-test.loan_labels <-datsimple[-dat.d,1]
-i=1
-k.optm=1
-k.optmvec <- c()
-for (i in 1:100){
-   knn.mod <- as.numeric(as.character(class::knn(train=train.loan, test=test.loan, cl=train.loan_labels, k=i)))
-   k.optm[i] <- 100 * sum(test.loan_labels == knn.mod)/NROW(test.loan_labels)
-   k=i
-   k.optmvec <- c(k.optmvec, k.optm[i])
-   #cat(k,'=',k.optm[i],'')
-}
-optK <- which(k.optmvec == max(k.optmvec))
-summary(dat2)
-dat.knn <- VIM::kNN(dat2, variable = c("zscore", "pvalue"), k=50)
-#dat.knn <- VIM::kNN(dat2, variable = c("zscore", "pvalue"), k=optK)
-dat.knn <- dat.knn %>% select(-zscore_imp, -pvalue_imp)
-summary(dat.knn)
-
-#################
-print("# PCA with z-score and p-value as cols ")
-#################
-#NAs are a problem with PCA. need to be removed.
-pca_dat <- dat.knn %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2, -ID, -cell)
-head(pca_dat)
+#print("#using KNN imputation to fill in the missing values (NAs)")
+##optimizing value for k (using zscore col)
+#set.seed(123)
+#datsimple <- dat2 %>% select(zscore,pvalue)
+##datsimple <- dat2 %>% select(pvalue,zscore)
+#datsimple <- na.omit(datsimple)
+#datsub <- dat2 %>% select(zscore,pvalue) %>% select(-zscore)
+##datsub <- dat2 %>% select(pvalue,zscore) %>% select(-pvalue)
+#datsub <- na.omit(datsub)
+#dat.d <- sample(1:nrow(datsub),size=nrow(datsub)*0.7,replace = FALSE) #random selection of 70% data.
+#train.loan <- datsimple[dat.d,] # 70% training data
+#test.loan <- datsimple[-dat.d,] # remaining 30% test data
+##Creating seperate dataframe for 'zscore' feature which is our target.
+#train.loan_labels <- datsimple[dat.d,1]
+#test.loan_labels <-datsimple[-dat.d,1]
+#i=1
+#k.optm=1
+#k.optmvec <- c()
+#for (i in 1:100){
+#   knn.mod <- as.numeric(as.character(class::knn(train=train.loan, test=test.loan, cl=train.loan_labels, k=i)))
+#   k.optm[i] <- 100 * sum(test.loan_labels == knn.mod)/NROW(test.loan_labels)
+#   k=i
+#   k.optmvec <- c(k.optmvec, k.optm[i])
+#   #cat(k,'=',k.optm[i],'')
+#}
+#optK <- which(k.optmvec == max(k.optmvec))
+#summary(dat2)
+#dat.knn <- VIM::kNN(dat2, variable = c("zscore", "pvalue"), k=50)
+##dat.knn <- VIM::kNN(dat2, variable = c("zscore", "pvalue"), k=optK)
+#dat.knn <- dat.knn %>% select(-zscore_imp, -pvalue_imp)
+#summary(dat.knn)
+#
+##################
+#print("# PCA with z-score and p-value as cols ")
+##################
+##NAs are a problem with PCA. need to be removed.
+#pca_dat <- dat.knn %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2, -ID, -cell)
+#head(pca_dat)
+##row.names(pca_dat) <- pca_dat$ID
+##pca_dat <- pca_dat %>% select(-ID)
+##pca_dat <- as.data.frame(t(pca_dat))
+#commonInter.pca <- prcomp(pca_dat[,-3], center = TRUE,scale. = TRUE)
+#summary(commonInter.pca)
+#print("graph 1")
+#g <- (ggbiplot(commonInter.pca,
+#              obs.scale = 1,
+##              var.axes=FALSE,
+#              var.scale = 1,
+##              labels = row.names(pca_dat),
+#              groups = dat2$cell,
+##              ellipse = TRUE,
+#              circle = TRUE,
+##              ellipse.prob = 0.68
+#      )
+#      + labs(title = "Trans-chromosomal Interactions")
+#)
+#pdf("zscore_PCA_trans_interactions_zscore_pvalue_replicates.pdf", width = 14, height = 8)
+#g
+#dev.off()
+##################
+##################
+#print("# PCA with cells as rows (zscore only) ")
+##################
+#datW <- dat.knn %>% select(-pvalue, -cell_noreps) %>% spread(key = "cell", "zscore")
+#pca_dat <- datW %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2)
+#head(pca_dat)
 #row.names(pca_dat) <- pca_dat$ID
 #pca_dat <- pca_dat %>% select(-ID)
 #pca_dat <- as.data.frame(t(pca_dat))
-commonInter.pca <- prcomp(pca_dat[,-3], center = TRUE,scale. = TRUE)
-summary(commonInter.pca)
-print("graph 1")
-g <- (ggbiplot(commonInter.pca,
-              obs.scale = 1,
+#head(pca_dat)
+#commonInter.pca <- prcomp(pca_dat, center = TRUE,scale. = TRUE)
+#summary(commonInter.pca)
+#print("graph 2")
+#g <- (ggbiplot(commonInter.pca,
+#              obs.scale = 1,
 #              var.axes=FALSE,
-              var.scale = 1,
+#              var.scale = 1,
 #              labels = row.names(pca_dat),
-              groups = dat2$cell,
+##              groups = colnames(pca_dat),
 #              ellipse = TRUE,
-              circle = TRUE,
+#              circle = TRUE,
 #              ellipse.prob = 0.68
-      )
-      + labs(title = "Trans-chromosomal Interactions")
-)
-pdf("zscore_PCA_trans_interactions_zscore_pvalue_replicates.pdf", width = 14, height = 8)
-g
-dev.off()
-#################
-#################
-print("# PCA with cells as rows (zscore only) ")
-#################
-datW <- dat.knn %>% select(-pvalue, -cell_noreps) %>% spread(key = "cell", "zscore")
-pca_dat <- datW %>% select(-chrA, -st1, -end1, -chrB, -st2, -end2)
-head(pca_dat)
-row.names(pca_dat) <- pca_dat$ID
-pca_dat <- pca_dat %>% select(-ID)
-pca_dat <- as.data.frame(t(pca_dat))
-head(pca_dat)
-commonInter.pca <- prcomp(pca_dat, center = TRUE,scale. = TRUE)
-summary(commonInter.pca)
-print("graph 2")
-g <- (ggbiplot(commonInter.pca,
-              obs.scale = 1,
-              var.axes=FALSE,
-              var.scale = 1,
-              labels = row.names(pca_dat),
-#              groups = colnames(pca_dat),
-              ellipse = TRUE,
-              circle = TRUE,
-              ellipse.prob = 0.68
-      )
-      + labs(title = "Trans-chromosomal Interactions")
-)
-pdf("zscore_PCA_common_interactions_zscore_cells_as_cols_replicates.pdf", width = 14, height = 8)
-g
-dev.off()
+#      )
+#      + labs(title = "Trans-chromosomal Interactions")
+#)
+#pdf("zscore_PCA_common_interactions_zscore_cells_as_cols_replicates.pdf", width = 14, height = 8)
+#g
+#dev.off()
 #################
 # REMOVING NAs PCAs
 #################
@@ -588,12 +588,14 @@ dev.off()
 ##################
 
 #################
-#heatmap of common interactions z-scores by cell type and chromosome
+print("#heatmap of common interactions z-scores by cell type and chromosome")
 #################
 r_dat2$AllChr <- gsub("chr","",r_dat2$AllChr)
 r_dat2$AllChr <- as.factor(r_dat2$AllChr)
+head(r_dat2)
 #calculate mean zscore per chrom per cell type so heat map is accutate
 hm_dat = r_dat2 %>% group_by(AllChr,cell) %>% dplyr::summarize(mzscore=mean(zscore))
+head(hm_dat)
 hm <- (ggplot(r_dat2, aes(AllChr, cell))
 #hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
 #       + geom_tile(aes(fill = mzscore), colour = "white")
@@ -606,6 +608,7 @@ hm <- (ggplot(r_dat2, aes(AllChr, cell))
 #       + theme(axis.text.x = element_text(angle = 90))
 )
 pdf("zscore_heatmap_interactions_chroms_all_cells_reps.pdf", width = 14, height = 8)
+#png("zscore_heatmap_interactions_chroms_all_cells_reps.png")
 hm
 dev.off()
 #################
@@ -643,6 +646,7 @@ cor_df <- data.frame(cell=character(),
 #i
 for(i in cell_nr){
     tmpD <- pcDat %>% filter(cell_noreps == i)
+    print(i)
     #zscore correlation
     tmp_zW <- tmpD %>% select(ID,cell, zscore) %>% spread(key=cell, value = zscore)
     result = cor.test(tmp_zW[,2],tmp_zW[,3] , method = "pearson")
@@ -652,6 +656,7 @@ for(i in cell_nr){
     #pvalue correlation
     tmp_zW <- tmpD %>% select(ID,cell, pvalue) %>% spread(key=cell, value = pvalue)
     result = cor.test(tmp_zW[,2],tmp_zW[,3] , method = "pearson")
+    print(result)
     cor_val <- round(result$estimate,digits = 2)
     cor_pval <- round(result$p.value,digits = 2)
     cor_df <- rbind(cor_df, c(i,cor_val,cor_pval,"pvalue"))
