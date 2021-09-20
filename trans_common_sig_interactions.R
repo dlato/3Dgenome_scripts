@@ -7,6 +7,7 @@
 ######
 # arguments: 3Dflow output data (tsv)
 #            germlayer df (tsv)
+#            tissue/system df (tsv)
 ########################################
 
 options(echo=F)
@@ -14,6 +15,7 @@ args <- commandArgs(trailingOnly = TRUE)
 dat_file <- args[1]
 germlayer_file <- args[2]
 allinters_file <- args[3]
+tissue_file <- args[4]
 #Atype <- args[4]
 
 ##########
@@ -68,6 +70,7 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 print("#read in files")
 #interaction data
 #Atype <- "1_vs_All"
+tissue_file <- "tissue_system_info.txt"
 dat <- read.table("test_pairwise_dat.txt", header = TRUE)
 allinters <- read.table("all_trans_interactions_1Mb.txt", header = FALSE)
 gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
@@ -89,6 +92,10 @@ gl_ord <- c("ectoderm", "mesoderm", "endoderm", "bipotent", "ectoderm/mesoderm")
 #gl_colours <- c("#0D3B66","#F4D35E","#F95738","#66999B","#EE964B")
 #darker shades
 gl_colours <- c("#071F36","#F2CB40","#ED2E07","#517A7B","#EA7E1F")
+
+#tissue info
+ts_df <- read.table(tissue_file,sep = "\t", header = TRUE)
+head(ts_df)
 
 #remove interactions involving x and y chrs
 #dat <- dat[grep("chrY", df$ID, invert=TRUE), ]
@@ -340,7 +347,32 @@ p <- (ggplot(r_dat2, aes(x = zscore, y = cell, fill = germL))
       + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
       + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
 )
-pdf("zscore_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
+pdf("zscore_ridgeline_common_interactions_all_cells_germlayer.pdf", width = 14, height = 8)
+p
+dev.off()
+
+# Tissue/system breakdown
+t_dat2 <- r_dat2
+head(t_dat2)
+t_dat2$tissue <- ts_df$Tissue.System[match(t_dat2$cell, ts_df$X3Dflow.normalized_data.name)]
+t_dat2 <- t_dat2[order(t_dat2$tissue),]
+t_cell_ord <- unique(t_dat2$cell)
+t_cell_ord
+t_dat2$cell <- factor(t_dat2$cell, levels=rev(t_cell_ord))
+p <- (ggplot(t_dat2, aes(x = zscore, y = cell, fill = tissue))
+      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
+      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
+      + labs(x="z-score",
+             y="Cell",
+             title = "z-scores of Common Trans-chromosomal Interactions",
+             fill = "Tissue")
+#      + scale_fill_hp_d(option = "NewtScamander", name = "Tissue")
+      #                                     gsub("F", "A", my_colors)))
+      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
+      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
+      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+)
+pdf("zscore_ridgeline_common_interactions_all_cells_tissue.pdf", width = 14, height = 8)
 p
 dev.off()
 #################
@@ -406,7 +438,31 @@ p <- (ggplot(chrClass_dat, aes(y = cell, x = zscore, fill = germL))
       #      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
       #      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
 )
-pdf("chrClass_cell_facet_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
+pdf("chrClass_cell_facet_ridgeline_common_interactions_all_cells_germlayer.pdf", width = 14, height = 8)
+p
+dev.off()
+# Tissue/system
+head(chrClass_dat)
+t_dat2 <- chrClass_dat
+t_dat2$tissue <- ts_df$Tissue.System[match(t_dat2$cell, ts_df$X3Dflow.normalized_data.name)]
+t_dat2 <- t_dat2[order(t_dat2$tissue),]
+t_cell_ord <- unique(t_dat2$cell)
+t_dat2$cell <- factor(t_dat2$cell, levels=rev(t_cell_ord))
+p <- (ggplot(t_dat2, aes(y = cell, x = zscore, fill = tissue))
+      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
+      #      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
+      #      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
+      + facet_grid(.~ chrClass)
+      + labs(x="z-score",
+             y="Cell",
+             title = "z-scores of Common Trans-chromosomal Interactions",
+             fill = "Tissue")
+#      + scale_fill_manual(values = gl_colours)
+      #      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
+      #      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
+      #      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+)
+pdf("chrClass_cell_facet_ridgeline_common_interactions_all_cells_tissue.pdf", width = 14, height = 8)
 p
 dev.off()
 #################
