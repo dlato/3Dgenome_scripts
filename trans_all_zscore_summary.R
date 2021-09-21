@@ -8,13 +8,15 @@
 # arguments: 3Dflow z-score output data (tsv) ** make sure it is ALL zscores! (not just sig)
 #            3Dflow p-value output data (tsv) ** make sure it is ALL pvalues! (not just sig)
 #            germlayer df (tsv)
+#            all interactions df (tsv)
 ########################################
 
 options(echo=F)
 args <- commandArgs(trailingOnly = TRUE)
-dat_file <- args[1]
-germlayer_file <- args[2]
-allinters_file <- args[3]
+zdat_file <- args[1]
+pdat_file <- args[2]
+germlayer_file <- args[3]
+allinters_file <- args[4]
 #Atype <- args[4]
 
 ##########
@@ -71,6 +73,7 @@ print("#read in files")
 #zdat_file <- "test_1vsAll_dat.txt"
 #pdat_file <- "test_1vsAll_pvalues.txt"
 #allinters_file <- "all_trans_interactions_1Mb.txt"
+#germlayer_file <- "germlayer_info.txt"
 #gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
 ##Atype <- "1_vs_All"
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
@@ -79,7 +82,6 @@ print("#read in files")
 zdat <- read.table(zdat_file, header = TRUE)
 pdat <- read.table(pdat_file, header = TRUE)
 allinters <- read.table(allinters_file, header = FALSE)
-germlayer_file <- "germlayer_info.txt"
 print("summary of ALL zscores per cell type")
 summary(zdat)
 print("summary of ALL pvalues per cell type")
