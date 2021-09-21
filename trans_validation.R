@@ -5,11 +5,11 @@
 #            email:  daniellalato@gmail.com
 #            github: https://github.com/dlato
 ######
-# arguments: 3Dflow zscore output data
+# arguments: 3Dflow zscore output data (ALL INTERACTIONS)
 #            first interacting region bed file (tab separated)
 #            second interacting region bed file (tab separated)
 #            type of analysis/plot title. (words must be separated by underscore "_")
-#            3Dflow pvalue output data
+#            3Dflow pvalue output data (ALL INTERACTIONS)
 # NOTE: at the moment only ONE interacting region can be searched at a time
 #       i.e. chrA:1-10 interacting with chrB:40-50
 ########################################
@@ -27,7 +27,7 @@ library(dplyr)
 library(tidyr)
 library(GenomicRanges)
 library(ggplot2)
-library(harrypotter)
+library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
 ##########
 
 #########################################################################
@@ -64,11 +64,11 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-Atype <- "1_vs_All"
-zdat_file <- "test_1vsAll_dat.txt"
-pdat_file <- "test_1vsAll_pvalues.txt"
-roi1_file <- "FIRRE.bed"
-roi2_file <- "ATF4.bed"
+#Atype <- "1_vs_All"
+#zdat_file <- "test_1vsAll_dat.txt"
+#pdat_file <- "test_1vsAll_pvalues.txt"
+#roi1_file <- "FIRRE.bed"
+#roi2_file <- "ATF4.bed"
 #dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 #dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
 #dat <- read.table(dat_file, header = TRUE)
@@ -281,23 +281,23 @@ nonsig_cells
 print("# only plot our 6 test cell types")
 #######
 #df with just these cells
-sixcells_all <- filter(dat2, cell == "Dorsolateral_Prefrontal_cortex" | cell == "Small_bowell" |
-                         cell == "Aorta" | cell == "Right_Ventricle" | cell == "Cardiomyocites_primitive_rep1" |
-                         cell == "hESC_Dekker")
+sixcells_all <- filter(dat2, cell == "Dorsolateral_prefrontal_cortex" | cell == "Small_bowel_Schmitt" |
+                         cell == "Aorta" | cell == "Right_ventricle_Schmitt" | cell == "Cardiomyocites_primitive_rep1" |
+                         cell == "H1hESC_Oksuz")
 head(sixcells_all)
-sixcells_Vinter <- filter(Vinter, cell == "Dorsolateral_Prefrontal_cortex" | cell == "Small_bowell" |
-                         cell == "Aorta" | cell == "Right_Ventricle" | cell == "Cardiomyocites_primitive_rep1" |
-                         cell == "hESC_Dekker")
+sixcells_Vinter <- filter(Vinter, cell == "Dorsolateral_prefrontal_cortex" | cell == "Small_bowel_Schmitt" |
+                         cell == "Aorta" | cell == "Right_ventricle_Schmitt" | cell == "Cardiomyocites_primitive_rep1" |
+                         cell == "H1hESC_Oksuz")
 
 head(sixcells_Vinter)
 sixcells_chr <- select(chrs_df,c("ID",
-                                 "Dorsolateral_Prefrontal_cortex", 
-                                 "Small_bowell", 
+                                 "Dorsolateral_prefrontal_cortex", 
+                                 "Small_bowel_Schmitt", 
                                  "Aorta", 
-                                 "Right_Ventricle", 
+                                 "Right_ventricle_Schmitt", 
                                  "Cardiomyocites_primitive_rep1",
                                  #                                 "Spleen"))
-                                 "hESC_Dekker"))
+                                 "H1hESC_Oksuz"))
 head(sixcells_chr)
 
 #wide to long
@@ -324,13 +324,13 @@ plot_df$cell <- as.factor(plot_df$cell)
 levels(plot_df$validType) <- list("Interactions from valid inter" = "validInter",
                                   "Interactions from chrs"="validChr",
                                   "All interactions"="all")
-levels(plot_df$cell) <- list("hESCDekker" = "hESC_Dekker",
+levels(plot_df$cell) <- list("hESCDekker" = "H1hESC_Oksuz",
                              #levels(plot_df$cell) <- list("Spleen" = "Spleen",
                              "CardPrimRep1" = "Cardiomyocites_primitive_rep1",
-                             "RightVentricle" = "Right_Ventricle",
+                             "RightVentricle" = "Right_ventricle_Schmitt",
                              "Aorta"="Aorta",
-                             "SmallBowel"="Small_bowell",
-                             "DorsoPreCort" = "Dorsolateral_Prefrontal_cortex")
+                             "SmallBowel"="Small_bowel_Schmitt",
+                             "DorsoPreCort" = "Dorsolateral_prefrontal_cortex")
 #new col for seq depth
 plot_df$seqDep <- plot_df$cell
 levels(plot_df$seqDep) <- list("High" = "hESCDekker",
@@ -444,25 +444,25 @@ nonsig_cells
 print("# only plot our 6 test cell types")
 #######
 #df with just these cells
-sixcells_all <- filter(dat2, cell == "Dorsolateral_Prefrontal_cortex" | cell == "Small_bowell" |
-                         cell == "Aorta" | cell == "Right_Ventricle" | cell == "Cardiomyocites_primitive_rep1" |
-                         cell == "hESC_Dekker")
+sixcells_all <- filter(dat2, cell == "Dorsolateral_prefrontal_cortex" | cell == "Small_bowel_Schmitt" |
+                         cell == "Aorta" | cell == "Right_ventricle_Schmitt" | cell == "Cardiomyocites_primitive_rep1" |
+                         cell == "H1hESC_Oksuz")
 sixcells_all$zscore[as.numeric(sixcells_all$pvalue)>=0.05]  <- NA 
 head(sixcells_all)
-sixcells_Vinter <- filter(Vinter, cell == "Dorsolateral_Prefrontal_cortex" | cell == "Small_bowell" |
-                            cell == "Aorta" | cell == "Right_Ventricle" | cell == "Cardiomyocites_primitive_rep1" |
-                            cell == "hESC_Dekker")
+sixcells_Vinter <- filter(Vinter, cell == "Dorsolateral_prefrontal_cortex" | cell == "Small_bowel_Schmitt" |
+                            cell == "Aorta" | cell == "Right_ventricle_Schmitt" | cell == "Cardiomyocites_primitive_rep1" |
+                            cell == "H1hESC_Oksuz")
 sixcells_Vinter$zscore[as.numeric(sixcells_Vinter$pvalue)>=0.05]  <- NA 
 
 head(sixcells_Vinter)
 sixcells_chr <- select(chrs_df,c("ID",
-                                 "Dorsolateral_Prefrontal_cortex", 
-                                 "Small_bowell", 
+                                 "Dorsolateral_prefrontal_cortex", 
+                                 "Small_bowel_Schmitt", 
                                  "Aorta", 
-                                 "Right_Ventricle", 
+                                 "Right_ventricle_Schmitt", 
                                  "Cardiomyocites_primitive_rep1",
                                  #                                 "Spleen"))
-                                 "hESC_Dekker"))
+                                 "H1hESC_Oksuz"))
 head(sixcells_chr)
 
 #wide to long
@@ -489,13 +489,13 @@ plot_df$cell <- as.factor(plot_df$cell)
 levels(plot_df$validType) <- list("Interactions from valid inter" = "validInter",
                                   "Interactions from chrs"="validChr",
                                   "All significant interactions"="all")
-levels(plot_df$cell) <- list("hESCDekker" = "hESC_Dekker",
+levels(plot_df$cell) <- list("hESCDekker" = "H1hESC_Oksuz",
                              #levels(plot_df$cell) <- list("Spleen" = "Spleen",
                              "CardPrimRep1" = "Cardiomyocites_primitive_rep1",
-                             "RightVentricle" = "Right_Ventricle",
+                             "RightVentricle" = "Right_ventricle_Schmitt",
                              "Aorta"="Aorta",
-                             "SmallBowel"="Small_bowell",
-                             "DorsoPreCort" = "Dorsolateral_Prefrontal_cortex")
+                             "SmallBowel"="Small_bowel_Schmitt",
+                             "DorsoPreCort" = "Dorsolateral_prefrontal_cortex")
 #new col for seq depth
 plot_df$seqDep <- plot_df$cell
 levels(plot_df$seqDep) <- list("High" = "hESCDekker",
