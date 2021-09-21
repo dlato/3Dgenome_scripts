@@ -69,13 +69,15 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 print("#read in files")
 #interaction data
 #Atype <- "1_vs_All"
-library(inauguration)
+#library(inauguration)
+#library(VIM)
+#library(ggbiplot)
 #zscoreFile <- "test_1vsAll_dat.txt"
 #pvaluFile <- "test_1vsAll_pvalues.txt"
 datz <- read.table(zscoreFile, header = TRUE)
-datz <- as.data.frame(datz)
+#datz <- as.data.frame(datz)
 datp <- read.table(pvaluFile, header = TRUE)
-datp <- as.data.frame(datp)
+#datp <- as.data.frame(datp)
 head(datp)
 head(datz)
 #combine zscore and pvals into one df
@@ -596,14 +598,15 @@ head(r_dat2)
 #calculate mean zscore per chrom per cell type so heat map is accutate
 hm_dat = r_dat2 %>% group_by(AllChr,cell) %>% dplyr::summarize(mzscore=mean(zscore))
 head(hm_dat)
-hm <- (ggplot(r_dat2, aes(AllChr, cell))
-#hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
-#       + geom_tile(aes(fill = mzscore), colour = "white")
-       + geom_tile(aes(fill = zscore), colour = "white")
+tail(hm_dat)
+hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
+       + geom_tile(aes(fill = mzscore), colour = "white")
+#hm <- (ggplot(r_dat2, aes(AllChr, cell))
+#       + geom_tile(aes(fill = zscore), colour = "white")
        + scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
        + labs(x = "Chromosome",
               y = "Cell",
-              title = "Common Trans-chromosomal Interactions z-scores")
+              title = "Trans-chromosomal Interactions z-scores")
 #       + facet_wrap(.~germL)
 #       + theme(axis.text.x = element_text(angle = 90))
 )
@@ -612,6 +615,7 @@ pdf("zscore_heatmap_interactions_chroms_all_cells_reps.pdf", width = 14, height 
 hm
 dev.off()
 #################
+
 
 #################
 # violin and box plot
