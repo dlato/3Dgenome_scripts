@@ -70,11 +70,11 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-#zdat_file <- "test_1vsAll_dat.txt"
-#pdat_file <- "test_1vsAll_pvalues.txt"
-#allinters_file <- "all_trans_interactions_1Mb.txt"
-#germlayer_file <- "germlayer_info.txt"
-#gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
+zdat_file <- "test_1vsAll_dat.txt"
+pdat_file <- "test_1vsAll_pvalues.txt"
+allinters_file <- "all_trans_interactions_1Mb.txt"
+germlayer_file <- "germlayer_info.txt"
+gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
 ##Atype <- "1_vs_All"
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
@@ -636,11 +636,12 @@ dev.off()
 r_dat2$AllChr <- gsub("chr","",r_dat2$AllChr)
 r_dat2$AllChr <- as.factor(r_dat2$AllChr)
 #calculate mean zscore per chrom per cell type so heat map is accutate
-hm_dat = r_dat2 %>% group_by(AllChr,cell) %>% dplyr::summarize(mzscore=mean(zscore))
-hm <- (ggplot(r_dat2, aes(AllChr, cell))
-#hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
-#       + geom_tile(aes(fill = mzscore), colour = "white")
-       + geom_tile(aes(fill = zscore), colour = "white")
+hm_dat = r_dat2 %>% group_by(AllChr,cell, sig) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+summary(hm_dat)
+#hm <- (ggplot(r_dat2, aes(AllChr, cell))
+#       + geom_tile(aes(fill = zscore), colour = "white")
+hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
+       + geom_tile(aes(fill = mzscore), colour = "white")
 + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score", na.value = "grey")
 #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
        #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
@@ -651,10 +652,13 @@ hm <- (ggplot(r_dat2, aes(AllChr, cell))
          c("nonsig" = "Non-significant", "sig" = "Significant"))))
 #       + theme(axis.text.x = element_text(angle = 90))
 )
-pdf("zscore_heatmap_interactions_chroms_all_cells.pdf", width = 14, height = 8)
+pdf("zscore_mean_heatmap_interactions_chroms_all_cells.pdf", width = 14, height = 8)
 hm
 dev.off()
 #################
+# classic Hi-C heatmap, on steroids
+#################
+head(r_dat2)
 
 ##################
 ##parallel sets
