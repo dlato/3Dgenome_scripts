@@ -7,6 +7,7 @@
 ######
 # arguments: 3Dflow output data (tsv)
 #            germlayer df (tsv)
+#            all interactions file (tsv)
 #            tissue/system df (tsv)
 ########################################
 
@@ -28,7 +29,6 @@ library(ggridges)#for ridgeline
 library(ggbiplot)#for PCA
 library(devtools)#for PCA
 library(factoextra)#for PCA
-library(harrypotter)
 #install_github("vqv/ggbiplot")
 ##remotes::install_github("R-CoderDotCom/ridgeline@main")
 #library(ridgeline)
@@ -69,22 +69,22 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-#Atype <- "1_vs_All"
-tissue_file <- "tissue_system_info.txt"
-dat <- read.table("test_pairwise_dat.txt", header = TRUE)
-allinters <- read.table("all_trans_interactions_1Mb.txt", header = FALSE)
-gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
+##Atype <- "1_vs_All"
+#tissue_file <- "tissue_system_info.txt"
+#dat <- read.table("test_pairwise_dat.txt", header = TRUE)
+#allinters <- read.table("all_trans_interactions_1Mb.txt", header = FALSE)
+#gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
+#library(harrypotter)
 
-#allinters <- read.table(allinters_file, header = FALSE)
+allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
 head(allinters)
-#dat <- read.table(dat_file, header = TRUE)
-#dat <- as.data.frame(dat)
+dat <- read.table(dat_file, header = TRUE)
 print("summary of ALL sig zscores per cell type")
 summary(dat)
 dat$ID <- as.character(dat$ID)
 #read in germlayer info file
-#gl_df <- read.table(germlayer_file, header = TRUE)
+gl_df <- read.table(germlayer_file, header = TRUE)
 colnames(gl_df) <- c("cell","germLayer")
 summary(gl_df)
 #order of germlayer

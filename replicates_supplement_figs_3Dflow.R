@@ -596,7 +596,7 @@ r_dat2$AllChr <- gsub("chr","",r_dat2$AllChr)
 r_dat2$AllChr <- as.factor(r_dat2$AllChr)
 head(r_dat2)
 #calculate mean zscore per chrom per cell type so heat map is accutate
-hm_dat = r_dat2 %>% group_by(AllChr,cell) %>% dplyr::summarize(mzscore=mean(zscore))
+hm_dat = r_dat2 %>% group_by(AllChr,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
 head(hm_dat)
 tail(hm_dat)
 hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
