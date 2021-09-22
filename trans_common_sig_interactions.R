@@ -79,7 +79,7 @@ gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
 head(allinters)
 #dat <- read.table(dat_file, header = TRUE)
-dat <- as.data.frame(dat)
+#dat <- as.data.frame(dat)
 print("summary of ALL sig zscores per cell type")
 summary(dat)
 dat$ID <- as.character(dat$ID)
@@ -630,10 +630,47 @@ hm <- (ggplot(r_dat2, aes(AllChr, cell))
 #       + facet_wrap(.~germL)
 #       + theme(axis.text.x = element_text(angle = 90))
 )
-pdf("zscore_heatmap_common_interactions_chroms_all_cells.pdf", width = 14, height = 8)
+pdf("zscore_mean_heatmap_common_interactions_chroms_all_cells.pdf", width = 14, height = 8)
 hm
 dev.off()
 #################
+# average z-score per chrom pair heatmap 
+#################
+head(r_dat)
+hm_dat <- r_dat
+hm_dat$chrPair <- paste0(hm_dat$chrA,hm_dat$chrB)
+head(hm_dat)
+#calculate mean zscore per chrom pair per cell type so heat map is accutate
+hm_dat2 = hm_dat %>% filter(cell != "fake_cell") %>% group_by(chrPair,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+hm_dat2$chrPair <- gsub("chr", "\\.chr", hm_dat2$chrPair)
+coln <- c("tmp","chrA", "chrB")
+hm_dat2 <- hm_dat2 %>% separate(chrPair, sep = "\\.", into = coln, remove = FALSE) %>% select(-tmp)
+hm_dat2$chrA <- gsub("chr", "", hm_dat2$chrA)
+hm_dat2$chrB <- gsub("chr", "", hm_dat2$chrB)
+head(hm_dat2)
+hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
+       + geom_tile(aes(fill = mzscore), colour = "white")
+       + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score per chromosomal pair", na.value = "grey")
+       #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+       #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+       + labs(x = "Chromosome",
+              y = "",
+              title = "Common Trans-chromosomal Interactions z-scores")
+       + facet_wrap(cell ~ .)
+       #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+       #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+       #       + theme(axis.text.x = element_text(angle = 90))
+       + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+               strip.background = element_rect(fill = "white"),
+               panel.spacing = unit(0, "lines"),
+               axis.text.y = element_blank(),
+               axis.ticks.y = element_blank())
+)
+pdf("zscore_chrom_pair_mean_heatmap_common_interactions.pdf", width = 14, height = 8)
+hm
+dev.off()
+
+
 
 #################
 #parallel sets
