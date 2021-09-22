@@ -96,7 +96,7 @@ allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
 head(allinters)
 #dat <- read.table(dat_file, header = TRUE)
-dat <- as.data.frame(dat)
+#dat <- as.data.frame(dat)
 print("summary of ALL sig zscores per cell type")
 summary(dat %>% filter(pvalue <= 0.05))
 ###
@@ -423,7 +423,7 @@ p <- (ggplot(r_dat2, aes(x = zscore, y = cell, fill = germL))
       + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
       + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
       + facet_grid(.~ sig, labeller = labeller(sig= as_labeller(
-        c("nonsig" = "Non-significant", "sig" = "Significant"))))
+        c("nonsig" = "Significant", "sig" = "Non-significant"))))
 )
 pdf("zscore_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
 p
@@ -648,6 +648,7 @@ hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
        + labs(x = "Chromosome",
               y = "Cell",
               title = "Trans-chromosomal Interactions z-scores")
+#       + facet_wrap(.~sig)
        + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
          c("nonsig" = "Non-significant", "sig" = "Significant"))))
 #       + theme(axis.text.x = element_text(angle = 90))
@@ -656,9 +657,73 @@ pdf("zscore_mean_heatmap_interactions_chroms_all_cells.pdf", width = 14, height 
 hm
 dev.off()
 #################
-# classic Hi-C heatmap, on steroids
+# average z-score per chrom pair heatmap 
 #################
-head(r_dat2)
+head(r_dat)
+hm_dat <- r_dat
+hm_dat$chrPair <- paste0(hm_dat$chrA,hm_dat$chrB)
+head(hm_dat)
+#calculate mean zscore per chrom pair per cell type so heat map is accutate
+hm_dat2 = hm_dat %>% filter(cell != "fake_cell") %>% group_by(chrPair,cell,sig) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+hm_dat2$chrPair <- gsub("chr", "\\.chr", hm_dat2$chrPair)
+coln <- c("tmp","chrA", "chrB")
+hm_dat2 <- hm_dat2 %>% separate(chrPair, sep = "\\.", into = coln, remove = FALSE) %>% select(-tmp)
+hm_dat2$chrA <- gsub("chr", "", hm_dat2$chrA)
+hm_dat2$chrB <- gsub("chr", "", hm_dat2$chrB)
+head(hm_dat2)
+  test_D <- hm_dat2 %>% filter(cell == "Hippocampus")
+head(test_D)
+hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
+       + geom_tile(aes(fill = mzscore), colour = "white")
+       + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score per chromosomal pair", na.value = "grey")
+       #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+       #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+       + labs(x = "Chromosome",
+              y = "",
+              title = "Trans-chromosomal Interactions (all) z-scores")
+       + facet_wrap(cell ~ .)
+#       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+#         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+       #       + theme(axis.text.x = element_text(angle = 90))
+      + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+              strip.background = element_rect(fill = "white"),
+              panel.spacing = unit(0, "lines"),
+              axis.text.y = element_blank(),
+              axis.ticks.y = element_blank())
+)
+pdf("zscore_chrom_pair_mean_heatmap_AllInteractions.pdf", width = 14, height = 8)
+hm
+dev.off()
+
+##############
+# significant interactions
+##############
+hm_dat2 <- hm_dat2 %>% filter(sig == "sig")
+hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
+       + geom_tile(aes(fill = mzscore), colour = "white")
+       + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score per chromosomal pair", na.value = "grey")
+       #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+       #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+       + labs(x = "Chromosome",
+              y = "",
+              title = "Trans-chromosomal Interactions (significant) z-scores")
+       + facet_wrap(cell ~ .)
+       #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+       #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+       #       + theme(axis.text.x = element_text(angle = 90))
+       + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+               strip.background = element_rect(fill = "white"),
+               panel.spacing = unit(0, "lines"),
+               axis.text.y = element_blank(),
+               axis.ticks.y = element_blank())
+)
+pdf("zscore_chrom_pair_mean_heatmap_sig_Interactions.pdf", width = 14, height = 8)
+hm
+dev.off()
+
+#################
+# classic Hi-C heatmap, on steroids, presence/absence of sig and non-sig
+#################
 
 ##################
 ##parallel sets
