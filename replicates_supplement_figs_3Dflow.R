@@ -668,6 +668,49 @@ for(i in cell_nr){
 colnames(cor_df) <- c("cell","cor_val","cor_pval","value")
 print("#correlation test results")
 cor_df
+
+
+###############
+print("# checking correlation when adding constant to all zscores to make them all positive")
+#adding 50 to all zscores so they are all positive
+pcDat <- dat2
+head(pcDat)
+pcDat$zscore <- pcDat$zscore + 50
+head(pcDat)
+#################
+print("# Pearson Correlation ")
+#################
+cell_nr <- as.character(unique(pcDat$cell_noreps))
+cell_nr
+cor_df <- data.frame(cell=character(),
+                     correlation=numeric(),
+                     cor_pvalue=numeric(),
+                     value=character(),
+                     stringsAsFactors=FALSE)
+#i=as.character(cell_nr[6])
+#i
+for(i in cell_nr){
+    tmpD <- pcDat %>% filter(cell_noreps == i)
+    print(i)
+    #zscore correlation
+    tmp_zW <- tmpD %>% select(ID,cell, zscore) %>% spread(key=cell, value = zscore)
+    result = cor.test(tmp_zW[,2],tmp_zW[,3] , method = "pearson")
+    cor_val <- round(result$estimate,digits = 2)
+    cor_pval <- round(result$p.value,digits = 2)
+    cor_df <- rbind(cor_df, c(i,cor_val,cor_pval,"zscore"))
+    #pvalue correlation
+    tmp_zW <- tmpD %>% select(ID,cell, pvalue) %>% spread(key=cell, value = pvalue)
+    result = cor.test(tmp_zW[,2],tmp_zW[,3] , method = "pearson")
+    print(result)
+    cor_val <- round(result$estimate,digits = 2)
+    cor_pval <- round(result$p.value,digits = 2)
+    cor_df <- rbind(cor_df, c(i,cor_val,cor_pval,"pvalue"))
+}
+colnames(cor_df) <- c("cell","cor_val","cor_pval","value")
+print("#correlation test results")
+cor_df
+
+####################
 #cn <- gsub("_", " ", i)
 #corTit <- paste(cn,"Replicates\n correlation coefficient =",cor_val)
 #corTit
