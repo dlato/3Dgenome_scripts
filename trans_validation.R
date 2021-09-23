@@ -28,6 +28,7 @@ library(tidyr)
 library(GenomicRanges)
 library(ggplot2)
 library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
+library(nortest, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1") #for normality test with large sample size
 ##########
 
 #########################################################################
@@ -406,14 +407,14 @@ f_name <- gsub(" ","",paste("6testCells_valid_interaction_chroms_density_allInte
 pdf(f_name, width = 14, height = 8)
 p
 dev.off()
-print("#test between means of all interactions and interactions btwn valid pair of chroms")
-print("#Test each group for normality")
-print("sig = reject normality null")
-plot_d$validType <- as.factor(plot_d$validType)
-plot_d %>%
-  group_by(validType) %>%
-  summarise(W = shapiro.test(zscore)$statistic,
-            p.value = shapiro.test(zscore)$p.value)
+#print("#test between means of all interactions and interactions btwn valid pair of chroms")
+#print("#Test each group for normality")
+#print("sig = reject normality null")
+#plot_d$validType <- as.factor(plot_d$validType)
+#plot_d %>%
+#  group_by(validType) %>%
+#  summarise(W = ad.test(zscore)$statistic,
+#            p.value = ad.test(zscore)$p.value)
 print("#Perform the Mann-Whitney test (when dists are not normal)")
 print("sig = mean is diff btwn groups")
 wilcox.test(zscore ~ validType, data=plot_d, na.rm=TRUE, paired=FALSE, exact=FALSE, conf.int=TRUE)
@@ -677,31 +678,31 @@ if (dim(Vinter)[1] == 0){
   print("dataframe is empty :( your specified interaction was not significant in any of your cell types/data")
 } else {
   print("sig interactions in at least ONE cell type!")
-  #######
-  # Validated interaction specific region
-  #######
-  #plot above data for valid chroms
-  plot_d <- plot_df %>% filter(validType == "All significant interactions")
-  inter_d <- plot_df %>% filter(validType == "Interactions from valid inter")
-  head(inter_d)
-  p <- (ggplot(plot_d, aes(x=zscore))
-#        + geom_density(fill = "cadetblue")
-      + stat_density(fill = "cadetblue",position="identity")#identity = based on counts of data, height proportional to total
-        #        + coord_flip()
-        + geom_vline(data = sixcells_Vinter, aes(xintercept = zscore, 
-                                                 color = cell), size=1.5)
-        + labs(title = mytitle,
-               #         subtitle = "Plot of length by dose",
-               #         caption = "Data source: ToothGrowth",
-               x = "z-score", y = "density")
-        #         tag = "A")
-        #        + scale_color_manual(values =c("plum4"))
-        #  + facet_grid(seqDep ~ cell )
-  )
-    p
-  f_name <- gsub(" ","",paste("6testCells_valid_interaction_density_",Atype,".pdf"))
-  pdf(f_name, width = 14, height = 8)
-  print(p)
-  dev.off()
+#  #######
+#  # Validated interaction specific region
+#  #######
+#  #plot above data for valid chroms
+#  plot_d <- plot_df %>% filter(validType == "All significant interactions")
+#  inter_d <- plot_df %>% filter(validType == "Interactions from valid inter")
+#  head(inter_d)
+#  p <- (ggplot(plot_d, aes(x=zscore))
+##        + geom_density(fill = "cadetblue")
+#      + stat_density(fill = "cadetblue",position="identity")#identity = based on counts of data, height proportional to total
+#        #        + coord_flip()
+#        + geom_vline(data = sixcells_Vinter, aes(xintercept = zscore, 
+#                                                 color = cell), size=1.5)
+#        + labs(title = mytitle,
+#               #         subtitle = "Plot of length by dose",
+#               #         caption = "Data source: ToothGrowth",
+#               x = "z-score", y = "density")
+#        #         tag = "A")
+#        #        + scale_color_manual(values =c("plum4"))
+#        #  + facet_grid(seqDep ~ cell )
+#  )
+#    p
+#  f_name <- gsub(" ","",paste("6testCells_valid_interaction_density_",Atype,".pdf"))
+#  pdf(f_name, width = 14, height = 8)
+#  print(p)
+#  dev.off()
 }
 
