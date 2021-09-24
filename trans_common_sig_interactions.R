@@ -28,7 +28,8 @@ library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 library(ggbiplot)#for PCA
 library(devtools)#for PCA
-library(factoextra)#for PCA
+library(factoextra, lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3/")#for PCA
+library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3") #for colours
 #install_github("vqv/ggbiplot")
 ##remotes::install_github("R-CoderDotCom/ridgeline@main")
 #library(ridgeline)
@@ -83,8 +84,10 @@ dat <- read.table(dat_file, header = TRUE)
 print("summary of ALL sig zscores per cell type")
 summary(dat)
 dat$ID <- as.character(dat$ID)
-#read in germlayer info file
-gl_df <- read.table(germlayer_file, header = TRUE)
+print("#read in germlayer info file")
+print(germlayer_file)
+gl_df <- read.table(germlayer_file, header = TRUE, sep="\t")
+print("colnames")
 colnames(gl_df) <- c("cell","germLayer")
 summary(gl_df)
 #order of germlayer
