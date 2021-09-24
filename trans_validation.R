@@ -179,6 +179,8 @@ VinterL$zsign[VinterL$zsign<0]  <- "Neg"
 VinterL$zsign[is.na(VinterL$zsign)] <- "Abs"
 VinterL <- VinterL %>% select(cell,zsign)
 colnames(VinterL) <- c("all_cells","zsign")
+summary(pa_dat_m)
+levels(pa_dat_m$allmisscols)
 pa_dat_m <- merge(pa_dat, VinterL, by = "all_cells")
 p <- (ggplot(pa_dat_m, aes(y=all_cells, x=allmisscols, shape =allmisscols, fill = zsign))
       + geom_point(size=4)
