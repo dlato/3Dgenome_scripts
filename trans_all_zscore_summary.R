@@ -26,10 +26,10 @@ library(tidyr)
 library(ggplot2)
 library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
-library(ggbiplot)#for PCA
+library(ggbiplot, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3")#for PCA
 library(devtools)#for PCA
-library(factoextra)#for PCA
-library(harrypotter)
+library(factoextra,lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3")#for PCA
+library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3")
 #install_github("vqv/ggbiplot")
 ##remotes::install_github("R-CoderDotCom/ridgeline@main")
 #library(ridgeline)
@@ -70,17 +70,19 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-zdat_file <- "test_1vsAll_dat.txt"
-pdat_file <- "test_1vsAll_pvalues.txt"
-allinters_file <- "all_trans_interactions_1Mb.txt"
-germlayer_file <- "germlayer_info.txt"
-gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
+#zdat_file <- "test_1vsAll_dat.txt"
+#pdat_file <- "test_1vsAll_pvalues.txt"
+#allinters_file <- "all_trans_interactions_1Mb.txt"
+#germlayer_file <- "germlayer_info.txt"
+#gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
 ##Atype <- "1_vs_All"
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
 ##dat <- read.table(dat_file, header = TRUE)
 zdat <- read.table(zdat_file, header = TRUE)
 pdat <- read.table(pdat_file, header = TRUE)
+print("reading all inters")
+print(allinters_file)
 allinters <- read.table(allinters_file, header = FALSE)
 print("summary of ALL zscores per cell type")
 summary(zdat)
@@ -190,13 +192,15 @@ dat2 <- dat2 %>% mutate(
 )
 head(dat2)
 #################
-# PCA of zscore
+print("# PCA of zscore")
 #################
-#PCA with cells as rows
+print("#PCA with cells as rows")
 pca_dat <- zdat
+pca_dat <- na.omit(pca_dat)
 row.names(pca_dat) <- pca_dat$ID
 pca_dat <- pca_dat %>% select(-ID)
 pca_dat <- as.data.frame(t(pca_dat))
+head(pca_dat)
 commonInter.pca <- prcomp(pca_dat[,c(2:ncol(pca_dat))], center = TRUE,scale. = TRUE)
 summary(commonInter.pca)
 g <- (ggbiplot(commonInter.pca,
@@ -215,7 +219,7 @@ pdf("zscore_PCAcellrows_interactions_all_cells.pdf", width = 14, height = 8)
 g
 dev.off()
 
-#PCA with cells as cols
+print("#PCA with cells as cols")
 pca_dat <- zdat
 pca_dat <- na.omit(pca_dat)
 row.names(pca_dat) <- pca_dat$ID
