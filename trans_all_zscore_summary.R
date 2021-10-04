@@ -136,13 +136,13 @@ ans
 # NON-SIG zscores
 ###
 sigD <- dat %>% filter(pvalue >= 0.05)
-print("highest zscore info per cell: SIG zscores")
+print("highest zscore info per cell: NON-SIG zscores")
 # sorting the cell and zscore.
 sorted_dat <- sigD[order(sigD$cell, -sigD$zscore),]
 # removing duplicates
 ans <- sorted_dat[!duplicated(sorted_dat$cell),]
 ans
-print("lowest zscore info per cell: SIG zscores")
+print("lowest zscore info per cell: NON-SIG zscores")
 # sorting the cell and zscore.
 sorted_dat <- sigD[order(sigD$cell, sigD$zscore),]
 # removing duplicates
@@ -213,7 +213,7 @@ g <- (ggbiplot(commonInter.pca,
                circle = TRUE,
                ellipse.prob = 0.68
 )
-+ labs(title = "Trans-chromosomal Interactions z-scores")
++ labs(title = "All Trans-chromosomal Interactions z-scores")
 )
 pdf("zscore_PCAcellrows_interactions_all_cells.pdf", width = 14, height = 8)
 g
@@ -238,7 +238,7 @@ g <- (ggbiplot(commonInter.pca,
                circle = TRUE,
                ellipse.prob = 0.68
 )
-+ labs(title = "Trans-chromosomal Interactions z-scores")
++ labs(title = "All Trans-chromosomal Interactions z-scores")
 )
 pdf("zscore_PCAcellcols_interactions_all_cells.pdf", width = 14, height = 8)
 g
@@ -419,11 +419,11 @@ p <- (ggplot(r_dat2, aes(x = zscore, y = cell, fill = germL))
       #+ geom_density_ridges(scale = 4, alpha = 0.3) 
       + labs(x="z-score",
              y="Cell",
-             title = "z-scores of Common Trans-chromosomal Interactions",
+             title = "z-scores of All Trans-chromosomal Interactions",
              fill = "Germ Layer")
       + scale_fill_manual(values = gl_colours)
 #                                     gsub("F", "A", my_colors)))
-      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
+      + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
       + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
       + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
       + facet_grid(.~ sig, labeller = labeller(sig= as_labeller(
@@ -642,6 +642,7 @@ r_dat2$AllChr <- as.factor(r_dat2$AllChr)
 #calculate mean zscore per chrom per cell type so heat map is accutate
 hm_dat = r_dat2 %>% group_by(AllChr,cell, sig) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
 summary(hm_dat)
+hm_dat2 <- hm_dat2 %>% mutate(AllChr=factor(AllChr, levels=p_chr_ord))
 #hm <- (ggplot(r_dat2, aes(AllChr, cell))
 #       + geom_tile(aes(fill = zscore), colour = "white")
 hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
@@ -651,13 +652,59 @@ hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
        #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
        + labs(x = "Chromosome",
               y = "Cell",
-              title = "Trans-chromosomal Interactions z-scores")
+              title = "All Trans-chromosomal Interactions z-scores")
 #       + facet_wrap(.~sig)
        + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
          c("nonsig" = "Non-significant", "sig" = "Significant"))))
 #       + theme(axis.text.x = element_text(angle = 90))
 )
 pdf("zscore_mean_heatmap_interactions_chroms_all_cells.pdf", width = 14, height = 8)
+hm
+dev.off()
+###########
+# mean of ALL zscores (not separtated into sig and non-sig)
+###########
+hm_dat = r_dat2 %>% group_by(AllChr,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+hm_dat2 <- hm_dat2 %>% mutate(AllChr=factor(AllChr, levels=p_chr_ord))
+#hm <- (ggplot(r_dat2, aes(AllChr, cell))
+#       + geom_tile(aes(fill = zscore), colour = "white")
+hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
+       + geom_tile(aes(fill = mzscore), colour = "white")
++ scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score", na.value = "grey")
+#       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+       #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+       + labs(x = "Chromosome",
+              y = "Cell",
+              title = "Trans-chromosomal Interactions (all) z-scores")
+#       + facet_wrap(.~sig)
+#       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+#         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+#       + theme(axis.text.x = element_text(angle = 90))
+)
+pdf("zscore_mean_heatmap_interactions_chroms_all_cells_mean_of_ALL_zscores.pdf", width = 14, height = 8)
+hm
+dev.off()
+###########
+# mean of ALL zscores (not separtated into sig and non-sig)
+###########
+hm_dat = r_dat2 %>% filter(sig == "sig") %>% group_by(AllChr,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+hm_dat2 <- hm_dat2 %>% mutate(AllChr=factor(AllChr, levels=p_chr_ord))
+#hm <- (ggplot(r_dat2, aes(AllChr, cell))
+#       + geom_tile(aes(fill = zscore), colour = "white")
+hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
+       + geom_tile(aes(fill = mzscore), colour = "white")
++ scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score", na.value = "grey")
+#       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+       #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+       + labs(x = "Chromosome",
+              y = "Cell",
+              title = "Trans-chromosomal Interactions (all) z-scores")
+#       + facet_wrap(.~sig)
+#       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+#         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+#       + theme(axis.text.x = element_text(angle = 90))
+)
+pdf("zscore_mean_heatmap_interactions_chroms_all_cells_significant_interactions.pdf", width = 14, height = 8)
 hm
 dev.off()
 #################
@@ -668,7 +715,8 @@ hm_dat <- r_dat
 hm_dat$chrPair <- paste0(hm_dat$chrA,hm_dat$chrB)
 head(hm_dat)
 #calculate mean zscore per chrom pair per cell type so heat map is accutate
-hm_dat2 = hm_dat %>% filter(cell != "fake_cell") %>% group_by(chrPair,cell,sig) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+#hm_dat2 = hm_dat %>% filter(cell != "fake_cell") %>% group_by(chrPair,cell,sig) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+hm_dat2 = hm_dat %>% filter(cell != "fake_cell") %>% group_by(chrPair,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
 hm_dat2$chrPair <- gsub("chr", "\\.chr", hm_dat2$chrPair)
 coln <- c("tmp","chrA", "chrB")
 hm_dat2 <- hm_dat2 %>% separate(chrPair, sep = "\\.", into = coln, remove = FALSE) %>% select(-tmp)
@@ -677,6 +725,8 @@ hm_dat2$chrB <- gsub("chr", "", hm_dat2$chrB)
 head(hm_dat2)
   test_D <- hm_dat2 %>% filter(cell == "Hippocampus")
 head(test_D)
+hm_dat2 <- hm_dat2 %>% mutate(chrA=factor(chrA, levels=p_chr_ord))
+hm_dat2 <- hm_dat2 %>% mutate(chrB=factor(chrB, levels=p_chr_ord))
 hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
        + geom_tile(aes(fill = mzscore), colour = "white")
        + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score per chromosomal pair", na.value = "grey")
@@ -698,11 +748,52 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
 pdf("zscore_chrom_pair_mean_heatmap_AllInteractions.pdf", width = 14, height = 8)
 hm
 dev.off()
+#########
+# test one cell heat map
+##########
+hm_dat2 = hm_dat %>% filter(cell == "Aorta") %>% group_by(chrPair) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+hm_dat2$chrPair <- gsub("chr", "\\.chr", hm_dat2$chrPair)
+coln <- c("tmp","chrA", "chrB")
+hm_dat2 <- hm_dat2 %>% separate(chrPair, sep = "\\.", into = coln, remove = FALSE) %>% select(-tmp)
+hm_dat2$chrA <- gsub("chr", "", hm_dat2$chrA)
+hm_dat2$chrB <- gsub("chr", "", hm_dat2$chrB)
+head(hm_dat2)
+  test_D <- hm_dat2 %>% filter(cell == "Hippocampus")
+head(test_D)
+hm_dat2 <- hm_dat2 %>% mutate(chrA=factor(chrA, levels=p_chr_ord))
+hm_dat2 <- hm_dat2 %>% mutate(chrB=factor(chrB, levels=p_chr_ord))
+hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
+       + geom_tile(aes(fill = mzscore), colour = "white")
+       + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score per chromosomal pair", na.value = "grey")
+       #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+       #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+       + labs(x = "Chromosome",
+              y = "",
+              title = "Trans-chromosomal Interactions (all) z-scores")
+#       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+#         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+       #       + theme(axis.text.x = element_text(angle = 90))
+      + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+              strip.background = element_rect(fill = "white"),
+              panel.spacing = unit(0, "lines"),
+              axis.text.y = element_blank(),
+              axis.ticks.y = element_blank())
+)
+pdf("TEST_Aorta_zscore_chrom_pair_mean_heatmap_AllInteractions.pdf", width = 14, height = 8)
+hm
+dev.off()
 
 ##############
 # significant interactions
 ##############
-hm_dat2 <- hm_dat2 %>% filter(sig == "sig")
+hm_dat2 = hm_dat %>% filter(cell != "fake_cell") %>% filter(sig == "sig") %>% group_by(chrPair,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+hm_dat2$chrPair <- gsub("chr", "\\.chr", hm_dat2$chrPair)
+coln <- c("tmp","chrA", "chrB")
+hm_dat2 <- hm_dat2 %>% separate(chrPair, sep = "\\.", into = coln, remove = FALSE) %>% select(-tmp)
+hm_dat2$chrA <- gsub("chr", "", hm_dat2$chrA)
+hm_dat2$chrB <- gsub("chr", "", hm_dat2$chrB)
+hm_dat2 <- hm_dat2 %>% mutate(chrA=factor(chrA, levels=p_chr_ord))
+hm_dat2 <- hm_dat2 %>% mutate(chrB=factor(chrB, levels=p_chr_ord))
 hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
        + geom_tile(aes(fill = mzscore), colour = "white")
        + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score per chromosomal pair", na.value = "grey")

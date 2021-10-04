@@ -308,6 +308,7 @@ p <- (ggplot(r_dat2, aes(x = AllSt, y = AllChr))
 #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
   + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
   + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+  + theme(axis.text=element_text(size=12))
 )
 ######################################
 # NOTE: THE RIDGELINE PLOT HEIGHT CURRENTLY IS SCALED AMONG ALL Y-AXIS POINTS AND IS THE SAME FOR ALL Y-AXIS POINTS. IT DOES NOT REPRESENT ACTUAL AMOUNTS OF INTERACTIONS
@@ -349,6 +350,7 @@ p <- (ggplot(r_dat2, aes(x = zscore, y = cell, fill = germL))
       #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
       + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
       + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+  + theme(axis.text=element_text(size=12))
 )
 pdf("zscore_ridgeline_common_interactions_all_cells_germlayer.pdf", width = 14, height = 8)
 p
@@ -374,6 +376,7 @@ p <- (ggplot(t_dat2, aes(x = zscore, y = cell, fill = tissue))
       #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
       + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
       + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+  + theme(axis.text=element_text(size=12))
 )
 pdf("zscore_ridgeline_common_interactions_all_cells_tissue.pdf", width = 14, height = 8)
 p
@@ -440,6 +443,7 @@ p <- (ggplot(chrClass_dat, aes(y = cell, x = zscore, fill = germL))
       #      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
       #      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
       #      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+  + theme(axis.text=element_text(size=12))
 )
 pdf("chrClass_cell_facet_ridgeline_common_interactions_all_cells_germlayer.pdf", width = 14, height = 8)
 p
@@ -464,6 +468,7 @@ p <- (ggplot(t_dat2, aes(y = cell, x = zscore, fill = tissue))
       #      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
       #      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
       #      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+  + theme(axis.text=element_text(size=12))
 )
 pdf("chrClass_cell_facet_ridgeline_common_interactions_all_cells_tissue.pdf", width = 14, height = 8)
 p
@@ -620,6 +625,8 @@ prop_pairAll[which(prop_pairAll$percent == max(prop_pairAll$percent)),]
 #################
 r_dat2$AllChr <- gsub("chr","",r_dat2$AllChr)
 r_dat2$AllChr <- as.factor(r_dat2$AllChr)
+chrs_ord <- gsub("chr", "", chrs_len_ord)
+r_dat2$AllChr <- factor(r_dat2$AllChr, levels=chrs_ord)
 #calculate mean zscore per chrom per cell type so heat map is accutate
 hm_dat = r_dat2 %>% group_by(AllChr,cell) %>% dplyr::summarize(mzscore=mean(zscore))
 hm <- (ggplot(r_dat2, aes(AllChr, cell))
@@ -631,7 +638,7 @@ hm <- (ggplot(r_dat2, aes(AllChr, cell))
               y = "Cell",
               title = "Common Trans-chromosomal Interactions z-scores")
 #       + facet_wrap(.~germL)
-#       + theme(axis.text.x = element_text(angle = 90))
+       + theme(axis.text=element_text(size=12))
 )
 pdf("zscore_mean_heatmap_common_interactions_chroms_all_cells.pdf", width = 14, height = 8)
 hm
@@ -650,6 +657,8 @@ coln <- c("tmp","chrA", "chrB")
 hm_dat2 <- hm_dat2 %>% separate(chrPair, sep = "\\.", into = coln, remove = FALSE) %>% select(-tmp)
 hm_dat2$chrA <- gsub("chr", "", hm_dat2$chrA)
 hm_dat2$chrB <- gsub("chr", "", hm_dat2$chrB)
+hm_dat2$chrA <- factor(hm_dat2$chrA, levels=chrs_ord)
+hm_dat2$chrB <- factor(hm_dat2$chrB, levels=chrs_ord)
 head(hm_dat2)
 hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
        + geom_tile(aes(fill = mzscore), colour = "white")
@@ -667,7 +676,8 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
                strip.background = element_rect(fill = "white"),
                panel.spacing = unit(0, "lines"),
                axis.text.y = element_blank(),
-               axis.ticks.y = element_blank())
+               axis.ticks.y = element_blank(),
+               axis.text=element_text(size=12))
 )
 pdf("zscore_chrom_pair_mean_heatmap_common_interactions.pdf", width = 14, height = 8)
 hm
