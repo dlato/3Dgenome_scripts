@@ -427,7 +427,7 @@ wilcox.test(zscore ~ validType, data=plot_d, na.rm=TRUE, paired=FALSE, exact=FAL
 ######
 #sig interactions
 ######
-#df with ALL sig interactions btwn validated chroms
+print("#df with ALL sig interaction btwn validated chroms")
 chrs_df <- dat2[grep(chrs[1], dat2$ID), ]
 chrs_df$zscore[as.numeric(chrs_df$pvalue)>=0.05]  <- NA 
 chrs_df <- chrs_df[grep(chrs[2],chrs_df$ID),]
@@ -553,15 +553,18 @@ dev.off()
 # zscore
 ##############
 ##############
-# heatmap along chromosome positions: ALL INTERACTIONS (including non-sig)
+print("# heatmap along chromosome positions: ALL INTERACTIONS (including non-sig)")
 ##############
 head(hm_zscore_df)
 hm_zscore_df$st1 <- as.numeric(hm_zscore_df$st1)
 hm_zscore_df$st2 <- as.numeric(hm_zscore_df$st2)
 summary(hm_zscore_df)
 hm_zscore_df$chrs <- paste0(hm_zscore_df$chrA,hm_zscore_df$chrB)
+head(hm_zscore_df)
 dirA <- paste0(unique(roi1$chrom),unique(roi2$chrom))
+print(dirA)
 dirB <- paste0(unique(roi2$chrom),unique(roi1$chrom))
+print(dirA)
 hm_df <- hm_zscore_df %>% filter(chrs == dirA | chrs == dirB)
 head(hm_df)
 testdf <- hm_df %>% filter(cell == "Aorta")
