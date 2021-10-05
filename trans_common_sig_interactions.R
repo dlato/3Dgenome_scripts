@@ -70,12 +70,13 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-##Atype <- "1_vs_All"
+#Atype <- "1_vs_All"
 #tissue_file <- "tissue_system_info.txt"
-#dat <- read.table("test_pairwise_dat.txt", header = TRUE)
-#allinters <- read.table("all_trans_interactions_1Mb.txt", header = FALSE)
-#gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
-#library(harrypotter)
+#dat_file <- "test_pairwise_dat.txt"
+#allinters_file <- "all_trans_interactions_1Mb.txt"
+#germlayer_file <- "germlayer_info.txt"
+#library(factoextra)#for PCA
+#library(harrypotter) #for colours
 
 allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
@@ -294,14 +295,22 @@ head(r_dat2)
 chrInf2 <- chrInf
 chrInf2$chrom <- factor(chrInf2$chrom, levels=rev_chrs_len_ord)
 chrInf2$centromere <- chrInf2$centromere/10000000
+chrInf2$size <- chrInf2$size/10000000
 #chrInf2$chrom <-gsub("chr","",chrInf2$chrom)
-colnames(chrInf2) <- c("AllChr","centromere","chrClass")
+colnames(chrInf2) <- c("AllChr","centromere","chrClass","size")
 #chrInf2 <- chrInf2 %>% filter(AllChr %in% r_dat2$AllChr)
-p <- (ggplot(r_dat2, aes(x = AllSt, y = AllChr))
+#with fake data which did not really work as expected
+#p <- (ggplot(r_dat2, aes(x = AllSt, y = AllChr))
+#without fake data
+ndat2 <- r_dat2 %>% filter(cell != "fake_cell")
+p <- (ggplot(ndat2, aes(x = AllSt, y = AllChr))
   + geom_density_ridges(scale = 2, alpha = 0.3, rel_min_height = 0.001) 
   + geom_segment(data = chrInf2, aes(x=centromere, xend=centromere, 
                                      y=as.numeric(AllChr), yend=as.numeric(AllChr) +0.9),
                 color = "red")
+  + geom_segment(data = chrInf2, aes(x=size, xend=size, 
+                                     y=as.numeric(AllChr), yend=as.numeric(AllChr) +0.9),
+                color = "black")
   + labs(x="Genomic Position [10Mb]",
          y="",
          title = "Location of Common Trans-chromosomal Interactions")
@@ -322,6 +331,29 @@ dev.off()
 #                height = c(0, 1, 3, 4, 0, 1, 2, 3, 5, 4, 0, 5, 4, 4, 1))
 #ggplot(d, aes(x, y, height = height, group = y)) + geom_ridgeline(fill="lightblue")
 #
+#calculate mean zscore per chrom per bin so that the heatmap is accurate
+head(r_dat2)
+hm_dat = ndat2 %>% group_by(AllChr, AllSt) %>% dplyr::summarize(mzscore=mean(zscore))
+head(hm_dat)
+hm_dat$AllChr <- factor(hm_dat$AllChr, levels=rev_chrs_len_ord)
+hm_dat$AllChr <- gsub("chr", "", hm_dat$AllChr)
+hm <- (ggplot(hm_dat, aes(x=AllSt,y=AllChr, fill = mzscore))
+       #hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
+       #       + geom_tile(aes(fill = mzscore), colour = "white")
+       + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score", na.value = "grey")
+       + geom_tile(aes(fill = mzscore), colour = "white")
+#       + scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+       + labs(x = "Genomic Postion [Mbp]",
+              y = "Chromosome",
+              title = "Common Trans-chromosomal Interactions z-scores")
+       #       + facet_wrap(.~germL)
+       + theme(axis.text=element_text(size=12))
+)
+pdf("zscore_mean_heatmap_common_interactions_chroms_all_cells.pdf", width = 14, height = 8)
+hm
+dev.off()
+
+
 
 #ridgeline of all zscores (in all chroms) across cell types
 #adding germlayer info
