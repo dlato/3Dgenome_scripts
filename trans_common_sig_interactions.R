@@ -71,12 +71,12 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 print("#read in files")
 #interaction data
 #Atype <- "1_vs_All"
-#tissue_file <- "tissue_system_info.txt"
-#dat_file <- "test_pairwise_dat.txt"
-#allinters_file <- "all_trans_interactions_1Mb.txt"
-#germlayer_file <- "germlayer_info.txt"
-#library(factoextra)#for PCA
-#library(harrypotter) #for colours
+tissue_file <- "tissue_system_info.txt"
+dat_file <- "test_pairwise_dat.txt"
+allinters_file <- "all_trans_interactions_1Mb.txt"
+germlayer_file <- "germlayer_info.txt"
+library(factoextra)#for PCA
+library(harrypotter) #for colours
 
 allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
@@ -303,22 +303,30 @@ colnames(chrInf2) <- c("AllChr","centromere","chrClass","size")
 #p <- (ggplot(r_dat2, aes(x = AllSt, y = AllChr))
 #without fake data
 ndat2 <- r_dat2 %>% filter(cell != "fake_cell")
+chsindf <- unique(ndat2$AllChr)
+red_levels <- factor(chrs_len_ord[chrs_len_ord %in% chsindf])
+ndat2$AllChr <- factor(ndat2$AllChr, levels = levels(red_levels))
+chrInf_hm <- chrInf2 %>% filter(AllChr %in% chsindf)
+chrInf_hm$AllChr <- factor(chrInf_hm$AllChr, levels = levels(red_levels))
 p <- (ggplot(ndat2, aes(x = AllSt, y = AllChr))
   + geom_density_ridges(scale = 2, alpha = 0.3, rel_min_height = 0.001) 
-  + geom_segment(data = chrInf2, aes(x=centromere, xend=centromere, 
+#  + geom_segment(data = chrInf2, aes(x=centromere, xend=centromere, 
+  + geom_segment(data = chrInf_hm, aes(x=centromere, xend=centromere, 
                                      y=as.numeric(AllChr), yend=as.numeric(AllChr) +0.9),
                 color = "red")
-  + geom_segment(data = chrInf2, aes(x=size, xend=size, 
+#  + geom_segment(data = chrInf2, aes(x=size, xend=size, 
+  + geom_segment(data = chrInf_hm, aes(x=size, xend=size, 
                                      y=as.numeric(AllChr), yend=as.numeric(AllChr) +0.9),
                 color = "black")
   + labs(x="Genomic Position [10Mb]",
          y="",
          title = "Location of Common Trans-chromosomal Interactions")
-#  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
-  + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
+  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
+#  + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
   + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
-  + theme(axis.text=element_text(size=12))
+#  + theme(axis.text=element_text(size=12))
 )
+p
 ######################################
 # NOTE: THE RIDGELINE PLOT HEIGHT CURRENTLY IS SCALED AMONG ALL Y-AXIS POINTS AND IS THE SAME FOR ALL Y-AXIS POINTS. IT DOES NOT REPRESENT ACTUAL AMOUNTS OF INTERACTIONS
 # NOTE: THE PER CHROM RIDGELINE PLOT HAS FAKE DATA ADDED SO THAT THE LENGTH OF THE CHROMOSOMES IS ACCURATE, THIS COULD MAKE THE GRAPH LOOK FUNNY! 
