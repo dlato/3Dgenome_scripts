@@ -693,6 +693,8 @@ head(r_dat)
 hm_dat <- r_dat
 hm_dat$chrPair <- paste0(hm_dat$chrA,hm_dat$chrB)
 head(hm_dat)
+print("chrom pairs involved in common interactions")
+unique(hm_dat$chrPair)
 #calculate mean zscore per chrom pair per cell type so heat map is accutate
 hm_dat2 = hm_dat %>% filter(cell != "fake_cell") %>% group_by(chrPair,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
 hm_dat2$chrPair <- gsub("chr", "\\.chr", hm_dat2$chrPair)
