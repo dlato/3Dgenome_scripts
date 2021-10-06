@@ -720,9 +720,9 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
        + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
                strip.background = element_rect(fill = "white"),
                panel.spacing = unit(0, "lines"),
-               axis.text.y = element_blank(),
-               axis.ticks.y = element_blank(),
-               axis.text=element_text(size=12))
+#               axis.text.y = element_blank(),
+#               axis.ticks.y = element_blank(),
+               axis.text=element_text(size=10))
 )
 pdf("zscore_chrom_pair_mean_heatmap_common_interactions.pdf", width = 14, height = 8)
 hm
