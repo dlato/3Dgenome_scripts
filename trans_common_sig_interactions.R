@@ -125,6 +125,9 @@ dat2 <- df %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
 dat2$chrA <- gsub("A", "", dat2$chrA)
 dat2$chrB <- gsub("B", "", dat2$chrB)
 
+print("all chroms involved in common interactions")
+Achrs <- unique(c(dat2$chrA, dat2$chrB))
+Achrs
 #################
 # PCA 
 #################
