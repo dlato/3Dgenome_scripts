@@ -107,6 +107,19 @@ head(ts_df)
 #dat <- dat[grep("chrX", df$ID, invert=TRUE), ]
 
 #select only rows with NO NAs in any cell type
+print("all chrom pairs involved in ALL SIG interactions")
+#split ID col
+colnm <- c("chrA", "st1", "end1","chrB","st2","end2")
+tmpD <- df
+tmpD$ID <- sub("B", "\\.B", as.character(tmpD$ID))
+tmpD <- tmpD %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
+#remove A and B from chrom names
+tmpD$chrA <- gsub("A", "", tmpD$chrA)
+tmpD$chrB <- gsub("B", "", tmpD$chrB)
+tmpD$chrPair <- paste(tmpD$chrA,tmpD$chrB)
+unique(tmpD$chrPair)
+
+#remove NAs and therefore only look at common inters
 df <- na.omit(dat)
 print("Total number of common interactions")
 length(df$ID)
@@ -128,6 +141,10 @@ dat2$chrB <- gsub("B", "", dat2$chrB)
 print("all chroms involved in common interactions")
 Achrs <- unique(c(dat2$chrA, dat2$chrB))
 Achrs
+print("all chrom pairs involved in common interactions")
+tmpD <- dat2
+tmpD$chrPair <- paste(dat2$chrA,dat2$chrB)
+unique(tmpD$chrPair)
 #################
 # PCA 
 #################
@@ -303,7 +320,27 @@ chrInf2$size <- chrInf2$size/10000000
 colnames(chrInf2) <- c("AllChr","centromere","chrClass","size")
 #chrInf2 <- chrInf2 %>% filter(AllChr %in% r_dat2$AllChr)
 #with fake data which did not really work as expected
-#p <- (ggplot(r_dat2, aes(x = AllSt, y = AllChr))
+p <- (ggplot(r_dat2, aes(x = AllSt, y = AllChr))
+      + geom_density_ridges(scale = 2, alpha = 0.3, rel_min_height = 0.001) 
+      #  + geom_segment(data = chrInf2, aes(x=centromere, xend=centromere, 
+      + geom_segment(data = chrInf2, aes(x=centromere, xend=centromere, 
+                                           y=as.numeric(AllChr), yend=as.numeric(AllChr) +0.9),
+                     color = "red")
+      #  + geom_segment(data = chrInf2, aes(x=size, xend=size, 
+      + geom_segment(data = chrInf2, aes(x=size, xend=size, 
+                                           y=as.numeric(AllChr), yend=as.numeric(AllChr) +0.9),
+                     color = "black")
+      + labs(x="Genomic Position [10Mb]",
+             y="",
+             title = "Location of Common Trans-chromosomal Interactions")
+      + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
+      #  + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
+      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+      #  + theme(axis.text=element_text(size=12))
+)
+pdf("chr_ridgeline_common_interactions_all_cells_FAKE_DATA.pdf", width = 14, height = 8)
+p
+dev.off()
 #without fake data
 ndat2 <- r_dat2 %>% filter(cell != "fake_cell")
 chsindf <- unique(ndat2$AllChr)
