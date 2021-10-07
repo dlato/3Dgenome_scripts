@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3
 #####################################
 # 
-# Program will convert HiC-Pro output to 3Dflow input
+# obtain all possible trans interactions for the genome
 #
 # Developed by Daniella F. Lato 
 # email: DaniellaLato@GMail.com
@@ -52,8 +52,8 @@ for A in range(0,ldf):
     endloop = endloop.to_numpy()
     ll = len(chrloop)
     for B in range(0,ll):
-        print(beddf.chrA[A], beddf.st[A], beddf.end[A], chrloop[B], stloop[B], endloop[B])
+        if beddf.chrA[A] != chrloop[B]:
+            print(beddf.chrA[A], beddf.st[A], beddf.end[A], chrloop[B], stloop[B], endloop[B])
     if lastchr != beddf.chrA[A]:
         c += 1
     lastchr = beddf.chrA[A]
-
