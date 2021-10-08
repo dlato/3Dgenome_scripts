@@ -71,12 +71,12 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 print("#read in files")
 #interaction data
 #Atype <- "1_vs_All"
-tissue_file <- "tissue_system_info.txt"
-dat_file <- "test_pairwise_dat.txt"
-allinters_file <- "all_trans_interactions_1Mb.txt"
-germlayer_file <- "germlayer_info.txt"
-library(factoextra)#for PCA
-library(harrypotter) #for colours
+#tissue_file <- "tissue_system_info.txt"
+#dat_file <- "test_pairwise_dat.txt"
+#allinters_file <- "all_trans_interactions_1Mb.txt"
+#germlayer_file <- "germlayer_info.txt"
+#library(factoextra)#for PCA
+#library(harrypotter) #for colours
 
 allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
@@ -746,7 +746,13 @@ hm_dat2$chrB <- gsub("chr", "", hm_dat2$chrB)
 hm_dat2$chrA <- factor(hm_dat2$chrA, levels=chrs_ord)
 hm_dat2$chrB <- factor(hm_dat2$chrB, levels=chrs_ord)
 head(hm_dat2)
-hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
+otherDir <- hm_dat2 %>% select(chrPair,chrB,chrA,cell,mzscore)
+colnames(otherDir) <- c("chrPair", "chrA","chrB", "cell", "mzscore")
+head(otherDir)
+hm_bothdirs <- bind_rows(hm_dat2,otherDir)
+hm_bothdirs$chrA <- factor(hm_bothdirs$chrA, levels=chrs_ord)
+hm_bothdirs$chrB <- factor(hm_bothdirs$chrB, levels=chrs_ord)
+hm <- (ggplot(hm_bothdirs, aes(chrA, ordered(chrB, levels=rev(chrs_ord)), fill = mzscore))
        + geom_tile(aes(fill = mzscore), colour = "white")
        + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score per chromosomal pair", na.value = "grey")
        #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
@@ -763,7 +769,7 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
                panel.spacing = unit(0, "lines"),
 #               axis.text.y = element_blank(),
 #               axis.ticks.y = element_blank(),
-               axis.text=element_text(size=10))
+               axis.text=element_text(size=9))
 )
 pdf("zscore_chrom_pair_mean_heatmap_common_interactions.pdf", width = 14, height = 8)
 hm
