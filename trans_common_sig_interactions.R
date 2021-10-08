@@ -110,7 +110,7 @@ head(ts_df)
 print("all chrom pairs involved in ALL SIG interactions")
 #split ID col
 colnm <- c("chrA", "st1", "end1","chrB","st2","end2")
-tmpD <- df
+tmpD <- dat
 tmpD$ID <- sub("B", "\\.B", as.character(tmpD$ID))
 tmpD <- tmpD %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
 #remove A and B from chrom names
@@ -344,10 +344,10 @@ dev.off()
 #without fake data
 ndat2 <- r_dat2 %>% filter(cell != "fake_cell")
 chsindf <- unique(ndat2$AllChr)
-red_levels <- factor(chrs_len_ord[chrs_len_ord %in% chsindf])
-ndat2$AllChr <- factor(ndat2$AllChr, levels = levels(red_levels))
+red_levels <- factor(rev_chrs_len_ord[rev_chrs_len_ord %in% chsindf])
+ndat2$AllChr <- factor(ndat2$AllChr, levels =red_levels)
 chrInf_hm <- chrInf2 %>% filter(AllChr %in% chsindf)
-chrInf_hm$AllChr <- factor(chrInf_hm$AllChr, levels = levels(red_levels))
+chrInf_hm$AllChr <- factor(chrInf_hm$AllChr, levels =red_levels)
 p <- (ggplot(ndat2, aes(x = AllSt, y = AllChr))
   + geom_density_ridges(scale = 2, alpha = 0.3, rel_min_height = 0.001) 
 #  + geom_segment(data = chrInf2, aes(x=centromere, xend=centromere, 
@@ -366,7 +366,10 @@ p <- (ggplot(ndat2, aes(x = AllSt, y = AllChr))
   + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
 #  + theme(axis.text=element_text(size=12))
 )
-p
+print("# max genomic position for each chromosome (common interactions)")
+df %>% group_by(AllChr) %>% summarise(AllSt = max(AllSt))
+print("# chromosome centromere and size info")
+chrInf_hm
 ######################################
 # NOTE: THE RIDGELINE PLOT HEIGHT CURRENTLY IS SCALED AMONG ALL Y-AXIS POINTS AND IS THE SAME FOR ALL Y-AXIS POINTS. IT DOES NOT REPRESENT ACTUAL AMOUNTS OF INTERACTIONS
 # NOTE: THE PER CHROM RIDGELINE PLOT HAS FAKE DATA ADDED SO THAT THE LENGTH OF THE CHROMOSOMES IS ACCURATE, THIS COULD MAKE THE GRAPH LOOK FUNNY! 
@@ -651,7 +654,7 @@ prop_datAll2$num <- prop_datAll2$num / 100000
 #plot
 p <- (ggplot(prop_datAll2, aes(y =num,x=chrom, fill = name))
       + geom_bar(color="black",position = "dodge", stat = "identity")
-      + scale_fill_manual(values =c("#FAC9A1", "#013040"), labels= c("Total Interactions", "Common Interactions"))
+      + scale_fill_manual(values =c("#FAC9A1", "#013040"), labels= c("Total Possible Interactions", "Common Interactions"))
       + labs(y="Number of Interactions [100,000]",
              x="Chromosome",
              title = "Trans-chromosomal Interactions per Chromosome",
