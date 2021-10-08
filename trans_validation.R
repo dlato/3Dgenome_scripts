@@ -92,10 +92,12 @@ summary(datsigW)
 #roi1 <- read.table("CISTR.bed", header = FALSE)
 roi1 <- read.table(roi1_file)
 colnames(roi1) <- c("chrom","start","end")
+print(roi1)
 #roi2
 #roi2 <- read.table("SOX9.bed", header = FALSE)
 roi2 <- read.table(roi2_file)
 colnames(roi2) <- c("chrom","start","end")
+print(roi2)
 
 print("#new cols for interaction ID")
 colnm <- c("chrA", "st1", "end1","chrB","st2","end2")
@@ -395,12 +397,13 @@ levels(plot_d$validType) <- list("All interactions" = "All interactions",
                                  "Interactions from chrs" = "Interactions from chrs")
 p <- (ggplot(plot_d, aes(x=zscore, fill = validType))
       #  + geom_split_violin()
-      + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
+#      + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
+      + geom_density(alpha=.6,position="stack")#stack = based on counts of data, height proportional to total
       #  + coord_flip()
       + labs(title = mytitle,
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
-             x = "z-score", y = "Density")
+ #            x = "z-score", y = "Density")
       #         tag = "A")
      #   + scale_fill_manual(values =c("plum4", "cadetblue"))
       + scale_fill_manual(values =c("grey", "cadetblue"),labels=c('All interactions', interLab))
@@ -530,9 +533,12 @@ interLab <- paste("Significant interactions between",roi1_inter1$seqnames,"and",
 #)
 levels(plot_d$validType) <- list("All significant interactions" = "All significant interactions",
                                  "Significant interactions from chrs" = "Significant interactions from chrs")
+head(plot_d)
+summary(plot_d)
 p <- (ggplot(plot_d, aes(x=zscore, fill = validType))
       #  + geom_split_violin()
-      + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
+#      + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
+      + geom_density(alpha=.6,position="stack")#stack = based on counts of data, height proportional to total
       #  + coord_flip()
       + labs(title = mytitle,
              #         subtitle = "Plot of length by dose",
@@ -564,7 +570,7 @@ head(hm_zscore_df)
 dirA <- paste0(unique(roi1$chrom),unique(roi2$chrom))
 print(dirA)
 dirB <- paste0(unique(roi2$chrom),unique(roi1$chrom))
-print(dirA)
+print(dirB)
 hm_df <- hm_zscore_df %>% filter(chrs == dirA | chrs == dirB)
 head(hm_df)
 testdf <- hm_df %>% filter(cell == "Aorta")
