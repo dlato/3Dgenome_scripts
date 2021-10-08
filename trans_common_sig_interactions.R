@@ -367,7 +367,7 @@ p <- (ggplot(ndat2, aes(x = AllSt, y = AllChr))
 #  + theme(axis.text=element_text(size=12))
 )
 print("# max genomic position for each chromosome (common interactions)")
-ndat2 %>% group_by(AllChr) %>% summarise(AllSt = max(AllSt))
+ndat2 %>% group_by(AllChr) %>% dplyr::summarise(max_pos = max(AllSt))
 print("# chromosome centromere and size info")
 chrInf_hm
 ######################################
@@ -386,7 +386,7 @@ dev.off()
 head(r_dat2)
 hm_dat = ndat2 %>% group_by(AllChr, AllSt) %>% dplyr::summarize(mzscore=mean(zscore))
 head(hm_dat)
-hm_dat$AllChr <- factor(hm_dat$AllChr, levels=rev_chrs_len_ord)
+hm_dat$AllChr <- factor(hm_dat$AllChr, levels=chrs_len_ord)
 hm_dat$AllChr <- gsub("chr", "", hm_dat$AllChr)
 hm <- (ggplot(hm_dat, aes(x=AllSt,y=AllChr, fill = mzscore))
        #hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
@@ -767,9 +767,9 @@ hm <- (ggplot(hm_bothdirs, aes(chrA, ordered(chrB, levels=rev(chrs_ord)), fill =
        + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
                strip.background = element_rect(fill = "white"),
                panel.spacing = unit(0, "lines"),
-#               axis.text.y = element_blank(),
-#               axis.ticks.y = element_blank(),
-               axis.text=element_text(size=9))
+               axis.text.y = element_blank(),
+               axis.ticks.y = element_blank(),
+               axis.text=element_text(size=6))
 )
 pdf("zscore_chrom_pair_mean_heatmap_common_interactions.pdf", width = 14, height = 8)
 hm
