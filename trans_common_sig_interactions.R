@@ -71,12 +71,12 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 print("#read in files")
 #interaction data
 #Atype <- "1_vs_All"
-#tissue_file <- "tissue_system_info.txt"
-#dat_file <- "test_pairwise_dat.txt"
-#allinters_file <- "all_trans_interactions_1Mb.txt"
-#germlayer_file <- "germlayer_info.txt"
-#library(factoextra)#for PCA
-#library(harrypotter) #for colours
+tissue_file <- "tissue_system_info.txt"
+dat_file <- "test_pairwise_dat.txt"
+allinters_file <- "all_trans_interactions_1Mb.txt"
+germlayer_file <- "germlayer_info.txt"
+library(factoextra)#for PCA
+library(harrypotter) #for colours
 
 allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
@@ -367,7 +367,7 @@ p <- (ggplot(ndat2, aes(x = AllSt, y = AllChr))
 #  + theme(axis.text=element_text(size=12))
 )
 print("# max genomic position for each chromosome (common interactions)")
-df %>% group_by(AllChr) %>% summarise(AllSt = max(AllSt))
+ndat2 %>% group_by(AllChr) %>% summarise(AllSt = max(AllSt))
 print("# chromosome centromere and size info")
 chrInf_hm
 ######################################
@@ -716,14 +716,15 @@ hm <- (ggplot(r_dat2, aes(AllChr, cell))
 #hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
 #       + geom_tile(aes(fill = mzscore), colour = "white")
        + geom_tile(aes(fill = zscore), colour = "white")
-       + scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+       + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score", na.value = "grey")
+#       + scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
        + labs(x = "Chromosome",
               y = "Cell",
               title = "Common Trans-chromosomal Interactions z-scores")
 #       + facet_wrap(.~germL)
        + theme(axis.text=element_text(size=12))
 )
-pdf("zscore_mean_heatmap_common_interactions_chroms_all_cells.pdf", width = 14, height = 8)
+pdf("zscore_mean_heatmap_common_interactions_chroms_per_cell.pdf", width = 14, height = 8)
 hm
 dev.off()
 #################
