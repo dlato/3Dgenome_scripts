@@ -367,7 +367,7 @@ p <- (ggplot(ndat2, aes(x = AllSt, y = AllChr))
 #  + theme(axis.text=element_text(size=12))
 )
 print("# max genomic position for each chromosome (common interactions)")
-ndat2 %>% group_by(AllChr) %>% dplyr::summarise(max_pos = max(AllSt))
+print(as_tibble(ndat2 %>% group_by(AllChr) %>% dplyr::summarise(max_pos = max(AllSt))), n = 100)
 print("# chromosome centromere and size info")
 chrInf_hm
 ######################################
@@ -386,9 +386,10 @@ dev.off()
 head(r_dat2)
 hm_dat = ndat2 %>% group_by(AllChr, AllSt) %>% dplyr::summarize(mzscore=mean(zscore))
 head(hm_dat)
-hm_dat$AllChr <- factor(hm_dat$AllChr, levels=chrs_len_ord)
+chrs_ord <- gsub("chr", "", chrs_len_ord)
+hm_dat$AllChr <- factor(hm_dat$AllChr, levels=chrs_ord)
 hm_dat$AllChr <- gsub("chr", "", hm_dat$AllChr)
-hm <- (ggplot(hm_dat, aes(x=AllSt,y=AllChr, fill = mzscore))
+hm <- (ggplot(hm_dat, aes(x=AllSt,ordered(AllChr, levels=rev(chrs_ord)), fill = mzscore))
        #hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
        #       + geom_tile(aes(fill = mzscore), colour = "white")
        + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score", na.value = "grey")
@@ -398,7 +399,7 @@ hm <- (ggplot(hm_dat, aes(x=AllSt,y=AllChr, fill = mzscore))
               y = "Chromosome",
               title = "Common Trans-chromosomal Interactions z-scores")
        #       + facet_wrap(.~germL)
-       + theme(axis.text=element_text(size=12))
+#       + theme(axis.text=element_text(size=12))
 )
 pdf("zscore_mean_heatmap_common_interactions_chroms_all_cells.pdf", width = 14, height = 8)
 hm
@@ -769,7 +770,7 @@ hm <- (ggplot(hm_bothdirs, aes(chrA, ordered(chrB, levels=rev(chrs_ord)), fill =
                panel.spacing = unit(0, "lines"),
                axis.text.y = element_blank(),
                axis.ticks.y = element_blank(),
-               axis.text=element_text(size=6))
+               axis.text=element_text(size=5))
 )
 pdf("zscore_chrom_pair_mean_heatmap_common_interactions.pdf", width = 14, height = 8)
 hm
