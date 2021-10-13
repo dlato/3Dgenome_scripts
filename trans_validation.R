@@ -65,14 +65,14 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-Atype <- "1_vs_All"
-zdat_file <- "test_1vsAll_dat.txt"
-pdat_file <- "test_1vsAll_pvalues.txt"
-roi1_file <- "FIRRE.bed"
-roi2_file <- "ATF4.bed"
-#dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
-#dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
-#dat <- read.table(dat_file, header = TRUE)
+#Atype <- "1_vs_All"
+#zdat_file <- "test_1vsAll_dat.txt"
+#pdat_file <- "test_1vsAll_pvalues.txt"
+#roi1_file <- "FIRRE.bed"
+#roi2_file <- "ATF4.bed"
+##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
+##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
+##dat <- read.table(dat_file, header = TRUE)
 zdat <- read.table(zdat_file, header = TRUE)
 pdat <- read.table(pdat_file, header = TRUE)
 print("summary of ALL zscores per cell type")
@@ -142,6 +142,7 @@ print("#data with JUST interacting region")
 Vinter <- dat2[grep(roi1_res, dat2$ID), ]
 Vinter <- Vinter[grep(roi2_res, Vinter$ID),]
 chrs <- c(levels(roi2$chrom),levels(roi1$chrom[1]))
+chrs <- paste(chrs, ".", sep = "") 
 print("#######")
 print("# Validated interaction specific region")
 print("#######")
@@ -404,16 +405,18 @@ levels(plot_d$validType) <- list("All interactions" = "All interactions",
 p <- (ggplot(plot_d, aes(x=zscore, fill = validType))
       #  + geom_split_violin()
 #      + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
-      + geom_density(alpha=.6,y=count,position="stack")#stack = based on counts of data, height proportional to total
+#      + geom_density(alpha=.6,position="stack")#stack = based on counts of data, height proportional to total
+      + geom_histogram(position="identity",alpha=.6)#stack = based on counts of data, height proportional to total
       #  + coord_flip()
-#      + labs(title = mytitle,
+      + labs(title = mytitle,
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
- #            x = "z-score", y = "Density")
+             x = "z-score", y = "Count")
       #         tag = "A")
      #   + scale_fill_manual(values =c("plum4", "cadetblue"))
       + scale_fill_manual(values =c("grey", "cadetblue"),labels=c('All interactions', interLab))
       + facet_grid(cell~. )
+      + theme(legend.title = element_blank())
 )
 #p
 f_name <- gsub(" ","",paste("6testCells_valid_interaction_chroms_density_allInters",Atype,".pdf"))
@@ -442,6 +445,7 @@ chrs_df$zscore[as.numeric(chrs_df$pvalue)>=0.05]  <- NA
 chrs_df <- chrs_df[grep(chrs[2],chrs_df$ID),]
 chrs_df <- chrs_df %>% select(-pvalue) %>% spread(key = cell, value = zscore)
 summary(chrs_df)
+head(chrs_df)
 
 print("cells/datasets that have sig interactions btwn validated chromosomes")
 allmisscols <- sapply(chrs_df, function(x) all(is.na(x) | x == '' ))
@@ -522,7 +526,7 @@ levels(plot_df$seqDep) <- list("High" = "hESCDekker",
 
 
 print("#plot above data for valid chroms")
-target <- c("Significant interactions from chrs", "All significant interactions")
+target <- c("Interactions from chrs", "All significant interactions")
 plot_d <- plot_df %>% filter(validType %in% target)
 interLab <- paste("Significant interactions between",roi1_inter1$seqnames,"and",roi2_inter1$seqnames)
 #p <- (ggplot(plot_d, aes(cell, zscore, fill = validType))
@@ -538,22 +542,24 @@ interLab <- paste("Significant interactions between",roi1_inter1$seqnames,"and",
 #      #  + facet_grid(seqDep ~ cell )
 #)
 levels(plot_d$validType) <- list("All significant interactions" = "All significant interactions",
-                                 "Significant interactions from chrs" = "Significant interactions from chrs")
+                                 "Interactions from chrs" = "Significant interactions from chrs")
 head(plot_d)
 summary(plot_d)
 p <- (ggplot(plot_d, aes(x=zscore, fill = validType))
       #  + geom_split_violin()
 #      + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
-      + geom_density(alpha=.6,position="stack")#stack = based on counts of data, height proportional to total
-      #  + coord_flip()
+#      + geom_density(alpha=.6,position="stack")#stack = based on counts of data, height proportional to total
+      + geom_histogram(position="identity", alpha=.5)#identiry = overlapping histograms
+#  + coord_flip()
       + labs(title = mytitle,
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
-             x = "z-score", y = "Density")
+             x = "z-score", y = "Count")
       #         tag = "A")
       #  + scale_fill_manual(values =c("plum4", "cadetblue"))
-      + scale_fill_manual(values =c("plum4", "cadetblue"),labels=c(interLab, 'All significant interactions'))
+      + scale_fill_manual(values =c("grey", "cadetblue"),labels=c('All significant interactions',interLab))
       + facet_grid(cell~. )
+      + theme(legend.title = element_blank())
 )
 #p
 f_name <- gsub(" ","",paste("6testCells_valid_interaction_chroms_density_sigInters",Atype,".pdf"))
