@@ -194,11 +194,11 @@ p <- (ggplot(pa_dat_m, aes(y=all_cells, x=allmisscols, shape =allmisscols, fill 
              #         caption = "Data source: ToothGrowth",
              x = "Valid interaction status in all interactions", y = "")
       #         tag = "A")
-#      + scale_shape_manual(values=c(21,1))
-#      + scale_fill_manual(values =c("Pos" = "#26C485", "Neg" = "#88E0FB", "Abs" = "black"))
-#      + scale_color_manual(values =c("Pos" = "black", "Neg" = "black", "Abs" = "black"))
+      + scale_shape_manual(values=c(21,1))
+      + scale_fill_manual(values =c("Pos" = "#26C485", "Neg" = "#88E0FB", "Abs" = "black"))
+      + scale_color_manual(values =c("Pos" = "black", "Neg" = "black", "Abs" = "black"))
       #  + facet_grid(seqDep ~ cell )
-#      + labs(shape = "", linetype = "")
+      + labs(shape = "", linetype = "")
       + theme(legend.position = "none")
 )
 f_name <- gsub(" ","",paste("allCells_valid_interaction_present_absent_allInters",Atype,".pdf"))
@@ -251,11 +251,11 @@ p <- (ggplot(pa_dat_m, aes(y=all_cells, x=allmisscols, shape =allmisscols, fill 
              #         caption = "Data source: ToothGrowth",
              x = "Valid interaction status in significant interactions", y = "")
       #         tag = "A")
-#      + scale_shape_manual(values=c(21,1))
-#      + scale_fill_manual(values =c("Pos" = "#26C485", "Neg" = "#88E0FB", "Abs" = "black"))
-#      + scale_color_manual(values =c("Pos" = "black", "Neg" = "black", "Abs" = "black"))
-#      #  + facet_grid(seqDep ~ cell )
-#      + labs(shape = "", linetype = "")
+      + scale_shape_manual(values=c(21,1))
+      + scale_fill_manual(values =c("Pos" = "#26C485", "Neg" = "#88E0FB", "Abs" = "black"))
+      + scale_color_manual(values =c("Pos" = "black", "Neg" = "black", "Abs" = "black"))
+      #  + facet_grid(seqDep ~ cell )
+      + labs(shape = "", linetype = "")
       + theme(legend.position = "none")
 )
 f_name <- gsub(" ","",paste("allCells_valid_interaction_present_absent_sigInters",Atype,".pdf"))
@@ -398,9 +398,9 @@ levels(plot_d$validType) <- list("All interactions" = "All interactions",
 p <- (ggplot(plot_d, aes(x=zscore, fill = validType))
       #  + geom_split_violin()
 #      + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
-      + geom_density(alpha=.6,position="stack")#stack = based on counts of data, height proportional to total
+      + geom_density(alpha=.6,y=count,position="stack")#stack = based on counts of data, height proportional to total
       #  + coord_flip()
-      + labs(title = mytitle,
+#      + labs(title = mytitle,
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
  #            x = "z-score", y = "Density")
