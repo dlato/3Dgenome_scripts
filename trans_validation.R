@@ -65,11 +65,11 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-#Atype <- "1_vs_All"
-#zdat_file <- "test_1vsAll_dat.txt"
-#pdat_file <- "test_1vsAll_pvalues.txt"
-#roi1_file <- "FIRRE.bed"
-#roi2_file <- "ATF4.bed"
+Atype <- "1_vs_All"
+zdat_file <- "test_1vsAll_dat.txt"
+pdat_file <- "test_1vsAll_pvalues.txt"
+roi1_file <- "FIRRE.bed"
+roi2_file <- "ATF4.bed"
 #dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 #dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
 #dat <- read.table(dat_file, header = TRUE)
@@ -93,10 +93,12 @@ summary(datsigW)
 roi1 <- read.table(roi1_file)
 colnames(roi1) <- c("chrom","start","end")
 print(roi1)
+roi1$chrom <- as.factor(roi1$chrom)
 #roi2
 #roi2 <- read.table("SOX9.bed", header = FALSE)
 roi2 <- read.table(roi2_file)
 colnames(roi2) <- c("chrom","start","end")
+roi2$chrom <- as.factor(roi2$chrom)
 print(roi2)
 
 print("#new cols for interaction ID")
@@ -165,6 +167,7 @@ mytitle <- gsub("_", " ", Atype)
 #data for presence/absence
 pa_dat <- as.data.frame(cbind(all_cells, allmisscols))
 pa_dat <- pa_dat[-c(1,2,3,4,5,6,7),]
+pa_dat$allmisscols <- factor(pa_dat$allmisscols)
 #reorder based on T/F status
 pa_dat <- pa_dat %>% arrange(desc(allmisscols)) %>%    
   mutate(all_cells=factor(all_cells, levels=all_cells)) 
@@ -183,7 +186,9 @@ VinterL <- VinterL %>% select(cell,zsign)
 colnames(VinterL) <- c("all_cells","zsign")
 pa_dat_m <- merge(pa_dat, VinterL, by = "all_cells")
 summary(pa_dat_m)
+#pa_dat_m$allmisscols <- ifelse(pa_dat_m$allmisscols == TRUE, "Present", "Absent")
 levels(pa_dat_m$allmisscols)
+pa_dat_m$allmisscols <- as.factor(pa_dat_m$allmisscols)
 pa_dat_m$zsign <- as.factor(pa_dat_m$zsign)
 levels(pa_dat_m$zsign)
 p <- (ggplot(pa_dat_m, aes(y=all_cells, x=allmisscols, shape =allmisscols, fill = zsign))
@@ -228,6 +233,7 @@ mytitle <- gsub("_", " ", Atype)
 #data for presence/absence
 pa_dat <- as.data.frame(cbind(all_cells, allmisscols))
 pa_dat <- pa_dat[-c(1,2,3,4,5,6,7),]
+pa_dat$allmisscols <- factor(pa_dat$allmisscols)
 #reorder based on T/F status
 pa_dat <- pa_dat %>% arrange(desc(allmisscols)) %>%    
   mutate(all_cells=factor(all_cells, levels=all_cells)) 
