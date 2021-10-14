@@ -402,11 +402,34 @@ interLab <- paste("Interactions between",roi1_inter1$seqnames,"and",roi2_inter1$
 #)
 levels(plot_d$validType) <- list("All interactions" = "All interactions",
                                  "Interactions from chrs" = "Interactions from chrs")
+#histogram
 p <- (ggplot(plot_d, aes(x=zscore, fill = validType))
       #  + geom_split_violin()
 #      + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
 #      + geom_density(alpha=.6,position="stack")#stack = based on counts of data, height proportional to total
       + geom_histogram(position="identity",alpha=.6)#stack = based on counts of data, height proportional to total
+      #  + coord_flip()
+      + labs(title = mytitle,
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = "z-score", y = "Count")
+      #         tag = "A")
+     #   + scale_fill_manual(values =c("plum4", "cadetblue"))
+      + scale_fill_manual(values =c("grey", "cadetblue"),labels=c('All interactions', interLab))
+      + facet_grid(cell~. )
+      + theme(legend.title = element_blank())
+)
+#p
+f_name <- gsub(" ","",paste("6testCells_valid_interaction_chroms_histogram_allInters",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
+#density
+p <- (ggplot(plot_d, aes(x=zscore, fill = validType))
+      #  + geom_split_violin()
+      + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
+#      + geom_density(alpha=.6,position="stack")#stack = based on counts of data, height proportional to total
+#      + geom_histogram(position="identity",alpha=.6)#stack = based on counts of data, height proportional to total
       #  + coord_flip()
       + labs(title = mytitle,
              #         subtitle = "Plot of length by dose",
@@ -545,6 +568,29 @@ levels(plot_d$validType) <- list("All significant interactions" = "All significa
                                  "Interactions from chrs" = "Significant interactions from chrs")
 head(plot_d)
 summary(plot_d)
+#histogram
+p <- (ggplot(plot_d, aes(x=zscore, fill = validType))
+      #  + geom_split_violin()
+#      + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
+#      + geom_density(alpha=.6,position="stack")#stack = based on counts of data, height proportional to total
+      + geom_histogram(position="identity", alpha=.5)#identiry = overlapping histograms
+#  + coord_flip()
+      + labs(title = mytitle,
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = "z-score", y = "Count")
+      #         tag = "A")
+      #  + scale_fill_manual(values =c("plum4", "cadetblue"))
+      + scale_fill_manual(values =c("grey", "cadetblue"),labels=c('All significant interactions',interLab))
+      + facet_grid(cell~. )
+      + theme(legend.title = element_blank())
+)
+#p
+f_name <- gsub(" ","",paste("6testCells_valid_interaction_chroms_histogram_sigInters",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
+#density
 p <- (ggplot(plot_d, aes(x=zscore, fill = validType))
       #  + geom_split_violin()
 #      + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
@@ -566,7 +612,6 @@ f_name <- gsub(" ","",paste("6testCells_valid_interaction_chroms_density_sigInte
 pdf(f_name, width = 14, height = 8)
 p
 dev.off()
-
 ##############
 # zscore
 ##############
