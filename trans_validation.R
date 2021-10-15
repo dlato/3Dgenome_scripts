@@ -593,9 +593,9 @@ dev.off()
 #density
 p <- (ggplot(plot_d, aes(x=zscore, fill = validType))
       #  + geom_split_violin()
-#      + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
+     + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
 #      + geom_density(alpha=.6,position="stack")#stack = based on counts of data, height proportional to total
-      + geom_histogram(position="identity", alpha=.5)#identiry = overlapping histograms
+#      + geom_histogram(position="identity", alpha=.5)#identiry = overlapping histograms
 #  + coord_flip()
       + labs(title = mytitle,
              #         subtitle = "Plot of length by dose",
