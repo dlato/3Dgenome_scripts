@@ -53,7 +53,7 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
                   axis.text.y.right = element_text(size=18),
                   #legend.title = element_blank(),
                   legend.title = element_text(size = 16),
-                  legend.text = element_text(size = 18),
+                  legend.text = element_text(size = 10),
                   #change the colour of facet label background
                   strip.background = element_rect(fill = "#E6E1EA"),
                   #remove space between facet
@@ -70,16 +70,16 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-#zdat_file <- "test_1vsAll_dat.txt"
-#pdat_file <- "test_1vsAll_pvalues.txt"
-#allinters_file <- "all_trans_interactions_1Mb.txt"
-#germlayer_file <- "germlayer_info.txt"
-#gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
-#library(harrypotter)
-##Atype <- "1_vs_All"
-##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
-##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
-##dat <- read.table(dat_file, header = TRUE)
+zdat_file <- "test_1vsAll_dat.txt"
+pdat_file <- "test_1vsAll_pvalues.txt"
+allinters_file <- "all_trans_interactions_1Mb.txt"
+germlayer_file <- "germlayer_info.txt"
+gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
+library(harrypotter)
+#Atype <- "1_vs_All"
+#dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
+#dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
+#dat <- read.table(dat_file, header = TRUE)
 zdat <- read.table(zdat_file, header = TRUE)
 pdat <- read.table(pdat_file, header = TRUE)
 print("reading all inters")
@@ -660,6 +660,7 @@ hm <- (ggplot(hm_dat2, aes(AllChr, cell, fill = zscore))
        + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
          c("nonsig" = "Non-significant", "sig" = "Significant"))))
 #       + theme(axis.text.x = element_text(angle = 90))
+       + theme(axis.text=element_text(size=12))
 )
 pdf("zscore_mean_heatmap_interactions_chroms_all_cells.pdf", width = 14, height = 8)
 hm
@@ -683,6 +684,7 @@ hm <- (ggplot(hm_dat2, aes(AllChr, cell, fill = zscore))
 #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
 #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
 #       + theme(axis.text.x = element_text(angle = 90))
+       + theme(axis.text=element_text(size=12))
 )
 pdf("zscore_mean_heatmap_interactions_chroms_all_cells_mean_of_ALL_zscores.pdf", width = 14, height = 8)
 hm
@@ -701,15 +703,21 @@ hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
        #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
        + labs(x = "Chromosome",
               y = "Cell",
-              title = "Trans-chromosomal Interactions (all) z-scores")
+              title = "Trans-chromosomal Interactions (significant) z-scores")
 #       + facet_wrap(.~sig)
 #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
 #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
 #       + theme(axis.text.x = element_text(angle = 90))
+       + theme(axis.text=element_text(size=12))
 )
 pdf("zscore_mean_heatmap_interactions_chroms_all_cells_significant_interactions.pdf", width = 14, height = 8)
 hm
 dev.off()
+#################
+# total interactions per chrom pair vs all possible interactions all per cell 
+#################
+head(r_dat)
+
 #################
 # average z-score per chrom pair heatmap 
 #################
@@ -747,6 +755,7 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
               panel.spacing = unit(0, "lines"),
               axis.text.y = element_blank(),
               axis.ticks.y = element_blank())
+       + theme(axis.text=element_text(size=5))
 )
 pdf("zscore_chrom_pair_mean_heatmap_AllInteractions.pdf", width = 14, height = 8)
 hm
@@ -778,9 +787,7 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
        #       + theme(axis.text.x = element_text(angle = 90))
       + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
               strip.background = element_rect(fill = "white"),
-              panel.spacing = unit(0, "lines"),
-              axis.text.y = element_blank(),
-              axis.ticks.y = element_blank())
+              panel.spacing = unit(0, "lines"))
 )
 pdf("TEST_Aorta_zscore_chrom_pair_mean_heatmap_AllInteractions.pdf", width = 14, height = 8)
 hm
@@ -814,6 +821,7 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
                panel.spacing = unit(0, "lines"),
                axis.text.y = element_blank(),
                axis.ticks.y = element_blank())
+       + theme(axis.text=element_text(size=5))
 )
 pdf("zscore_chrom_pair_mean_heatmap_sig_Interactions.pdf", width = 14, height = 8)
 hm
