@@ -27,6 +27,7 @@ library(ggplot2)
 library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 library(ggbiplot, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3")#for PCA
+library(gtools, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3")#for PCA
 library(devtools)#for PCA
 library(factoextra,lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3")#for PCA
 library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3")
@@ -70,16 +71,17 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-zdat_file <- "test_1vsAll_dat.txt"
-pdat_file <- "test_1vsAll_pvalues.txt"
-allinters_file <- "all_trans_interactions_1Mb.txt"
-germlayer_file <- "germlayer_info.txt"
-gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
-library(harrypotter)
-#Atype <- "1_vs_All"
-#dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
-#dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
-#dat <- read.table(dat_file, header = TRUE)
+#zdat_file <- "test_1vsAll_dat.txt"
+#pdat_file <- "test_1vsAll_pvalues.txt"
+#allinters_file <- "all_trans_interactions_1Mb.txt"
+#germlayer_file <- "germlayer_info.txt"
+#gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
+#library(harrypotter)
+#library(gtools)
+##Atype <- "1_vs_All"
+##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
+##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
+##dat <- read.table(dat_file, header = TRUE)
 zdat <- read.table(zdat_file, header = TRUE)
 pdat <- read.table(pdat_file, header = TRUE)
 print("reading all inters")
@@ -717,7 +719,102 @@ dev.off()
 # total interactions per chrom pair vs all possible interactions all per cell 
 #################
 head(r_dat)
+#make chrom pair col for all inters (sig and non-sig)
+bar_df <- r_dat
+bar_df$chrPair <- paste0(bar_df$chrA, bar_df$chrB)
+head(bar_df)
+chrpaircount <- bar_df %>% group_by(cell, chrPair) %>% summarise(n = n())
+head(chrpaircount)
+colnames(chrpaircount) <- c("cell","chrPair","obsCount")
+#get cells to replicate for all inters chrom pair count
+cells_obs <- unique(chrpaircount$cell)
 
+allinters_chrpair <- allinters
+allinters_chrpair$chrPair <- paste0(allinters_chrpair$chrA, allinters_chrpair$chrB)
+head(allinters_chrpair)
+allchrpaircount <- allinters_chrpair %>% group_by(chrPair) %>% summarise(n = n())
+colnames(allchrpaircount) <- c("chrPair","allCount")
+allchrpaircount <- allchrpaircount %>% slice(rep(1:n(), each = length(cells_obs)))
+allcell <- rep(cells_obs, times = length(unique(allchrpaircount$chrPair)))
+tail(allchrpaircount)
+allchrpaircount <- cbind(allcell, allchrpaircount)
+colnames(allchrpaircount) <- c("cell","chrPair","allCount")
+head(allchrpaircount)
+#combine dfs
+chrpair_df <- merge(allchrpaircount, chrpaircount, by = c("cell","chrPair"), all = TRUE)
+chrpair_df <- gather(chrpair_df, key="interaction", value="count", 3:4)
+head(chrpair_df)
+
+chrpair_df$chrPair = as.factor(chrpair_df$chrPair)
+chrpair_df$chrPair = factor(chrpair_df$chrPair, levels = gtools::mixedsort(chrpair_df$chrPair))
+chrpair_df <- filter(cell != "fake_cell")
+bp <- (ggplot(chrpair_df, aes(x=chrPair, y=count))
+  +geom_bar(aes(fill = interaction), position = "dodge", stat="identity")
+#  + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score per chromosomal pair", na.value = "grey")
+#  #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+#  #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+#  + labs(x = "Chromosome",
+#         y = "",
+#         title = "Trans-chromosomal Interactions (all) z-scores")
+  + facet_grid(cell ~ .)
+#  #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+#  #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+#  #       + theme(axis.text.x = element_text(angle = 90))
+#  + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#          strip.background = element_rect(fill = "white"),
+#          panel.spacing = unit(0, "lines"),
+#          axis.text.y = element_blank(),
+#          axis.ticks.y = element_blank())
+#  + theme(axis.text=element_text(size=5))
+   + theme(strip.text.y.right = element_text(angle = 0))
+)
+pdf("number_of_inters_chrPair_obs_exp_allInters_bargraph.pdf", width = 14, height = 8)
+bp
+dev.off()
+
+#################
+# total interactions per cell vs all possible interactions per cell 
+#################
+#make chrom pair col for all inters (sig and non-sig)
+bar_df <- r_dat
+head(bar_df)
+bar_df <- na.omit(bar_df)
+chrpaircount <- bar_df %>% group_by(cell) %>% summarise(n = n())
+head(chrpaircount)
+colnames(chrpaircount) <- c("cell","obsCount")
+#get cells to replicate for all inters chrom pair count
+cells_obs <- unique(chrpaircount$cell)
+
+allinters_tot <- length(allinters$chrA)
+allrow <- c("All possible interactions", allinters_tot)
+chrpaircount <- rbind(allrow,chrpaircount) %>% filter(cell != "fake_cell")
+chrpaircount$obsCount <- as.numeric(as.character(chrpaircount$obsCount)) / 1000000
+
+bp <- (ggplot(chrpaircount, aes(y=obsCount, x=cell))
+       +geom_bar(position = "dodge", stat="identity")
+       + coord_flip()
+       #  + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score per chromosomal pair", na.value = "grey")
+       #  #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+       #  #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+         + labs(y = "Number of Trans-chromosomal Interactions [Million]",
+                x = "",
+                title = "Trans-chromosomal Interactions")
+ #      + facet_grid(cell ~ .)
+       #  #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+       #  #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+       #  #       + theme(axis.text.x = element_text(angle = 90))
+       #  + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+       #          strip.background = element_rect(fill = "white"),
+       #          panel.spacing = unit(0, "lines"),
+       #          axis.text.y = element_blank(),
+       #          axis.ticks.y = element_blank())
+       #  + theme(axis.text=element_text(size=5))
+       + scale_y_continuous(expand = c(0, 0), limits = c(0,max(chrpaircount$obsCount +0.5)))
+       + theme(strip.text.y.right = element_text(angle = 0))
+)
+pdf("number_of_inters_obs_exp_allInters_bargraph.pdf", width = 14, height = 8)
+bp
+dev.off()
 #################
 # average z-score per chrom pair heatmap 
 #################
