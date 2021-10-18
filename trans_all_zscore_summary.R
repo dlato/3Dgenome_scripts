@@ -27,7 +27,7 @@ library(ggplot2)
 library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 library(ggbiplot, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3")#for PCA
-library(gtools, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3")#for PCA
+library(gtools)#for sorting alphanumeric
 library(devtools)#for PCA
 library(factoextra,lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3")#for PCA
 library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3")
