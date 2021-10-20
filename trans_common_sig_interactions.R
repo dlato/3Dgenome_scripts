@@ -621,6 +621,11 @@ chrClass_dat %>%
 print("#Perform the Kruskal-Wallis test")
 print("sig = mean is diff btwn groups")
 kruskal.test(zscore ~ chrClass, data=chrClass_dat)
+print("# check which groups have sig diff")
+print("# perform pairwise wilcoxon test with FDR (Benjamini-Hochberg) correction")
+pairwise.wilcox.test(chrClass_dat$zscore, chrClass_dat$chrClass,
+                 p.adjust.method = "BH")
+
 #with cell info
 #p <- (ggplot(chrClass_dat, aes(y = cell, x = zscore))
 #      + geom_violin(fill="grey90")
