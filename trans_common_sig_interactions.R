@@ -70,13 +70,13 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-#Atype <- "1_vs_All"
-#tissue_file <- "tissue_system_info.txt"
-#dat_file <- "test_pairwise_dat.txt"
-#allinters_file <- "all_trans_interactions_1Mb.txt"
-#germlayer_file <- "germlayer_info.txt"
-#library(factoextra)#for PCA
-#library(harrypotter) #for colours
+Atype <- "1_vs_All"
+tissue_file <- "tissue_system_info.txt"
+dat_file <- "test_pairwise_dat.txt"
+allinters_file <- "all_trans_interactions_1Mb.txt"
+germlayer_file <- "germlayer_info.txt"
+library(factoextra)#for PCA
+library(harrypotter) #for colours
 
 allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
@@ -309,6 +309,7 @@ tarD <- r_dat
 tarD$AllChr <- tarD$chrB
 tarD$AllSt <- tarD$st2
 r_dat2 <- rbind(anchD,tarD)
+pq_DAT <- r_dat2
 #scale genomic position by 10Mb
 r_dat2$AllSt <- r_dat2$AllSt/10000000
 head(r_dat2)
@@ -382,6 +383,89 @@ dev.off()
 #                height = c(0, 1, 3, 4, 0, 1, 2, 3, 5, 4, 0, 5, 4, 4, 1))
 #ggplot(d, aes(x, y, height = height, group = y)) + geom_ridgeline(fill="lightblue")
 #
+print("# differnce in interactions on P and Q arms")
+pq_dat <- pq_DAT %>% filter(cell != "fake_cell")
+summary(pq_dat)
+pq_tot_df <- data.frame(cell=character(),
+                        AllChr=character(),
+                                       arm=character(),
+                                       n=integer(),
+                                       stringsAsFactors=FALSE)
+for (i in unique(pq_dat$AllChr)){
+  #create df with interactions classified in each arm for each chrom
+  print(i)
+  chr_df <- pq_dat %>% filter(AllChr == i)
+  print(head(chr_df))
+  cd <- chrInf %>% filter(chrom == i)
+  c <- cd$centromere[1] 
+  #find which arm is the short one and which is the long one
+  lB <- cd$size[1] - cd$centromere[1]
+  print(lB)
+  l_df <- c(c,lB)
+  s <- which.min(l_df)
+  print(s)
+  A <- ifelse(s == 1, "p","q")
+  B <- ifelse(s == 1, "q","p")
+  print(A)
+  print(B)
+  chr_df <- chr_df %>%  mutate(arm = if_else(AllSt <= c,A,B))
+  print(head(chr_df))
+  #add total number of p and q interactions on each arm to a new df
+  appD <- chr_df %>% group_by(cell,AllChr, arm) %>% dplyr::summarise(n = n())
+  print(appD)
+  pq_tot_df <- rbind(appD,pq_tot_df)
+  pq_perm_df <- rbind(pq_perm_df,chr_df)
+}
+head(pq_tot_df)
+head(pq_dat)
+
+#get df with if the arm before centromere is p or q
+chr_pq <- data.frame(chrom=character(),
+                        centromere=character(),
+                        arm=character(),
+                        stringsAsFactors=FALSE)
+for (i in unique(chrInf$chrom)){
+  #create df with interactions classified in each arm for each chrom
+  cd <- chrInf %>% filter(chrom == i)
+  c <- cd$centromere[1] 
+  #find which arm is the short one and which is the long one
+  lB <- cd$size[1] - cd$centromere[1]
+  l_df <- c(c,lB)
+  s <- which.min(l_df)
+  A <- ifelse(s == 1, "p","q")
+  B <- ifelse(s == 1, "q","p")
+  tmprow <- c(i,c,A)
+  #add total number of p and q interactions on each arm to a new df
+  chr_pq <- rbind(chr_pq,tmprow)
+}
+colnames(chr_pq) <- c("chrom", "centromere", "arm")
+head(chr_pq)
+#pq dataframe for permutation test
+pq_perm_df <- data.frame(matrix(ncol = 11, nrow = 0))
+pq_dat2 <- unique(pq_dat %>% select(-AllChr, -AllSt))
+for (r in 1:nrow(pq_dat2)){
+  #get chromA of row
+  rdf <- pq_dat2[r,]
+  cA <- rdf$chrA[1]
+  endA <- rdf$end1[1]
+  centdf <- chr_pq %>% filter(chrom == cA)
+  centA <- as.numeric(as.character(centdf$centromere[1]))
+  aA <- centdf$arm[1]
+  aB <- ifelse(aA == "p","q","p")
+  #create df with interactions classified in each arm for each chrom
+  rdf$armA[1] <- if_else(endA <= centA,aA,aB)
+  #interaction chrom B
+  cB <- rdf$chrB[1]
+  endB <- rdf$end2[1]
+  centdf <- chr_pq %>% filter(chrom == cB)
+  centB <- as.numeric(as.character(centdf$centromere[1]))
+  aA <- centdf$arm[1]
+  aB <- ifelse(aA == "p","q","p")
+  #create df with interactions classified in each arm for each chrom
+  rdf$armB[1] <- if_else(endB <= centB,aA,aB)
+  pq_perm_df <- rbind(pq_perm_df,rdf)
+}
+head(pq_perm_df)
 #calculate mean zscore per chrom per bin so that the heatmap is accurate
 head(r_dat2)
 hm_dat = ndat2 %>% group_by(AllChr, AllSt) %>% dplyr::summarize(mzscore=mean(zscore))
