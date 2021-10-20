@@ -180,7 +180,7 @@ levels(pa_dat$allmisscols) <- list("Present" = "FALSE",
 #VinterL <- gather(Vinter, cell, zscore, 8:length(colnames(Vinter)), factor_key=TRUE)
 VinterL <- Vinter
 VinterL$zsign <- VinterL$zscore
-VinterL$zsign[VinterL$zsign>0]  <- "Pos" 
+VinterL$zsign[VinterL$zsign>=0]  <- "Pos" 
 VinterL$zsign[VinterL$zsign<0]  <- "Neg" 
 VinterL$zsign[is.na(VinterL$zsign)] <- "Abs"
 VinterL <- VinterL %>% select(cell,zsign)
