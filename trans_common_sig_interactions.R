@@ -28,7 +28,7 @@ library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 library(ggbiplot)#for PCA
 library(devtools)#for PCA
-library(regioneR)#for permutation
+library(regioneR,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/")#for permutation
 library(factoextra, lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3/")#for PCA
 library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3") #for colours
 #install_github("vqv/ggbiplot")
@@ -489,6 +489,7 @@ parmGRanges <- toGRanges(parm_perm)
 qarm_perm <- chrInf %>% select(chrom, centromere,size)
 qarmGRanges <- toGRanges(qarm_perm)
 
+set.seed(369)
 print('# permutation test to see if common interactions overlap more with p arm regions')
 pt <- overlapPermTest(commonintersGRange, parmGRanges, ntimes=100, genome="hg38", count.once=TRUE)
 pt
