@@ -28,6 +28,7 @@ library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 library(ggbiplot)#for PCA
 library(devtools)#for PCA
+library(regioneR)#for permutation
 library(factoextra, lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3/")#for PCA
 library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3") #for colours
 #install_github("vqv/ggbiplot")
@@ -69,14 +70,14 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-#interaction data
-Atype <- "1_vs_All"
-tissue_file <- "tissue_system_info.txt"
-dat_file <- "test_pairwise_dat.txt"
-allinters_file <- "all_trans_interactions_1Mb.txt"
-germlayer_file <- "germlayer_info.txt"
-library(factoextra)#for PCA
-library(harrypotter) #for colours
+##interaction data
+#Atype <- "1_vs_All"
+#tissue_file <- "tissue_system_info.txt"
+#dat_file <- "test_pairwise_dat.txt"
+#allinters_file <- "all_trans_interactions_1Mb.txt"
+#germlayer_file <- "germlayer_info.txt"
+#library(factoextra)#for PCA
+#library(harrypotter) #for colours
 
 allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
@@ -382,7 +383,7 @@ dev.off()
 #d <- data.frame(x = rep(1:5, 3), y = c(rep(0, 5), rep(1, 5), rep(3, 5)),
 #                height = c(0, 1, 3, 4, 0, 1, 2, 3, 5, 4, 0, 5, 4, 4, 1))
 #ggplot(d, aes(x, y, height = height, group = y)) + geom_ridgeline(fill="lightblue")
-#
+#``
 print("# differnce in interactions on P and Q arms")
 pq_dat <- pq_DAT %>% filter(cell != "fake_cell")
 summary(pq_dat)
@@ -466,6 +467,41 @@ for (r in 1:nrow(pq_dat2)){
   pq_perm_df <- rbind(pq_perm_df,rdf)
 }
 head(pq_perm_df)
+
+#convert common inters to GRanges object
+#get both chromosomes as diff rows for each interaction
+firstchr <- unique(pq_dat %>% select(chrA, st1, end1, ID))
+secondchr <- unique(pq_dat %>% select(chrB, st2, end2, ID))
+firstchr$end1 <- as.numeric(as.character(firstchr$end1))
+secondchr$end2 <- as.numeric(as.character(secondchr$end2))
+colnames(firstchr) <- c("chrom","start","end", "ID")
+colnames(secondchr) <- c("chrom","start","end", "ID")
+commoninters_perm <- rbind(firstchr, secondchr)
+head(commoninters_perm)
+commonintersGRange <- toGRanges(commoninters_perm)
+#df with just p arm ranges for each chrom
+parm_perm <- chrInf %>% select(chrom, centromere)
+parm_perm$start <- rep(0,nrow(parm_perm))
+parm_perm <- parm_perm %>% select(chrom,start,centromere)
+parmGRanges <- toGRanges(parm_perm)
+
+#df with just p arm ranges for each chrom
+qarm_perm <- chrInf %>% select(chrom, centromere,size)
+qarmGRanges <- toGRanges(qarm_perm)
+
+print('# permutation test to see if common interactions overlap more with p arm regions')
+pt <- overlapPermTest(commonintersGRange, parmGRanges, ntimes=100, genome="hg38", count.once=TRUE)
+pt
+pdf("commonInters_vs_pArm_permutation.pdf", width = 14, height = 8)
+plot(pt)
+dev.off()
+print('# permutation test to see if common interactions overlap more with q arm regions')
+pt <- overlapPermTest(commonintersGRange, qarmGRanges, ntimes=100, genome="hg38", count.once=TRUE)
+pt
+pdf("commonInters_vs_pArm_permutation.pdf", width = 14, height = 8)
+plot(pt)
+dev.off()
+
 #calculate mean zscore per chrom per bin so that the heatmap is accurate
 head(r_dat2)
 hm_dat = ndat2 %>% group_by(AllChr, AllSt) %>% dplyr::summarize(mzscore=mean(zscore))
