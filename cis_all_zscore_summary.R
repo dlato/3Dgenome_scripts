@@ -70,14 +70,14 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-#interaction data
-zdat_file <- "test_cis_zscore.txt"
-pdat_file <- "test_cis_pvalues.txt"
-allinters_file <- "all_cis_interactions_1Mb.txt"
-germlayer_file <- "germlayer_info.txt"
-gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
-library(harrypotter)
-library(gtools)
+##interaction data
+#zdat_file <- "test_cis_zscore.txt"
+#pdat_file <- "test_cis_pvalues.txt"
+#allinters_file <- "all_cis_interactions_1Mb.txt"
+#germlayer_file <- "germlayer_info.txt"
+#gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
+#library(harrypotter)
+#library(gtools)
 ##Atype <- "1_vs_All"
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
