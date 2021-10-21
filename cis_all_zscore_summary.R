@@ -71,13 +71,13 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-#zdat_file <- "test_1vsAll_dat.txt"
-#pdat_file <- "test_1vsAll_pvalues.txt"
-#allinters_file <- "all_trans_interactions_1Mb.txt"
-#germlayer_file <- "germlayer_info.txt"
-#gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
-#library(harrypotter)
-#library(gtools)
+zdat_file <- "test_cis_zscore.txt"
+pdat_file <- "test_cis_pvalues.txt"
+allinters_file <- "all_cis_interactions_1Mb.txt"
+germlayer_file <- "germlayer_info.txt"
+gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
+library(harrypotter)
+library(gtools)
 ##Atype <- "1_vs_All"
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
@@ -171,11 +171,12 @@ gl_colours <- c("#071F36","#F2CB40","#ED2E07","#517A7B","#EA7E1F")
 #df <- na.omit(dat)
 df <-dat
 print("Total number of interactions in celltypes")
-length(df$ID)
+percellD <- df %>% filter(cell == "Aorta")
+length(percellD$ID)
 print("Total number of ALL possible interactions")
 length(allinters$chrA)
 print("percent of identified interactions across genome: all possible interactions")
-(length(df$ID)/length(allinters$chrA)) *100
+(length(percellD$ID)/length(allinters$chrA)) *100
 
 #split ID col
 colnm <- c("chrA", "st1", "end1","chrB","st2","end2")
@@ -216,7 +217,7 @@ g <- (ggbiplot(commonInter.pca,
                circle = TRUE,
                ellipse.prob = 0.68
 )
-+ labs(title = "All Trans-chromosomal Interactions z-scores")
++ labs(title = "All Cis-chromosomal Interactions z-scores")
 )
 pdf("zscore_PCAcellrows_interactions_all_cells.pdf", width = 14, height = 8)
 g
@@ -241,7 +242,7 @@ g <- (ggbiplot(commonInter.pca,
                circle = TRUE,
                ellipse.prob = 0.68
 )
-+ labs(title = "All Trans-chromosomal Interactions z-scores")
++ labs(title = "All Cis-chromosomal Interactions z-scores")
 )
 pdf("zscore_PCAcellcols_interactions_all_cells.pdf", width = 14, height = 8)
 g
@@ -358,6 +359,7 @@ missInters$zscore <- as.numeric(missInters$zscore)
 r_dat <- rbind(r_dat,missInters)
 
 head(r_dat)
+r_dat3 <- r_dat
 #counting each interaction twice (once for each chrom in interaction)
 anchD <- r_dat
 anchD$AllChr <- anchD$chrA
@@ -367,7 +369,7 @@ tarD$AllChr <- tarD$chrB
 tarD$AllSt <- tarD$st2
 r_dat2 <- rbind(anchD,tarD)
 #scale genomic position by 10Mb
-r_dat2$AllSt <- r_dat2$AllSt/10000000
+r_dat2$st1 <- r_dat2$st1/10000000
 head(r_dat2)
 chrInf2 <- chrInf
 chrInf2$chrom <- factor(chrInf2$chrom, levels=rev_chrs_len_ord)
@@ -417,12 +419,31 @@ head(r_dat2)
 r_dat2 <- r_dat2 %>% filter(cell != "fake_cell")
 #remove NAs because these mean we did not have this information in the sequencing data (since we are reading in the all zscores df)
 r_dat2 <- r_dat2 %>% filter(!is.na(zscore))
-p <- (ggplot(r_dat2, aes(x = zscore, y = cell, fill = germL))
+
+#adding germlayer info
+r_dat3$germL <- r_dat3$cell
+r_dat3$germL <- as.factor(gl_df$germLayer[match(r_dat3$cell, gl_df$cell)])
+#re-order based on gl_ord
+r_dat3$germL <- factor(r_dat3$germL, levels=gl_ord)
+r_dat3 <- r_dat3[order(r_dat3$germL),]
+gl_cell_ord <- unique(r_dat3$cell)
+gl_cell_ord
+r_dat3$cell <- factor(r_dat3$cell, levels=rev(gl_cell_ord))
+#r_dat2 <- r_dat2 %>% mutate(cell = factor(cell,levels=cell))
+levels(r_dat3$germL)
+levels(r_dat3$cell)
+head(r_dat3)
+r_dat3 <- r_dat3 %>% filter(cell != "fake_cell")
+#remove NAs because these mean we did not have this information in the sequencing data (since we are reading in the all zscores df)
+r_dat3 <- r_dat3 %>% filter(!is.na(zscore))
+
+
+p <- (ggplot(r_dat3, aes(x = zscore, y = cell, fill = germL))
       + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
       #+ geom_density_ridges(scale = 4, alpha = 0.3) 
       + labs(x="z-score",
              y="Cell",
-             title = "z-scores of All Trans-chromosomal Interactions",
+             title = "z-scores of All Cis-chromosomal Interactions",
              fill = "Germ Layer")
       + scale_fill_manual(values = gl_colours)
 #                                     gsub("F", "A", my_colors)))
@@ -657,7 +678,7 @@ hm <- (ggplot(hm_dat2, aes(AllChr, cell, fill = zscore))
        #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
        + labs(x = "Chromosome",
               y = "Cell",
-              title = "All Trans-chromosomal Interactions z-scores")
+              title = "All Cis-chromosomal Interactions z-scores")
 #       + facet_wrap(.~sig)
        + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
          c("nonsig" = "Non-significant", "sig" = "Significant"))))
@@ -681,7 +702,7 @@ hm <- (ggplot(hm_dat2, aes(AllChr, cell, fill = zscore))
        #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
        + labs(x = "Chromosome",
               y = "Cell",
-              title = "Trans-chromosomal Interactions (all) z-scores")
+              title = "Cis-chromosomal Interactions (all) z-scores")
 #       + facet_wrap(.~sig)
 #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
 #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
@@ -705,7 +726,7 @@ hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
        #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
        + labs(x = "Chromosome",
               y = "Cell",
-              title = "Trans-chromosomal Interactions (significant) z-scores")
+              title = "Cis-chromosomal Interactions (significant) z-scores")
 #       + facet_wrap(.~sig)
 #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
 #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
@@ -721,18 +742,18 @@ dev.off()
 head(r_dat)
 #make chrom pair col for all inters (sig and non-sig)
 bar_df <- r_dat
-bar_df$chrPair <- paste0(bar_df$chrA, bar_df$chrB)
-head(bar_df)
-chrpaircount <- bar_df %>% group_by(cell, chrPair) %>% dplyr::summarise(n = n())
+#bar_df$chrPair <- paste0(bar_df$chrA, bar_df$chrB)
+#head(bar_df)
+chrpaircount <- bar_df %>% group_by(cell, chrA) %>% dplyr::summarise(n = n())
 head(chrpaircount)
 colnames(chrpaircount) <- c("cell","chrPair","obsCount")
 #get cells to replicate for all inters chrom pair count
 cells_obs <- unique(chrpaircount$cell)
 
 allinters_chrpair <- allinters
-allinters_chrpair$chrPair <- paste0(allinters_chrpair$chrA, allinters_chrpair$chrB)
-head(allinters_chrpair)
-allchrpaircount <- allinters_chrpair %>% group_by(chrPair) %>% dplyr::summarise(n = n())
+#allinters_chrpair$chrPair <- paste0(allinters_chrpair$chrA, allinters_chrpair$chrB)
+#head(allinters_chrpair)
+allchrpaircount <- allinters_chrpair %>% group_by(chrA) %>% dplyr::summarise(n = n())
 colnames(allchrpaircount) <- c("chrPair","allCount")
 allchrpaircount <- allchrpaircount %>% slice(rep(1:n(), each = length(cells_obs)))
 allcell <- rep(cells_obs, times = length(unique(allchrpaircount$chrPair)))
@@ -748,23 +769,26 @@ head(chrpair_df)
 chrpair_df$chrPair = as.factor(chrpair_df$chrPair)
 chrpair_df$chrPair = factor(chrpair_df$chrPair, levels = gtools::mixedsort(unique(chrpair_df$chrPair)))
 chrpair_df <- chrpair_df %>% filter(cell != "fake_cell")
+chrpair_df$chrPair <- gsub("chr","", chrpair_df$chrPair)
 bp <- (ggplot(chrpair_df, aes(x=chrPair, y=count))
   +geom_bar(aes(fill = interaction), position = "dodge", stat="identity")
 #  + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score per chromosomal pair", na.value = "grey")
 #  #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
 #  #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
-#  + labs(x = "Chromosome",
-#         y = "",
-#         title = "Trans-chromosomal Interactions (all) z-scores")
+  + labs(x = "Chromosome",
+         y = "Number of cis-chromosomal interactions",
+         title = "Total Cis-chromosomal Interactions per Chromosome",
+         fill = "")
   + facet_grid(cell ~ .)
 #  #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
 #  #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
 #  #       + theme(axis.text.x = element_text(angle = 90))
-#  + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
-#          strip.background = element_rect(fill = "white"),
-#          panel.spacing = unit(0, "lines"),
-#          axis.text.y = element_blank(),
-#          axis.ticks.y = element_blank())
+  + scale_fill_manual(values =c("#FAC9A1", "#013040"), labels= c("Total Possible Interactions", "Common Interactions"))
+  + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+          strip.background = element_rect(fill = "white"),
+          panel.spacing = unit(0, "lines"),
+          axis.text.y = element_blank(),
+          axis.ticks.y = element_blank())
 #  + theme(axis.text=element_text(size=5))
    + theme(strip.text.y.right = element_text(angle = 0))
 )
@@ -788,7 +812,7 @@ cells_obs <- unique(chrpaircount$cell)
 allinters_tot <- length(allinters$chrA)
 allrow <- c("All possible interactions", allinters_tot)
 chrpaircount <- rbind(allrow,chrpaircount) %>% filter(cell != "fake_cell")
-chrpaircount$obsCount <- as.numeric(as.character(chrpaircount$obsCount)) / 1000000
+chrpaircount$obsCount <- as.numeric(as.character(chrpaircount$obsCount)) / 100000
 
 bp <- (ggplot(chrpaircount, aes(y=obsCount, x=cell))
        +geom_bar(position = "dodge", stat="identity")
@@ -796,9 +820,9 @@ bp <- (ggplot(chrpaircount, aes(y=obsCount, x=cell))
        #  + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score per chromosomal pair", na.value = "grey")
        #  #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
        #  #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
-         + labs(y = "Number of Trans-chromosomal Interactions [Million]",
+         + labs(y = "Number of Cis-chromosomal Interactions [100,000]",
                 x = "",
-                title = "Trans-chromosomal Interactions")
+                title = "Cis-chromosomal Interactions")
  #      + facet_grid(cell ~ .)
        #  #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
        #  #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
@@ -809,7 +833,7 @@ bp <- (ggplot(chrpaircount, aes(y=obsCount, x=cell))
        #          axis.text.y = element_blank(),
        #          axis.ticks.y = element_blank())
        #  + theme(axis.text=element_text(size=5))
-       + scale_y_continuous(expand = c(0, 0), limits = c(0,max(chrpaircount$obsCount +0.5)))
+       + scale_y_continuous(expand = c(0, 0), limits = c(0,max(chrpaircount$obsCount +0.2)))
        + theme(strip.text.y.right = element_text(angle = 0))
 )
 pdf("number_of_inters_obs_exp_allInters_bargraph.pdf", width = 14, height = 8)
