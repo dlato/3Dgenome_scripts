@@ -23,8 +23,8 @@ Atype <- args[4]
 pdat_file <- args[5]
 
 ##########
-library(dplyr)
 library(tidyr)
+library(dplyr)
 library(GenomicRanges)
 library(ggplot2)
 library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
@@ -70,6 +70,8 @@ print("#read in files")
 #pdat_file <- "test_1vsAll_pvalues.txt"
 #roi1_file <- "FIRRE.bed"
 #roi2_file <- "ATF4.bed"
+#library(harrypotter)
+#library(factoextra)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
 ##dat <- read.table(dat_file, header = TRUE)
@@ -636,20 +638,82 @@ testdf <- hm_df %>% filter(cell == "Aorta")
 xchr <- gsub("chr", "", unique(roi1$chrom))
 ychr <- gsub("chr", "", unique(roi2$chrom))
 #hm <- (ggplot(testdf, aes(x=st1, y=st2, fill= zscore)) 
+
+#get max of valid chromosomes for axis expansion
+#chrom info: centromere (midpoint calculated from UCSC, aprox), chrom class
+chrs_len_ord <- c("chr1","chr2",
+                  "chr3","chr4",
+                  "chr5","chr6",
+                  "chr7","chrX",
+                  "chr8","chr9",
+                  "chr11","chr10",
+                  "chr12","chr13",
+                  "chr14","chr15",
+                  "chr16","chr17",
+                  "chr18","chr20",
+                  "chr19","chrY",
+                  "chr22","chr21")
+chrInf <- data.frame( chrom = chrs_len_ord,
+                      centromere = c(123252373.5,93787431.5,
+                                     90856062,50074452.5,
+                                     48585285.5,60557102.5,
+                                     60058972.5,61016889,
+                                     45249872,43893383.5,
+                                     53454152,39800499.5,
+                                     35764400,17692000.5,
+                                     17117352,19037747.5,
+                                     36878628.5,25067566.5,
+                                     18464134,28099979.5,
+                                     26161912,10470308,
+                                     15520235.5,11917946),
+                      chrClass = c("Metacentric","Metacentric",
+                                   "Metacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Acrocentric",
+                                   "Acrocentric","Acrocentric",
+                                   "Metacentric","Submetacentric",
+                                   "Submetacentric","Metacentric",
+                                   "Metacentric","Acrocentric",
+                                   "Acrocentric","Acrocentric"),
+                      size = c(249300000,243200000,
+                               198000000,191200000,
+                               180900000,171100000,
+                               159100000,155300000,
+                               146400000,141200000,
+                               135000000,135500000,
+                               133900000,115200000,
+                               107300000,102500000,
+                               90400000,81200000,
+                               78100000,63000000,
+                               59100000,59400000,
+                               51300000,48100000)
+                      
+)
+head(chrInf)
+xmax <- chrInf$size[match(unique(roi1$chrom),chrInf$chrom)] / 1000000
+ymax <- chrInf$size[match(unique(roi2$chrom),chrInf$chrom)] / 1000000
+#scale genomic position by 1Mb
+hm_df$st1 <- hm_df$st1/1000000
+hm_df$st2 <- hm_df$st2/1000000
 hm <- (ggplot(hm_df, aes(x=st1, y=st2, fill= zscore)) 
            + geom_tile()
       + labs(title = "Distribution of z-scores along valid interacting chromosome (all interactions)",
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", xchr, " Genomic Position"),
+             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
              y = paste0("Chromosome ", ychr, " Genomic Position"))
       + scale_fill_hp(discrete = FALSE, option = "Always", name = "z-score")
       + facet_grid(cell ~.)
+      # expand axis limits so whole chrom len is accounted for
+      + expand_limits(y=c(0,ymax), x = c(0,xmax))
       + theme(panel.spacing = unit(0, "lines"),
               strip.text.y.right = element_text(angle = 0), #rotate facet labels
               strip.background = element_rect(fill = "white"),
-              axis.text.x = element_blank(),
-              axis.ticks.x = element_blank(),
+             # axis.text.x = element_blank(),
+             # axis.ticks.x = element_blank(),
               axis.text.y = element_blank(),
               axis.ticks.y = element_blank())
 )
