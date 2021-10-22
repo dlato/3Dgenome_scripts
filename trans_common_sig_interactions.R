@@ -20,8 +20,8 @@ tissue_file <- args[4]
 #Atype <- args[4]
 
 ##########
-library(dplyr)
 library(tidyr)
+library(dplyr)
 #library(GenomicRanges)
 library(ggplot2)
 library(ggforce)#for ridgeline
@@ -505,7 +505,7 @@ pdf("commonInters_vs_qArm_permutation.pdf", width = 14, height = 8)
 plot(pt)
 dev.off()
 
-#calculate mean zscore per chrom per bin so that the heatmap is accurate
+print("#calculate mean zscore per chrom per bin so that the heatmap is accurate")
 head(r_dat2)
 hm_dat = ndat2 %>% group_by(AllChr, AllSt) %>% dplyr::summarize(mzscore=mean(zscore))
 head(hm_dat)
@@ -530,7 +530,7 @@ dev.off()
 
 
 
-#ridgeline of all zscores (in all chroms) across cell types
+print("#ridgeline of all zscores (in all chroms) across cell types")
 #adding germlayer info
 r_dat2$germL <- r_dat2$cell
 r_dat2$germL <- as.factor(gl_df$germLayer[match(r_dat2$cell, gl_df$cell)])
@@ -583,7 +583,7 @@ pdf("zscore_ridgeline_common_interactions_all_cells_germlayer.pdf", width = 14, 
 p
 dev.off()
 
-# Tissue/system breakdown
+print("# Tissue/system breakdown")
 t_dat2 <- r_dat3
 head(t_dat2)
 t_dat2$tissue <- ts_df$Tissue.System[match(t_dat2$cell, ts_df$X3Dflow.normalized_data.name)]
@@ -611,9 +611,9 @@ dev.off()
 #################
 
 #################
-#common interactions z-scores broken down by chrom class
+print("#common interactions z-scores broken down by chrom class")
 #################
-chrClass_dat <- r_dat3
+chrClass_dat <- r_dat2
 #add metacentric chrom info to df
 chrClass_dat$chrClass <- chrClass_dat$AllChr
 chrClass_dat$chrClass <- chrInf$chrClass[match(chrClass_dat$AllChr, chrInf$chrom)]
