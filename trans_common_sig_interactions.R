@@ -20,7 +20,6 @@ tissue_file <- args[4]
 #Atype <- args[4]
 
 ##########
-.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2")
 library(dplyr)
 library(tidyr)
 #library(GenomicRanges)
@@ -29,6 +28,7 @@ library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 library(ggbiplot)#for PCA
 library(devtools)#for PCA
+.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2")
 library(regioneR,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/")#for permutation
 library(factoextra, lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3/")#for PCA
 library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3") #for colours
@@ -303,6 +303,7 @@ missInters$zscore <- as.numeric(missInters$zscore)
 r_dat <- rbind(r_dat,missInters)
 
 head(r_dat)
+r_dat3 <- r_dat
 #counting each interaction twice (once for each chrom in interaction)
 anchD <- r_dat
 anchD$AllChr <- anchD$chrA
@@ -416,7 +417,7 @@ for (i in unique(pq_dat$AllChr)){
   appD <- chr_df %>% group_by(cell,AllChr, arm) %>% dplyr::summarise(n = n())
   print(appD)
   pq_tot_df <- rbind(appD,pq_tot_df)
-  pq_perm_df <- rbind(pq_perm_df,chr_df)
+#  pq_perm_df <- rbind(pq_perm_df,chr_df)
 }
 head(pq_tot_df)
 head(pq_dat)
@@ -544,7 +545,27 @@ levels(r_dat2$germL)
 levels(r_dat2$cell)
 head(r_dat2)
 r_dat2 <- r_dat2 %>% filter(cell != "fake_cell")
-p <- (ggplot(r_dat2, aes(x = zscore, y = cell, fill = germL))
+
+#adding germlayer info
+r_dat3$germL <- r_dat3$cell
+r_dat3$germL <- as.factor(gl_df$germLayer[match(r_dat3$cell, gl_df$cell)])
+#re-order based on gl_ord
+r_dat3$germL <- factor(r_dat3$germL, levels=gl_ord)
+r_dat3 <- r_dat3[order(r_dat3$germL),]
+gl_cell_ord <- unique(r_dat3$cell)
+gl_cell_ord
+r_dat3$cell <- factor(r_dat3$cell, levels=rev(gl_cell_ord))
+#r_dat2 <- r_dat2 %>% mutate(cell = factor(cell,levels=cell))
+levels(r_dat3$germL)
+levels(r_dat3$cell)
+head(r_dat3)
+r_dat3 <- r_dat3 %>% filter(cell != "fake_cell")
+#remove NAs because these mean we did not have this information in the sequencing data (since we are reading in the all zscores df)
+r_dat3 <- r_dat3 %>% filter(!is.na(zscore))
+
+
+p <- (ggplot(r_dat3, aes(x = zscore, y = cell, fill = germL))
+#p <- (ggplot(r_dat2, aes(x = zscore, y = cell, fill = germL))
       + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
       #+ geom_density_ridges(scale = 4, alpha = 0.3) 
       + labs(x="z-score",
@@ -563,7 +584,7 @@ p
 dev.off()
 
 # Tissue/system breakdown
-t_dat2 <- r_dat2
+t_dat2 <- r_dat3
 head(t_dat2)
 t_dat2$tissue <- ts_df$Tissue.System[match(t_dat2$cell, ts_df$X3Dflow.normalized_data.name)]
 t_dat2 <- t_dat2[order(t_dat2$tissue),]
@@ -592,7 +613,7 @@ dev.off()
 #################
 #common interactions z-scores broken down by chrom class
 #################
-chrClass_dat <- r_dat2
+chrClass_dat <- r_dat3
 #add metacentric chrom info to df
 chrClass_dat$chrClass <- chrClass_dat$AllChr
 chrClass_dat$chrClass <- chrInf$chrClass[match(chrClass_dat$AllChr, chrInf$chrom)]

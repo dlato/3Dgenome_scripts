@@ -358,6 +358,7 @@ missInters$zscore <- as.numeric(missInters$zscore)
 r_dat <- rbind(r_dat,missInters)
 
 head(r_dat)
+r_dat3 <- r_dat
 #counting each interaction twice (once for each chrom in interaction)
 anchD <- r_dat
 anchD$AllChr <- anchD$chrA
@@ -417,7 +418,26 @@ head(r_dat2)
 r_dat2 <- r_dat2 %>% filter(cell != "fake_cell")
 #remove NAs because these mean we did not have this information in the sequencing data (since we are reading in the all zscores df)
 r_dat2 <- r_dat2 %>% filter(!is.na(zscore))
-p <- (ggplot(r_dat2, aes(x = zscore, y = cell, fill = germL))
+#p <- (ggplot(r_dat2, aes(x = zscore, y = cell, fill = germL))
+#adding germlayer info
+r_dat3$germL <- r_dat3$cell
+r_dat3$germL <- as.factor(gl_df$germLayer[match(r_dat3$cell, gl_df$cell)])
+#re-order based on gl_ord
+r_dat3$germL <- factor(r_dat3$germL, levels=gl_ord)
+r_dat3 <- r_dat3[order(r_dat3$germL),]
+gl_cell_ord <- unique(r_dat3$cell)
+gl_cell_ord
+r_dat3$cell <- factor(r_dat3$cell, levels=rev(gl_cell_ord))
+#r_dat2 <- r_dat2 %>% mutate(cell = factor(cell,levels=cell))
+levels(r_dat3$germL)
+levels(r_dat3$cell)
+head(r_dat3)
+r_dat3 <- r_dat3 %>% filter(cell != "fake_cell")
+#remove NAs because these mean we did not have this information in the sequencing data (since we are reading in the all zscores df)
+r_dat3 <- r_dat3 %>% filter(!is.na(zscore))
+
+
+p <- (ggplot(r_dat3, aes(x = zscore, y = cell, fill = germL))
       + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
       #+ geom_density_ridges(scale = 4, alpha = 0.3) 
       + labs(x="z-score",
