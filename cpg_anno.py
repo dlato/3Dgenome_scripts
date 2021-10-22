@@ -48,6 +48,10 @@ rseq = []
 for i in range(len(ref)):
     nuc = ref[i]
     if i in [len(ref)-1, 0]:
+        # dealing with gap in ref
+        if nuc in ["-"]:
+            refAnno.append("NA")
+            rseq.append(nuc)
         #case when at beginning of aln
         if i == 0:
             nexnuc = ref[i+1]
@@ -75,6 +79,10 @@ for i in range(len(ref)):
                 refAnno.append("NA")
                 rseq.append(nuc)
     else:
+        # dealing with gap in ref
+        if nuc in ["-"]:
+            refAnno.append("NA")
+            rseq.append(nuc)
         nexnuc = ref[i+1]
         prenuc = ref[i-1]
         if nuc in ["C","c"]:
