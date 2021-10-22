@@ -171,11 +171,12 @@ gl_colours <- c("#071F36","#F2CB40","#ED2E07","#517A7B","#EA7E1F")
 #df <- na.omit(dat)
 df <-dat
 print("Total number of interactions in celltypes")
-length(df$ID)
+nodupsDF <- df %>% filter(cell == "Aorta")
+length(nodupsDF$ID)
 print("Total number of ALL possible interactions")
 length(allinters$chrA)
 print("percent of identified interactions across genome: all possible interactions")
-(length(df$ID)/length(allinters$chrA)) *100
+(length(nodupsDF$ID)/length(allinters$chrA)) *100
 
 #split ID col
 colnm <- c("chrA", "st1", "end1","chrB","st2","end2")
