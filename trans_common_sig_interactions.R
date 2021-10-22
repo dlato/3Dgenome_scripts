@@ -20,6 +20,7 @@ tissue_file <- args[4]
 #Atype <- args[4]
 
 ##########
+.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2")
 library(dplyr)
 library(tidyr)
 #library(GenomicRanges)
@@ -499,7 +500,7 @@ dev.off()
 print('# permutation test to see if common interactions overlap more with q arm regions')
 pt <- overlapPermTest(commonintersGRange, qarmGRanges, ntimes=100, genome="hg38", count.once=TRUE)
 pt
-pdf("commonInters_vs_pArm_permutation.pdf", width = 14, height = 8)
+pdf("commonInters_vs_qArm_permutation.pdf", width = 14, height = 8)
 plot(pt)
 dev.off()
 
