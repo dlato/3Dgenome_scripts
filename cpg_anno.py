@@ -70,7 +70,9 @@ for i in range(len(ref)):
             prenuc = ref[i-1]
             if nuc in ["G","g"]:
                 if prenuc in ["c","C"]:
-                    refAnno.append("1")
+                    # changing G's to NA because only care about the C's and if they have changed
+                    refAnno.append("NA")
+#                    refAnno.append("1")
                     rseq.append(nuc)
                 else:
                     refAnno.append("NA")
@@ -94,7 +96,9 @@ for i in range(len(ref)):
                 rseq.append(nuc)
         if nuc in ["G","g"]:
             if prenuc in ["C","c"]:
-                refAnno.append("1")
+                # changing G's to NA because only care about the C's and if they have changed
+#                refAnno.append("1")
+                refAnno.append("NA")
                 rseq.append(nuc)
             else:
                 refAnno.append("NA")
