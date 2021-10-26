@@ -732,15 +732,17 @@ hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= zscore))
        + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
               #         subtitle = "Plot of length by dose",
               #         caption = "Data source: ToothGrowth",
-              x = paste0("Chromosome ", xchr, " Genomic Position"),
+              x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", ychr, " Genomic Position"))
        + scale_fill_hp(discrete = FALSE, option = "Always", name = "z-score")
        + facet_grid(cell ~.)
+      # expand axis limits so whole chrom len is accounted for
+      + expand_limits(y=c(0,ymax), x = c(0,xmax))
        + theme(panel.spacing = unit(0, "lines"),
                strip.text.y.right = element_text(angle = 0), #rotate facet labels
                strip.background = element_rect(fill = "white"),
-               axis.text.x = element_blank(),
-               axis.ticks.x = element_blank(),
+#               axis.text.x = element_blank(),
+#               axis.ticks.x = element_blank(),
                axis.text.y = element_blank(),
                axis.ticks.y = element_blank())
 )
@@ -761,15 +763,17 @@ hm <- (ggplot(hm_df, aes(x=st1, y=st2, fill= pvalue))
        + labs(title = "Distribution of p-value along valid interacting chromosome (all interactions)",
               #         subtitle = "Plot of length by dose",
               #         caption = "Data source: ToothGrowth",
-              x = paste0("Chromosome ", xchr, " Genomic Position"),
+              x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", ychr, " Genomic Position"))
        + scale_fill_hp(discrete = FALSE, option = "Always", name = "p-value")
        + facet_grid(cell ~.)
+      # expand axis limits so whole chrom len is accounted for
+      + expand_limits(y=c(0,ymax), x = c(0,xmax))
        + theme(panel.spacing = unit(0, "lines"),
                strip.text.y.right = element_text(angle = 0), #rotate facet labels
                strip.background = element_rect(fill = "white"),
-               axis.text.x = element_blank(),
-               axis.ticks.x = element_blank(),
+#               axis.text.x = element_blank(),
+#               axis.ticks.x = element_blank(),
                axis.text.y = element_blank(),
                axis.ticks.y = element_blank())
 )
@@ -787,15 +791,17 @@ hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= pvalue))
        + labs(title = "Distribution of p-value along valid interacting chromosome (significant interactions)",
               #         subtitle = "Plot of length by dose",
               #         caption = "Data source: ToothGrowth",
-              x = paste0("Chromosome ", xchr, " Genomic Position"),
+              x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", ychr, " Genomic Position"))
        + scale_fill_hp(discrete = FALSE, option = "Always", name = "p-value")
        + facet_grid(cell ~.)
+      # expand axis limits so whole chrom len is accounted for
+      + expand_limits(y=c(0,ymax), x = c(0,xmax))
        + theme(panel.spacing = unit(0, "lines"),
                strip.text.y.right = element_text(angle = 0), #rotate facet labels
                strip.background = element_rect(fill = "white"),
-               axis.text.x = element_blank(),
-               axis.ticks.x = element_blank(),
+#               axis.text.x = element_blank(),
+#               axis.ticks.x = element_blank(),
                axis.text.y = element_blank(),
                axis.ticks.y = element_blank())
 )
