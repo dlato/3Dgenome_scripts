@@ -634,9 +634,13 @@ dirB <- paste0(unique(roi2$chrom),unique(roi1$chrom))
 print(dirB)
 hm_df <- hm_zscore_df %>% filter(chrs == dirA | chrs == dirB)
 head(hm_df)
+print("TEST chrA")
+CA <- unique(hm_df$chrA)
+print("TEST chrB")
+CB <- unique(hm_df$chrB)
 testdf <- hm_df %>% filter(cell == "Aorta")
-xchr <- gsub("chr", "", unique(roi1$chrom))
-ychr <- gsub("chr", "", unique(roi2$chrom))
+xchr <- gsub("chr", "", CA)
+ychr <- gsub("chr", "", CB)
 #hm <- (ggplot(testdf, aes(x=st1, y=st2, fill= zscore)) 
 
 #get max of valid chromosomes for axis expansion
@@ -693,8 +697,8 @@ chrInf <- data.frame( chrom = chrs_len_ord,
                       
 )
 head(chrInf)
-xmax <- chrInf$size[match(unique(roi1$chrom),chrInf$chrom)] / 1000000
-ymax <- chrInf$size[match(unique(roi2$chrom),chrInf$chrom)] / 1000000
+xmax <- chrInf$size[match(CA,chrInf$chrom)] / 1000000
+ymax <- chrInf$size[match(CB,chrInf$chrom)] / 1000000
 #scale genomic position by 1Mb
 hm_df$st1 <- hm_df$st1/1000000
 hm_df$st2 <- hm_df$st2/1000000
