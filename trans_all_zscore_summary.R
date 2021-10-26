@@ -70,7 +70,7 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-#interaction data
+##interaction data
 #zdat_file <- "test_1vsAll_dat.txt"
 #pdat_file <- "test_1vsAll_pvalues.txt"
 #allinters_file <- "all_trans_interactions_1Mb.txt"
@@ -453,7 +453,7 @@ p <- (ggplot(r_dat3, aes(x = zscore, y = cell, fill = germL))
       + facet_grid(.~ sig, labeller = labeller(sig= as_labeller(
         c("nonsig" = "Significant", "sig" = "Non-significant"))))
 )
-pdf("zscore_ridgeline_common_interactions_all_cells.pdf", width = 14, height = 8)
+pdf("zscore_ridgeline_all_interactions_all_cells.pdf", width = 14, height = 8)
 p
 dev.off()
 #################
@@ -834,6 +834,51 @@ bp <- (ggplot(chrpaircount, aes(y=obsCount, x=cell))
        + theme(strip.text.y.right = element_text(angle = 0))
 )
 pdf("number_of_inters_obs_exp_allInters_bargraph.pdf", width = 14, height = 8)
+bp
+dev.off()
+
+#bar graph with sig and non sig total interactions per cell
+bar_df <- r_dat
+head(bar_df)
+bar_df <- na.omit(bar_df)
+chrpaircount <- bar_df %>% group_by(cell, sig) %>% dplyr::summarise(n = n())
+head(chrpaircount)
+colnames(chrpaircount) <- c("cell","sig","obsCount")
+#get cells to replicate for all inters chrom pair count
+cells_obs <- unique(chrpaircount$cell)
+chrpaircount <- chrpaircount %>% filter(cell != "fake_cell")
+
+allinters_tot <- length(allinters$chrA)
+allrow <- as.data.frame(t(c("All possible interactions", "all", allinters_tot)))
+colnames(allrow) <- c("cell","sig","obsCount")
+chrpaircount <- rbind(allrow,chrpaircount)
+chrpaircount$obsCount <- as.numeric(as.character(chrpaircount$obsCount)) / 1000000
+
+bp <- (ggplot(chrpaircount, aes(y=obsCount, x=cell, fill = sig))
+       +geom_bar(position = "dodge", stat="identity")
+       + coord_flip()
+       + scale_fill_manual(values = c("grey","#FAC9A1", "#013040"), labels= c("All possible interactions","Total", "Significant"))
+       #  + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score per chromosomal pair", na.value = "grey")
+       #  #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+       #  #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+       + labs(y = "Number of Trans-chromosomal Interactions [Million]",
+              x = "",
+              title = "Trans-chromosomal Interactions",
+              fill = "")
+       #      + facet_grid(cell ~ .)
+       #  #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+       #  #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+       #  #       + theme(axis.text.x = element_text(angle = 90))
+       #  + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+       #          strip.background = element_rect(fill = "white"),
+       #          panel.spacing = unit(0, "lines"),
+       #          axis.text.y = element_blank(),
+       #          axis.ticks.y = element_blank())
+       #  + theme(axis.text=element_text(size=5))
+       + scale_y_continuous(expand = c(0, 0), limits = c(0,max(chrpaircount$obsCount +0.5)))
+       + theme(strip.text.y.right = element_text(angle = 0))
+)
+pdf("number_of_inters_obs_exp_sig_allInters_bargraph.pdf", width = 14, height = 8)
 bp
 dev.off()
 #################
