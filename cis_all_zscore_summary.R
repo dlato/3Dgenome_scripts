@@ -854,7 +854,7 @@ allinters_tot <- length(allinters$chrA)
 allrow <- as.data.frame(t(c("All possible interactions", "all", allinters_tot)))
 colnames(allrow) <- c("cell","sig","obsCount")
 chrpaircount <- rbind(allrow,chrpaircount)
-chrpaircount$obsCount <- as.numeric(as.character(chrpaircount$obsCount)) / 1000000
+chrpaircount$obsCount <- as.numeric(as.character(chrpaircount$obsCount)) / 100000
 
 bp <- (ggplot(chrpaircount, aes(y=obsCount, x=cell, fill = sig))
        +geom_bar(position = "dodge", stat="identity")
@@ -863,7 +863,7 @@ bp <- (ggplot(chrpaircount, aes(y=obsCount, x=cell, fill = sig))
        #  + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score per chromosomal pair", na.value = "grey")
        #  #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
        #  #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
-       + labs(y = "Number of Cis-chromosomal Interactions [Million]",
+       + labs(y = "Number of Cis-chromosomal Interactions [100,000]",
               x = "",
               title = "Cis-chromosomal Interactions",
               fill = "")
