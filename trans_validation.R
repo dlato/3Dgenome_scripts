@@ -636,8 +636,10 @@ hm_df <- hm_zscore_df %>% filter(chrs == dirA | chrs == dirB)
 head(hm_df)
 print("TEST chrA")
 CA <- unique(hm_df$chrA)
+CA
 print("TEST chrB")
 CB <- unique(hm_df$chrB)
+CB
 testdf <- hm_df %>% filter(cell == "Aorta")
 xchr <- gsub("chr", "", CA)
 ychr <- gsub("chr", "", CB)
