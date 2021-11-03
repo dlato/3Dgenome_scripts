@@ -55,8 +55,8 @@ for i in range(len(ref)):
     nuc = ref[i]
     ncRef = refalign[0].seq
     ncNuc = ncRef[c]
-    print("------------")
-    print("ref aln", nuc, "ref non-convert",ncNuc)
+#    print("------------")
+#    print("ref aln", nuc, "ref non-convert",ncNuc)
     #case when at end of aln
     if i == len(ref)-1:
         prenuc = ncRef[c-1]
@@ -100,74 +100,9 @@ for i in range(len(ref)):
                 refAnno.append("NA")
                 rseq.append(nuc)
             c +=1
-    print(refAnno[-1])
-    print(rseq[-1])
+#    print(refAnno[-1])
+#    print(rseq[-1])
 
-
-
-
-
-
-#    if i in [len(ref)-1, 0]:
-#        # dealing with gap in ref
-#        if nuc in ["-"]:
-#            refAnno.append("NA")
-#            rseq.append(nuc)
-#        #case when at beginning of aln
-#        if i == 0:
-#            nexnuc = ref[i+1]
-#            if nuc in ["C","c"]:
-#                if nexnuc in ["G","g"]:
-#                    refAnno.append("1")
-#                    rseq.append(nuc)
-#                else:
-#                    refAnno.append("NA")
-#                    rseq.append(nuc)
-#            else:
-#                refAnno.append("NA")
-#                rseq.append(nuc)
-#        #case when at end of aln
-#        if i == len(ref)-1:
-#            prenuc = ref[i-1]
-#            if nuc in ["G","g"]:
-#                if prenuc in ["c","C"]:
-#                    # changing G's to NA because only care about the C's and if they have changed
-#                    refAnno.append("NA")
-##                    refAnno.append("1")
-#                    rseq.append(nuc)
-#                else:
-#                    refAnno.append("NA")
-#                    rseq.append(nuc)
-#            else:
-#                refAnno.append("NA")
-#                rseq.append(nuc)
-#    else:
-#        # dealing with gap in ref
-#        if nuc in ["-"]:
-#            refAnno.append("NA")
-#            rseq.append(nuc)
-#        nexnuc = ref[i+1]
-#        prenuc = ref[i-1]
-#        if nuc in ["C","c"]:
-#            if nexnuc in ["G","g"]:
-#                refAnno.append("1")
-#                rseq.append(nuc)
-#            else:
-#                refAnno.append("NA")
-#                rseq.append(nuc)
-#        if nuc in ["G","g"]:
-#            if prenuc in ["C","c"]:
-#                # changing G's to NA because only care about the C's and if they have changed
-##                refAnno.append("1")
-#                refAnno.append("NA")
-#                rseq.append(nuc)
-#            else:
-#                refAnno.append("NA")
-#                rseq.append(nuc)
-#        if nuc in ["T","t", "A","a"]:
-#            refAnno.append("NA")
-#            rseq.append(nuc)
-#              
 allseqAnno = []
 #annotate other samples
 for s in range(1,seqnum):
