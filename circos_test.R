@@ -44,6 +44,11 @@ dat2$chrA <- gsub("chr","",dat2$chrA)
 dat2$chrB <- gsub("chr","",dat2$chrB)
 nuc1 <- dat2 %>% select(chrA, st1, end1)
 nuc2 <- dat2 %>% select(chrB, st2, end2)
+nuc1$st1 <- as.numeric(as.character(nuc1$st1))
+nuc1$end1 <- as.numeric(as.character(nuc1$end1))
+nuc2$st2 <- as.numeric(as.character(nuc2$st2))
+nuc2$end2 <- as.numeric(as.character(nuc2$end2))
+summary(nuc1)
 #re-order chroms based on chrom len (except x and y which are at the end)
 p_chr_ord <- c("chr1","chr2",
                "chr3","chr4",
@@ -83,23 +88,24 @@ chrInf <- data.frame( chrom = p_chr_ord,
                                    "Submetacentric","Metacentric",
                                    "Metacentric","Acrocentric",
                                    "Acrocentric","Acrocentric"),
-                      size = c(249300000,243200000,
-                               198000000,191200000,
-                               180900000,171100000,
-                               159100000,155300000,
-                               146400000,141200000,
-                               135000000,135500000,
-                               133900000,115200000,
-                               107300000,102500000,
-                               90400000,81200000,
-                               78100000,63000000,
-                               59100000,59400000,
-                               51300000,48100000)
+                      size = c(248956422,242193529,
+                               198295559,190214555,
+                               181538259,170805979,
+                               159345973,145138636,
+                               138394717,135086622,
+                               133797422,133275309,
+                               114364328,107043718,
+                               101991189,90338345,
+                               83257441,80373285,
+                               64444167,58617616,
+                               50818468,46709983,
+                               156040895,57227415)
                       
 )
 
 
 
+pdf("circos_test.pdf", width = 14, height = 8)
 circos.clear()
 col_text <- "grey40"
 circos.par("track.height"=0.8,gap.degree=5,cell.padding=c(0,0,0,0))
@@ -121,5 +127,9 @@ circos.track(track.index = get.current.track.index(), panel.fun = function(x, y)
               col=col_text,labels.col=col_text,lwd=0.7,labels.facing="clockwise")
 },bg.border=F)
 # add interactions to plot
-rcols <- scales::alpha(ifelse(sign(nuc1$st1-nuc1$end1)!=sign(nuc2$st2-nuc2$end2),"#f46d43","#66c2a5"),alpha=0.4)
-circos.genomicLink(nuc1,nuc2,col=rcols,border=NA)
+#rcols <- scales::alpha(ifelse(sign(nuc1$st1-nuc1$end1)!=sign(nuc2$st2-nuc2$end2),"#f46d43","#66c2a5"),alpha=0.4)
+#rcols <- scales::alpha(ifelse(sign(nuc1$st1-nuc1$end1)!=sign(nuc2$st2-nuc2$end2),"black","red"))
+#circos.genomicLink(nuc1,nuc2,col=rcols,border=NA)
+circos.genomicLink(nuc1,nuc2)
+dev.off()
+
