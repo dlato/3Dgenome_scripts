@@ -768,7 +768,7 @@ levels(hm_dat2$AllChr)
 #       + geom_tile(aes(fill = zscore), colour = "white")
 hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
        + geom_tile(aes(fill = mzscore), colour = "white")
-+ scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score", na.value = "grey")
++ scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score", na.value = "grey")
 #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
        #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
        + labs(x = "Chromosome",
