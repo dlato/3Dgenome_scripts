@@ -921,7 +921,7 @@ bp <- (ggplot(chrpaircount, aes(y=obsCount, x=cell, fill = sig))
        #          panel.spacing = unit(0, "lines"),
        #          axis.text.y = element_blank(),
        #          axis.ticks.y = element_blank())
-       #  + theme(axis.text=element_text(size=5))
+         + theme(axis.text=element_text(size=12))
        + scale_y_continuous(expand = c(0, 0), limits = c(0,max(chrpaircount$obsCount +0.2)))
        + theme(strip.text.y.right = element_text(angle = 0))
 )
