@@ -760,8 +760,10 @@ dev.off()
 ###########
 # mean of ALL zscores (not separtated into sig and non-sig)
 ###########
+print("# heatmap of just sig interactions")
 hm_dat = r_dat2 %>% filter(sig == "sig") %>% group_by(AllChr,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
 hm_dat2 <- hm_dat2 %>% mutate(AllChr=factor(AllChr, levels=p_chr_ord2))
+levels(hm_dat2$AllChr)
 #hm <- (ggplot(r_dat2, aes(AllChr, cell))
 #       + geom_tile(aes(fill = zscore), colour = "white")
 hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
