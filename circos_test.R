@@ -127,7 +127,7 @@ circos.track(track.index = get.current.track.index(), panel.fun = function(x, y)
               col=col_text,labels.col=col_text,lwd=0.7,labels.facing="clockwise")
 },bg.border=F)
 # add interactions to plot
-rcols <- scales::alpha(ifelse(sign(nuc1$st1-nuc1$end1)!=sign(nuc2$st2-nuc2$end2),"#f46d43","black"),alpha=0.5)
+rcols <- scales::alpha(ifelse(sign(nuc1$st1-nuc1$end1)!=sign(nuc2$st2-nuc2$end2),"black","black"),alpha=0.5)
 #rcols <- scales::alpha(ifelse(sign(nuc1$st1-nuc1$end1)!=sign(nuc2$st2-nuc2$end2),"black","red"))
 #circos.genomicLink(nuc1,nuc2,col=rcols,border=NA)
 circos.genomicLink(nuc1,nuc2, col=rcols, border=NA)
