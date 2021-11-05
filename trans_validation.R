@@ -710,7 +710,7 @@ hm <- (ggplot(hm_df, aes(x=st1, y=st2, fill= zscore))
              #         caption = "Data source: ToothGrowth",
              x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
              y = paste0("Chromosome ", ychr, " Genomic Position"))
-      + scale_fill_hp(discrete = FALSE, option = "Always", name = "z-score")
+      + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
       + facet_grid(cell ~.)
       # expand axis limits so whole chrom len is accounted for
       + expand_limits(y=c(0,ymax), x = c(0,xmax))
@@ -739,7 +739,7 @@ hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= zscore))
               #         caption = "Data source: ToothGrowth",
               x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", ychr, " Genomic Position"))
-       + scale_fill_hp(discrete = FALSE, option = "Always", name = "z-score")
+       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
        + facet_grid(cell ~.)
       # expand axis limits so whole chrom len is accounted for
       + expand_limits(y=c(0,ymax), x = c(0,xmax))
@@ -770,7 +770,7 @@ hm <- (ggplot(hm_df, aes(x=st1, y=st2, fill= pvalue))
               #         caption = "Data source: ToothGrowth",
               x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", ychr, " Genomic Position"))
-       + scale_fill_hp(discrete = FALSE, option = "Always", name = "p-value")
+       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "p-value")
        + facet_grid(cell ~.)
       # expand axis limits so whole chrom len is accounted for
       + expand_limits(y=c(0,ymax), x = c(0,xmax))
@@ -798,7 +798,7 @@ hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= pvalue))
               #         caption = "Data source: ToothGrowth",
               x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", ychr, " Genomic Position"))
-       + scale_fill_hp(discrete = FALSE, option = "Always", name = "p-value")
+       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "p-value")
        + facet_grid(cell ~.)
       # expand axis limits so whole chrom len is accounted for
       + expand_limits(y=c(0,ymax), x = c(0,xmax))

@@ -73,13 +73,13 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 ##interaction data
-Atype <- "1_vs_All"
-tissue_file <- "tissue_system_info.txt"
-dat_file <- "test_pairwise_dat.txt"
-allinters_file <- "all_trans_interactions_1Mb.txt"
-germlayer_file <- "germlayer_info.txt"
-library(factoextra)#for PCA
-library(harrypotter) #for colours
+#Atype <- "1_vs_All"
+#tissue_file <- "tissue_system_info.txt"
+#dat_file <- "test_pairwise_dat.txt"
+#allinters_file <- "all_trans_interactions_1Mb.txt"
+#germlayer_file <- "germlayer_info.txt"
+#library(factoextra)#for PCA
+#library(harrypotter) #for colours
 
 allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
@@ -556,7 +556,7 @@ hm_dat$AllChr <- gsub("chr", "", hm_dat$AllChr)
 hm <- (ggplot(hm_dat, aes(x=AllSt,ordered(AllChr, levels=rev(chrs_ord)), fill = mzscore))
        #hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
        #       + geom_tile(aes(fill = mzscore), colour = "white")
-       + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score", na.value = "grey")
+       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score", na.value = "grey")
        + geom_tile(aes(fill = mzscore), colour = "white")
 #       + scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
        + labs(x = "Genomic Postion [Mbp]",
@@ -924,7 +924,7 @@ hm <- (ggplot(r_dat2, aes(AllChr, cell))
 #hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
 #       + geom_tile(aes(fill = mzscore), colour = "white")
        + geom_tile(aes(fill = zscore), colour = "white")
-       + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score", na.value = "grey")
+       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score", na.value = "grey")
 #       + scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
        + labs(x = "Chromosome",
               y = "Cell",
@@ -962,7 +962,7 @@ hm_bothdirs$chrA <- factor(hm_bothdirs$chrA, levels=chrs_ord)
 hm_bothdirs$chrB <- factor(hm_bothdirs$chrB, levels=chrs_ord)
 hm <- (ggplot(hm_bothdirs, aes(chrA, ordered(chrB, levels=rev(chrs_ord)), fill = mzscore))
        + geom_tile(aes(fill = mzscore), colour = "white")
-       + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score per chromosomal pair", na.value = "grey")
+       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per chromosomal pair", na.value = "grey")
        #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
        #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
        + labs(x = "Chromosome",
