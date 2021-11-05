@@ -73,13 +73,13 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 ##interaction data
-#Atype <- "1_vs_All"
-#tissue_file <- "tissue_system_info.txt"
-#dat_file <- "test_pairwise_dat.txt"
-#allinters_file <- "all_trans_interactions_1Mb.txt"
-#germlayer_file <- "germlayer_info.txt"
-#library(factoextra)#for PCA
-#library(harrypotter) #for colours
+Atype <- "1_vs_All"
+tissue_file <- "tissue_system_info.txt"
+dat_file <- "test_pairwise_dat.txt"
+allinters_file <- "all_trans_interactions_1Mb.txt"
+germlayer_file <- "germlayer_info.txt"
+library(factoextra)#for PCA
+library(harrypotter) #for colours
 
 allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
@@ -623,6 +623,24 @@ p <- (ggplot(r_dat3, aes(x = zscore, y = cell, fill = germL))
 pdf("zscore_ridgeline_common_interactions_all_cells_germlayer.pdf", width = 14, height = 8)
 p
 dev.off()
+
+#################
+print("#test between means of germ layers")
+print("#### common interactions ####")
+print("#Test each group for normality")
+print("sig = reject normality null")
+#chrClass_dat$chrClass <- as.factor(chrClass_dat$chrClass)
+r_dat3 %>%
+  group_by(germL) %>%
+  summarise(W = shapiro.test(zscore)$statistic,
+            p.value = shapiro.test(zscore)$p.value)
+print("#Perform the Kruskal-Wallis test")
+print("sig = mean is diff btwn groups")
+kruskal.test(zscore ~ germL, data=r_dat3)
+print("# check which groups have sig diff")
+print("# perform pairwise wilcoxon test with FDR (Benjamini-Hochberg) correction")
+pairwise.wilcox.test(r_dat3$zscore, r_dat3$germL,
+                     p.adjust.method = "BH")
 
 print("# Tissue/system breakdown")
 t_dat2 <- r_dat3

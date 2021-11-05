@@ -72,14 +72,14 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 ##interaction data
-#zdat_file <- "test_1vsAll_dat.txt"
-#pdat_file <- "test_1vsAll_pvalues.txt"
-#allinters_file <- "all_trans_interactions_1Mb.txt"
-#germlayer_file <- "germlayer_info.txt"
-#gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
-#library(harrypotter)
-#library(gtools)
-#library(circlize)
+zdat_file <- "test_1vsAll_dat.txt"
+pdat_file <- "test_1vsAll_pvalues.txt"
+allinters_file <- "all_trans_interactions_1Mb.txt"
+germlayer_file <- "germlayer_info.txt"
+gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
+library(harrypotter)
+library(gtools)
+library(circlize)
 ##Atype <- "1_vs_All"
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
@@ -502,6 +502,57 @@ pdf("zscore_ridgeline_all_interactions_all_cells.pdf", width = 14, height = 8)
 p
 dev.off()
 #################
+#################
+print("#test between means of germ layers")
+print("#### ALL DATA ####")
+print("#Test each group for normality")
+print("sig = reject normality null")
+#chrClass_dat$chrClass <- as.factor(chrClass_dat$chrClass)
+r_dat3 %>%
+  group_by(germL) %>%
+  summarise(W = shapiro.test(zscore)$statistic,
+            p.value = shapiro.test(zscore)$p.value)
+print("#Perform the Kruskal-Wallis test")
+print("sig = mean is diff btwn groups")
+kruskal.test(zscore ~ germL, data=r_dat3)
+print("# check which groups have sig diff")
+print("# perform pairwise wilcoxon test with FDR (Benjamini-Hochberg) correction")
+pairwise.wilcox.test(r_dat3$zscore, r_dat3$germL,
+                     p.adjust.method = "BH")
+print("#### SIG DATA ####")
+print("#Test each group for normality")
+print("sig = reject normality null")
+#chrClass_dat$chrClass <- as.factor(chrClass_dat$chrClass)
+sig_rdat <- r_dat3 %>%
+  filter(pvalue <= 0.05) 
+sig_rdat %>%
+  group_by(germL) %>%
+  summarise(W = shapiro.test(zscore)$statistic,
+            p.value = shapiro.test(zscore)$p.value)
+print("#Perform the Kruskal-Wallis test")
+print("sig = mean is diff btwn groups")
+kruskal.test(zscore ~ germL, data=sig_rdat)
+print("# check which groups have sig diff")
+print("# perform pairwise wilcoxon test with FDR (Benjamini-Hochberg) correction")
+pairwise.wilcox.test(sig_rdat$zscore, sig_rdat$germL,
+                     p.adjust.method = "BH")
+print("#### NON-SIG DATA ####")
+print("#Test each group for normality")
+print("sig = reject normality null")
+#chrClass_dat$chrClass <- as.factor(chrClass_dat$chrClass)
+sig_rdat <- r_dat3 %>%
+  filter(pvalue >= 0.05) 
+sig_rdat %>%
+  group_by(germL) %>%
+  summarise(W = shapiro.test(zscore)$statistic,
+            p.value = shapiro.test(zscore)$p.value)
+print("#Perform the Kruskal-Wallis test")
+print("sig = mean is diff btwn groups")
+kruskal.test(zscore ~ germL, data=sig_rdat)
+print("# check which groups have sig diff")
+print("# perform pairwise wilcoxon test with FDR (Benjamini-Hochberg) correction")
+pairwise.wilcox.test(sig_rdat$zscore, sig_rdat$germL,
+                     p.adjust.method = "BH")
 
 ##################
 ##common interactions z-scores broken down by chrom class
