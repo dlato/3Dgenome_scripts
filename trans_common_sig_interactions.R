@@ -9,6 +9,7 @@
 #            germlayer df (tsv)
 #            all interactions file (tsv)
 #            tissue/system df (tsv)
+#            bin size (bp)
 ########################################
 
 options(echo=F)
@@ -17,6 +18,7 @@ dat_file <- args[1]
 germlayer_file <- args[2]
 allinters_file <- args[3]
 tissue_file <- args[4]
+bin_size <- args[5]
 #Atype <- args[4]
 
 ##########
@@ -78,6 +80,7 @@ print("#read in files")
 #dat_file <- "test_pairwise_dat.txt"
 #allinters_file <- "all_trans_interactions_1Mb.txt"
 #germlayer_file <- "germlayer_info.txt"
+#bin_size <- 1000000
 #library(factoextra)#for PCA
 #library(harrypotter) #for colours
 
@@ -544,6 +547,39 @@ pt <- overlapPermTest(commonintersGRange, qarmGRanges, ntimes=100, genome="hg38"
 pt
 pdf("commonInters_vs_qArm_permutation.pdf", width = 14, height = 8)
 plot(pt)
+dev.off()
+
+print("### boxplot/violin for pq arms")
+A_dat <- pq_perm_df %>% select(chrA,st1,end1,armA)
+colnames(A_dat) <- c("chr","start","end","arm")
+B_dat <- pq_perm_df %>% select(chrB,st2,end2,armB)
+colnames(B_dat) <- c("chr","start","end","arm")
+pq_box_dat <- rbind(A_dat,B_dat)
+pq_sum <- pq_box_dat %>%  group_by(chr, arm) %>% dplyr::summarize(common=n())
+pq_sum
+bin_df <- chrInf %>% select(chrom,size)
+bin_df$numBins <- ceiling(bin_df$size / bin_size)
+bin_df <- bin_df %>% select(-size)
+colnames(bin_df) <- c("chr","numBins")
+box_df <-merge(pq_sum,bin_df, by = "chr")
+box_df$prop <- box_df$common / box_df$numBins
+box_df
+set.seed(369)
+p <- (ggplot(box_df, aes(x = arm, y = prop))
+      #+ geom_violin(fill="grey90", scale = "count")#"count" makes width of violins proportional to number of values
+      + geom_jitter(fill="grey90", alpha = 0.4, width = 0.3)#"count" makes width of violins proportional to number of values
+      + geom_boxplot(fill="grey95",width = 0.1,outlier.size=4, alpha = 0.5)
+      #      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
+      #      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
+      + labs(y="Proportion of Common Trans-chromosomal Interactions",
+             x="Chromosome Arm",
+             title = "Proportion of Common Trans-chromosomal Interactions per Chromosome Arm")
+      #      #  + scale_y_discrete(expand = c(0, 0))     # will generally have to set the `expand` option
+      #      + scale_x_continuous(expand = c(0, 0))   # for both axes to remove unneeded padding
+      #      + coord_cartesian(clip = "off") # to avoid clipping of the very top of the top ridgeline
+)
+pdf("PQ_arm_violin_common_interactions.pdf", width = 14, height = 8)
+p
 dev.off()
 
 print("#calculate mean zscore per chrom per bin so that the heatmap is accurate")
