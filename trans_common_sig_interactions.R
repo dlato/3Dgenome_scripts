@@ -871,7 +871,8 @@ p <- (ggplot(prop_datAll2, aes(y =num,x=chrom, fill = name))
 pdf("proportion_per_chrom_common_interactions_all_cells.pdf", width = 14, height = 8)
 p
 dev.off()
-
+print("#### chromosome with the highest proportional number of common interactions")
+prop_datAll[which(prop_datAll$percent == max(prop_datAll$percent)),]
 #proportional interactions per chrom pair
 pair_dat <- dat_long2
 head(pair_dat)
