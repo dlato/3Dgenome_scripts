@@ -568,8 +568,8 @@ box_df
 set.seed(369)
 p <- (ggplot(box_df, aes(x = arm, y = prop))
       #+ geom_violin(fill="grey90", scale = "count")#"count" makes width of violins proportional to number of values
-      + geom_jitter(fill="grey90", alpha = 0.4, width = 0.3)#"count" makes width of violins proportional to number of values
-      + geom_boxplot(fill="grey95",width = 0.1,outlier.size=4, alpha = 0.5)
+      + geom_boxplot(fill="grey95",width = 0.3,outlier.shape = NA, alpha = 0.5)
+      + geom_jitter(fill="grey90", alpha = 0.4, width = 0.3, size =4)
       #      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
       #      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
       + labs(y="Proportion of Common Trans-chromosomal Interactions",
