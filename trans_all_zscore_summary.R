@@ -779,7 +779,8 @@ hm <- (ggplot(hm_dat2, aes(AllChr, cell, fill = zscore))
        + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
          c("nonsig" = "Non-significant", "sig" = "Significant"))))
 #       + theme(axis.text.x = element_text(angle = 90))
-       + theme(axis.text=element_text(size=12))
+       + theme(axis.text=element_text(size=12),
+              panel.background = element_rect(fill = "grey85", colour = NA))
 )
 pdf("zscore_mean_heatmap_interactions_chroms_all_cells.pdf", width = 14, height = 8)
 hm
@@ -803,7 +804,8 @@ hm <- (ggplot(hm_dat2, aes(AllChr, cell, fill = zscore))
 #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
 #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
 #       + theme(axis.text.x = element_text(angle = 90))
-       + theme(axis.text=element_text(size=12))
+       + theme(axis.text=element_text(size=12),
+               panel.background = element_rect(fill = "grey85", colour = NA))
 )
 pdf("zscore_mean_heatmap_interactions_chroms_all_cells_mean_of_ALL_zscores.pdf", width = 14, height = 8)
 hm
@@ -829,7 +831,7 @@ hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
 #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
 #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
 #       + theme(axis.text.x = element_text(angle = 90))
-       + theme(axis.text=element_text(size=12))
+       + theme(axis.text=element_text(size=12),panel.background = element_rect(fill = "grey85", colour = NA))
 )
 pdf("zscore_mean_heatmap_interactions_chroms_all_cells_significant_interactions.pdf", width = 14, height = 8)
 hm
@@ -1015,6 +1017,7 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
       + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
               strip.background = element_rect(fill = "white"),
               panel.spacing = unit(0, "lines"),
+              panel.background = element_rect(fill = "grey85", colour = NA),
               axis.text.y = element_blank(),
               axis.ticks.y = element_blank())
        + theme(axis.text=element_text(size=5))
@@ -1049,6 +1052,7 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
        #       + theme(axis.text.x = element_text(angle = 90))
       + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
               strip.background = element_rect(fill = "white"),
+              panel.background = element_rect(fill = "grey85", colour = NA),
               panel.spacing = unit(0, "lines"))
 )
 pdf("TEST_Aorta_zscore_chrom_pair_mean_heatmap_AllInteractions.pdf", width = 14, height = 8)
@@ -1082,6 +1086,7 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
                strip.background = element_rect(fill = "white"),
                panel.spacing = unit(0, "lines"),
                axis.text.y = element_blank(),
+               panel.background = element_rect(fill = "grey85", colour = NA),
                axis.ticks.y = element_blank())
        + theme(axis.text=element_text(size=5))
 )

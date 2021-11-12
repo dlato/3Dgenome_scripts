@@ -599,6 +599,7 @@ hm <- (ggplot(hm_dat, aes(x=AllSt,ordered(AllChr, levels=rev(chrs_ord)), fill = 
        + labs(x = "Genomic Postion [Mbp]",
               y = "Chromosome",
               title = "Common Trans-chromosomal Interactions z-scores")
+       + theme(panel.background = element_rect(fill = "grey85", colour = NA))
        #       + facet_wrap(.~germL)
 #       + theme(axis.text=element_text(size=12))
 )
@@ -968,7 +969,8 @@ hm <- (ggplot(r_dat2, aes(AllChr, cell))
               y = "Cell",
               title = "Common Trans-chromosomal Interactions z-scores")
 #       + facet_wrap(.~germL)
-       + theme(axis.text=element_text(size=12))
+       + theme(axis.text=element_text(size=12),
+              panel.background = element_rect(fill = "grey85", colour = NA))
 )
 pdf("zscore_mean_heatmap_common_interactions_chroms_per_cell.pdf", width = 14, height = 8)
 hm
@@ -1013,6 +1015,7 @@ hm <- (ggplot(hm_bothdirs, aes(chrA, ordered(chrB, levels=rev(chrs_ord)), fill =
        + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
                strip.background = element_rect(fill = "white"),
                panel.spacing = unit(0, "lines"),
+              panel.background = element_rect(fill = "grey85", colour = NA),
                axis.text.y = element_blank(),
                axis.ticks.y = element_blank(),
                axis.text=element_text(size=5))

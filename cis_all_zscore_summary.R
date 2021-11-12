@@ -777,7 +777,7 @@ hm <- (ggplot(hm_dat2, aes(AllChr, cell, fill = zscore))
        + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
          c("nonsig" = "Non-significant", "sig" = "Significant"))))
 #       + theme(axis.text.x = element_text(angle = 90))
-       + theme(axis.text=element_text(size=12))
+       + theme(axis.text=element_text(size=12),panel.background = element_rect(fill = "grey85", colour = NA))
 )
 pdf("zscore_mean_heatmap_interactions_chroms_all_cells.pdf", width = 14, height = 8)
 hm
@@ -801,7 +801,7 @@ hm <- (ggplot(hm_dat2, aes(AllChr, cell, fill = zscore))
 #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
 #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
 #       + theme(axis.text.x = element_text(angle = 90))
-       + theme(axis.text=element_text(size=12))
+       + theme(axis.text=element_text(size=12),panel.background = element_rect(fill = "grey85", colour = NA))
 )
 pdf("zscore_mean_heatmap_interactions_chroms_all_cells_mean_of_ALL_zscores.pdf", width = 14, height = 8)
 hm
@@ -825,7 +825,7 @@ hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
 #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
 #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
 #       + theme(axis.text.x = element_text(angle = 90))
-       + theme(axis.text=element_text(size=12))
+       + theme(axis.text=element_text(size=12),panel.background = element_rect(fill = "grey85", colour = NA))
 )
 pdf("zscore_mean_heatmap_interactions_chroms_all_cells_significant_interactions.pdf", width = 14, height = 8)
 hm
@@ -1014,7 +1014,7 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
               panel.spacing = unit(0, "lines"),
               axis.text.y = element_blank(),
               axis.ticks.y = element_blank())
-       + theme(axis.text=element_text(size=5))
+       + theme(axis.text=element_text(size=5),panel.background = element_rect(fill = "grey85", colour = NA))
 )
 pdf("zscore_chrom_pair_mean_heatmap_AllInteractions.pdf", width = 14, height = 8)
 hm
@@ -1080,7 +1080,7 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
                panel.spacing = unit(0, "lines"),
                axis.text.y = element_blank(),
                axis.ticks.y = element_blank())
-       + theme(axis.text=element_text(size=5))
+       + theme(axis.text=element_text(size=5),panel.background = element_rect(fill = "grey85", colour = NA))
 )
 pdf("zscore_chrom_pair_mean_heatmap_sig_Interactions.pdf", width = 14, height = 8)
 hm
