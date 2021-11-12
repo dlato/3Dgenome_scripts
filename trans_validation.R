@@ -780,6 +780,106 @@ pdf(f_name, width = 14, height = 8)
 hm
 dev.off()
 
+##################
+print("# point graph of all zscores on each valid inter chrom and genomic position")
+##################
+sig_pts <- hm_dfsig
+summary(sig_pts)
+p <- (ggplot(sig_pts, aes(x=st1, y=zscore)) 
+       + geom_point(colour = "#55828B", alpha = 0.6)
+       + geom_smooth(colour = "#013040", method = "loess", formula = y ~ x)
+       + labs(title = paste0("Significant trans-chromosomal interactions between chromosomes ",xchr, " and ", ychr),
+              #         subtitle = "Plot of length by dose",
+              #         caption = "Data source: ToothGrowth",
+              x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
+              y = "z-score")
+#       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "p-value")
+       + facet_grid(cell ~.)
+       + scale_x_continuous(expand = c(0, 0))
+       + scale_y_continuous(expand = c(0, 0))
+       # expand axis limits so whole chrom len is accounted for
+       + expand_limits(x = c(0,xmax))
+       + theme(panel.spacing = unit(0, "lines"),
+               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+               strip.background = element_rect(fill = "white"),
+               #               axis.text.x = element_blank(),
+               #               axis.ticks.x = element_blank(),
+               axis.text.y = element_blank(),
+               axis.ticks.y = element_blank())
+)
+f_name <- gsub(" ","",paste("zscore_along_",xchr,"_facet_",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
+
+p <- (ggplot(sig_pts, aes(x=st2, y=zscore)) 
+      + geom_point(colour = "#55828B", alpha = 0.6)
+      + geom_smooth(colour = "#013040", method = "loess", formula = y ~ x)
+      + labs(title = paste0("Significant trans-chromosomal interactions between chromosomes ",xchr, " and ", ychr),
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+             y = "z-score")
+      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "p-value")
+      + facet_grid(cell ~.)
+      + scale_x_continuous(expand = c(0, 0))
+      + scale_y_continuous(expand = c(0, 0))
+      # expand axis limits so whole chrom len is accounted for
+      + expand_limits(x = c(0,ymax))
+      + theme(panel.spacing = unit(0, "lines"),
+              strip.text.y.right = element_text(angle = 0), #rotate facet labels
+              strip.background = element_rect(fill = "white"),
+              #               axis.text.x = element_blank(),
+              #               axis.ticks.x = element_blank(),
+              axis.text.y = element_blank(),
+              axis.ticks.y = element_blank())
+)
+f_name <- gsub(" ","",paste("zscore_along_",ychr,"_facet_",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
+print("#zscore point plot of sig inters per cell")
+ucells <- unique(sig_pts$cell)
+for(i in ucells) {
+  c_dat <- sig_pts %>% filter(cell == i)
+  p <- (ggplot(c_dat, aes(x=st2, y=zscore)) 
+        + geom_point(colour = "#55828B", alpha = 0.6)
+        + geom_smooth(colour = "#013040", method = "loess", formula = y ~ x)
+        + labs(title = paste0("Significant trans-chromosomal interactions in ",i," between chromosomes ",xchr, " and ", ychr),
+               #         subtitle = "Plot of length by dose",
+               #         caption = "Data source: ToothGrowth",
+               x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+               y = "z-score")
+        #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "p-value")
+        + scale_x_continuous(expand = c(0, 0))
+        + scale_y_continuous(expand = c(0, 0))
+        # expand axis limits so whole chrom len is accounted for
+        + expand_limits(x = c(0,ymax))
+  
+  )
+  f_name <- gsub(" ","",paste("zscore_along_",ychr,"_",i,"_",Atype,".pdf"))
+  pdf(f_name, width = 14, height = 8)
+  p
+  dev.off()
+  p <- (ggplot(c_dat, aes(x=st1, y=zscore)) 
+        + geom_point(colour = "#55828B", alpha = 0.6)
+        + geom_smooth(colour = "#013040", method = "loess", formula = y ~ x)
+        + labs(title = paste0("Significant trans-chromosomal interactions in ",i," between chromosomes ",xchr, " and ", ychr),
+               #         subtitle = "Plot of length by dose",
+               #         caption = "Data source: ToothGrowth",
+               x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
+               y = "z-score")
+        #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "p-value")
+        + scale_x_continuous(expand = c(0, 0))
+        + scale_y_continuous(expand = c(0, 0))
+        # expand axis limits so whole chrom len is accounted for
+        + expand_limits(x = c(0,xmax))
+  )
+  f_name <- gsub(" ","",paste("zscore_along_",xchr,"_",i,"_",Atype,".pdf"))
+  pdf(f_name, width = 14, height = 8)
+  p
+  dev.off()
+}#for
 ##############
 # Pvalue
 ##############
