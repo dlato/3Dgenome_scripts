@@ -755,6 +755,30 @@ f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_heatmap_si
 pdf(f_name, width = 14, height = 8)
 hm
 dev.off()
+#having the opposite chrom on the x axis
+hm <- (ggplot(hm_dfsig, aes(x=st2, y=st1, fill= zscore)) 
+       + geom_tile()
+       + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
+              #         subtitle = "Plot of length by dose",
+              #         caption = "Data source: ToothGrowth",
+              x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+              y = paste0("Chromosome ", xchr, " Genomic Position"))
+       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+       + facet_grid(cell ~.)
+       # expand axis limits so whole chrom len is accounted for
+       + expand_limits(y=c(0,xmax), x = c(0,ymax))
+       + theme(panel.spacing = unit(0, "lines"),
+               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+               strip.background = element_rect(fill = "white"),
+               #               axis.text.x = element_blank(),
+               #               axis.ticks.x = element_blank(),
+               axis.text.y = element_blank(),
+               axis.ticks.y = element_blank())
+)
+f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_heatmap_sigInters_YX",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+hm
+dev.off()
 
 ##############
 # Pvalue
