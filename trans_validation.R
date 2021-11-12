@@ -880,6 +880,63 @@ for(i in ucells) {
   p
   dev.off()
 }#for
+
+# heatmap with grey in place of all white space
+##############
+# heatmap along chromosome positions: SIG INTERACTIONS (only sig)
+##############
+hm_dfsig <- hm_df %>% filter(pvalue <= 0.05)
+#hm <- (ggplot(testdf, aes(x=st1, y=st2, fill= zscore)) 
+hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= zscore)) 
+       + geom_tile()
+       + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
+              #         subtitle = "Plot of length by dose",
+              #         caption = "Data source: ToothGrowth",
+              x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
+              y = paste0("Chromosome ", ychr, " Genomic Position"))
+       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+       + facet_grid(cell ~.)
+       # expand axis limits so whole chrom len is accounted for
+       + expand_limits(y=c(0,ymax), x = c(0,xmax))
+#       +theme_grey(base_size=10)
+       + theme(panel.spacing = unit(0, "lines"),
+               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+               strip.background = element_rect(fill = "white"),
+              panel.background = element_rect(fill = "grey85", colour = NA),
+               #               axis.text.x = element_blank(),
+               #               axis.ticks.x = element_blank(),
+               axis.text.y = element_blank(),
+               axis.ticks.y = element_blank())
+)
+f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_heatmap_sigInters_GREYBG",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+hm
+dev.off()
+#having the opposite chrom on the x axis
+hm <- (ggplot(hm_dfsig, aes(x=st2, y=st1, fill= zscore)) 
+       + geom_tile()
+       + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
+              #         subtitle = "Plot of length by dose",
+              #         caption = "Data source: ToothGrowth",
+              x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+              y = paste0("Chromosome ", xchr, " Genomic Position"))
+       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+       + facet_grid(cell ~.)
+       # expand axis limits so whole chrom len is accounted for
+       + expand_limits(y=c(0,xmax), x = c(0,ymax))
+       + theme(panel.spacing = unit(0, "lines"),
+               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+               strip.background = element_rect(fill = "white"),
+              panel.background = element_rect(fill = "grey85", colour = NA),
+               #               axis.text.x = element_blank(),
+               #               axis.ticks.x = element_blank(),
+               axis.text.y = element_blank(),
+               axis.ticks.y = element_blank())
+)
+f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_heatmap_sigInters_YX_GREYBG",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+hm
+dev.off()
 ##############
 # Pvalue
 ##############
