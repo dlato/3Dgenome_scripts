@@ -840,7 +840,11 @@ p
 dev.off()
 print("#zscore point plot of sig inters per cell")
 ucells <- unique(sig_pts$cell)
+xchr
+ychr
 for(i in ucells) {
+#  i="Aorta"
+  print(i)
   c_dat <- sig_pts %>% filter(cell == i)
   p <- (ggplot(c_dat, aes(x=st2, y=zscore)) 
         + geom_point(colour = "#55828B", alpha = 0.6)
@@ -859,7 +863,7 @@ for(i in ucells) {
   )
   f_name <- gsub(" ","",paste("zscore_along_",ychr,"_",i,"_",Atype,".pdf"))
   pdf(f_name, width = 14, height = 8)
-  p
+  print(p)
   dev.off()
   p <- (ggplot(c_dat, aes(x=st1, y=zscore)) 
         + geom_point(colour = "#55828B", alpha = 0.6)
@@ -877,7 +881,7 @@ for(i in ucells) {
   )
   f_name <- gsub(" ","",paste("zscore_along_",xchr,"_",i,"_",Atype,".pdf"))
   pdf(f_name, width = 14, height = 8)
-  p
+  print(p)
   dev.off()
 }#for
 
