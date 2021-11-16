@@ -79,6 +79,7 @@ print("#read in files")
 #gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
 #library(harrypotter)
 #library(gtools)
+#library(ggbiplot)
 #library(circlize)
 ##Atype <- "1_vs_All"
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
