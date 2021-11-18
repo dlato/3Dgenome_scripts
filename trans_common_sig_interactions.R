@@ -25,6 +25,7 @@ bin_size <- args[5]
 library(tidyr)
 library(dplyr)
 #library(GenomicRanges)
+library(regioneR)
 library(ggplot2)
 library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
@@ -550,6 +551,34 @@ plot(pt)
 dev.off()
 
 print("### boxplot/violin for pq arms")
+#get dataframe with total number of interactions per chrom arm
+tot_inter_arm <- data.frame(chrom=character(),
+                     inter=numeric(),
+                     arm=character(),
+                     stringsAsFactors=FALSE)
+for (i in unique(chrInf$chrom)){
+  #i="chr21"
+  chr_all <- allinters %>% filter(chrA == i | chrB == i)
+ A_chr_all <- toGRanges(chr_all %>% filter(chrA == i) %>% select(chrA, startA, endA))
+ B_chr_all <- toGRanges(chr_all %>% filter(chrB == i) %>% select(chrB, startB, endB))
+ chrInf_chr <- chrInf %>% filter(chrom == i)
+ chrInf_chr$start <- 0
+ p_range <- toGRanges(chrInf_chr %>% select(chrom, start, centromere))
+ q_range <- toGRanges(chrInf_chr %>% select(chrom, centromere, size))
+ pA <- findOverlaps(p_range,A_chr_all)
+ pB <- findOverlaps(p_range,B_chr_all)
+ qA <- findOverlaps(q_range,A_chr_all)
+ qB <- findOverlaps(q_range,B_chr_all)
+ q_tot <- sum(length(qA),length(qB))
+ p_tot <- sum(length(pA),length(pB))
+  tmprow_p <- c(i,p_tot,"p")
+  tmprow_q <- c(i,q_tot,"q")
+  #add total number of p and q interactions on each arm to a new df
+  tot_inter_arm <- rbind(tot_inter_arm,tmprow_p,tmprow_q)
+}#for
+colnames(tot_inter_arm) <- c("chr", "tot_inters", "arm")
+print("# total possible inters per chrom arm (head)")
+head(tot_inter_arm)
 A_dat <- pq_perm_df %>% select(chrA,st1,end1,armA)
 colnames(A_dat) <- c("chr","start","end","arm")
 B_dat <- pq_perm_df %>% select(chrB,st2,end2,armB)
@@ -557,19 +586,19 @@ colnames(B_dat) <- c("chr","start","end","arm")
 pq_box_dat <- rbind(A_dat,B_dat)
 pq_sum <- pq_box_dat %>%  group_by(chr, arm) %>% dplyr::summarize(common=n())
 pq_sum
-bin_df <- chrInf %>% select(chrom,size)
-summary(bin_df)
-bin_df$numBins <- ceiling(as.numeric(as.character(bin_df$size)) / as.numeric(as.character(bin_size)))
-bin_df <- bin_df %>% select(-size)
-colnames(bin_df) <- c("chr","numBins")
-box_df <-merge(pq_sum,bin_df, by = "chr")
-box_df$prop <- box_df$common / box_df$numBins
+#bin_df <- chrInf %>% select(chrom,size)
+#summary(bin_df)
+#bin_df$numBins <- ceiling(as.numeric(as.character(bin_df$size)) / as.numeric(as.character(bin_size)))
+#bin_df <- bin_df %>% select(-size)
+#colnames(bin_df) <- c("chr","numBins")
+box_df <-merge(pq_sum,tot_inter_arm, by = c("chr","arm"))
+box_df$prop <- box_df$common / as.numeric(as.character(box_df$tot_inters))
 box_df
 set.seed(369)
 p <- (ggplot(box_df, aes(x = arm, y = prop))
       #+ geom_violin(fill="grey90", scale = "count")#"count" makes width of violins proportional to number of values
       + geom_boxplot(fill="grey95",width = 0.3,outlier.shape = NA, alpha = 0.5)
-      + geom_jitter(fill="grey90", alpha = 0.4, width = 0.2, size =4)
+      + geom_jitter(fill="grey90", alpha = 0.4, width = 0.15, size =4)
       #      + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
       #      #+ geom_density_ridges(scale = 4, alpha = 0.3) 
       + labs(y="Proportion of Common Trans-chromosomal Interactions",
