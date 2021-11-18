@@ -24,8 +24,7 @@ bin_size <- args[5]
 ##########
 library(tidyr)
 library(dplyr)
-#library(GenomicRanges)
-library(regioneR)
+library(GenomicRanges)
 library(ggplot2)
 library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
@@ -36,6 +35,7 @@ library(circlize,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/") # for
 library(regioneR,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/")#for permutation
 library(factoextra, lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3/")#for PCA
 library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3") #for colours
+library(regioneR)
 #install_github("vqv/ggbiplot")
 ##remotes::install_github("R-CoderDotCom/ridgeline@main")
 #library(ridgeline)
