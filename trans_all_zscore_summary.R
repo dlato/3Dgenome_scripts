@@ -837,6 +837,108 @@ hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
 pdf("zscore_mean_heatmap_interactions_chroms_all_cells_significant_interactions.pdf", width = 14, height = 8)
 hm
 dev.off()
+
+print("##########")
+print("# tickplot per chrom, each bin represented fact with cells")
+print("# mean zscore per bin")
+head(r_dat)
+#count  each inter twice
+tp_A <- r_dat %>% select(chrA,st1,end1,cell,zscore,pvalue) 
+colnames(tp_A) <- c("chr","st","end","cell","zscore","pvalue")
+tp_B <- r_dat %>% select(chrB,st2,end2,cell,zscore,pvalue) 
+colnames(tp_B) <- c("chr","st","end","cell","zscore","pvalue")
+#select only sig inters
+tp_dat <- rbind(tp_A,tp_B) %>% filter(pvalue <=0.05)
+tp_dat_sum = tp_dat %>% group_by(chr,st,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+tp_dat_sum$chr <- gsub("chr", "", tp_dat_sum$chr)
+tp_dat_sum <- tp_dat_sum %>% mutate(chr=factor(chr, levels=p_chr_ord2))
+#scale pts by 1Mb
+tp_dat_sum$st <- tp_dat_sum$st / 1000000
+summary(tp_dat_sum)
+head(tp_dat_sum)
+for(i in unique(tp_dat_sum$chr)) {
+  #i="X"
+  xmax <- chrInf$size[match(paste0("chr",i),chrInf$chrom)] / 1000000
+  tpp <- tp_dat_sum %>% filter(chr == i)
+  tp <- (ggplot(tpp, aes(st, y=1, fill = mzscore))
+         + geom_tile(aes(fill = mzscore), colour = "white")
+         + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per bin", na.value = "grey")
+         #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+         #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+         + labs(x = paste0("Chromosome ", i, " position [Mb]"),
+                y = "",
+                title = "Trans-chromosomal interactions (significant) z-scores")
+         + facet_grid(cell ~ .)
+         #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+         #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+         #       + theme(axis.text.x = element_text(angle = 90))
+         + expand_limits(x = c(0,xmax))
+         + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+                 strip.background = element_rect(fill = "white"),
+                 panel.spacing = unit(0, "lines"),
+                 axis.text.y = element_blank(),
+                 axis.ticks.y = element_blank())
+         + theme(axis.text=element_text(size=5),panel.background = element_rect(fill = "grey85", colour = NA))
+  )
+  filename <- paste0("zscore_chrom",i,"_mean_tickplot_sig_Interactions.pdf")
+  pdf(filename, width = 14, height = 8)
+  print(tp)
+  dev.off()
+}#for
+print("##########")
+print("##########")
+print("# tickplot per chrom, each bin represented fact with cells")
+print("# number of sig inters per bin")
+head(r_dat)
+#count  each inter twice
+tp_A <- r_dat %>% select(chrA,st1,end1,cell,zscore,pvalue) 
+colnames(tp_A) <- c("chr","st","end","cell","zscore","pvalue")
+tp_B <- r_dat %>% select(chrB,st2,end2,cell,zscore,pvalue) 
+colnames(tp_B) <- c("chr","st","end","cell","zscore","pvalue")
+#select only sig inters
+tp_dat <- rbind(tp_A,tp_B) %>% filter(pvalue <=0.05)
+tp_dat_sum = tp_dat %>% group_by(chr,st,cell) %>% dplyr::summarize(numSig=n())
+tp_dat_sum$chr <- gsub("chr", "", tp_dat_sum$chr)
+tp_dat_sum
+tp_dat_sum <- tp_dat_sum %>% mutate(chr=factor(chr, levels=p_chr_ord2))
+#scale pts by 1Mb
+tp_dat_sum$st <- tp_dat_sum$st / 1000000
+summary(tp_dat_sum)
+head(tp_dat_sum)
+for(i in unique(tp_dat_sum$chr)) {
+  #i="X"
+  xmax <- chrInf$size[match(paste0("chr",i),chrInf$chrom)] / 1000000
+  tpp <- tp_dat_sum %>% filter(chr == i)
+  tp <- (ggplot(tpp, aes(st, y=1, fill = numSig))
+         + geom_tile(aes(fill = numSig), colour = "white")
+         + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Total number of significant interactions", na.value = "grey")
+         #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+         #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+         + labs(x = paste0("Chromosome ", i, " position [Mb]"),
+                y = "",
+                title = "Trans-chromosomal interactions (significant)")
+         + facet_grid(cell ~ .)
+         #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+         #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+         #       + theme(axis.text.x = element_text(angle = 90))
+         + expand_limits(x = c(0,xmax))
+         + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+                 strip.background = element_rect(fill = "white"),
+                 panel.spacing = unit(0, "lines"),
+                 axis.text.y = element_blank(),
+                 axis.ticks.y = element_blank())
+         + theme(axis.text=element_text(size=5),panel.background = element_rect(fill = "grey85", colour = NA))
+  )
+  filename <- paste0("numSig_inters_chrom",i,"_tickplot_sig_Interactions.pdf")
+  pdf(filename, width = 14, height = 8)
+  print(tp)
+  dev.off()
+}#for
+print("##########")
+
+
+
+
 #################
 # total interactions per chrom pair vs all possible interactions all per cell 
 #################
