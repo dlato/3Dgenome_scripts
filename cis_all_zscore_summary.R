@@ -72,13 +72,13 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 ##interaction data
-zdat_file <- "test_cis_zscore.txt"
-pdat_file <- "test_cis_pvalues.txt"
-allinters_file <- "all_cis_interactions_1Mb.txt"
-germlayer_file <- "germlayer_info.txt"
-gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
-library(harrypotter)
-library(gtools)
+#zdat_file <- "test_cis_zscore.txt"
+#pdat_file <- "test_cis_pvalues.txt"
+#allinters_file <- "all_cis_interactions_1Mb.txt"
+#germlayer_file <- "germlayer_info.txt"
+#gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
+#library(harrypotter)
+#library(gtools)
 ##Atype <- "1_vs_All"
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
@@ -1147,8 +1147,9 @@ tp_B <- r_dat %>% select(chrB,st2,end2,cell,zscore,pvalue)
 colnames(tp_B) <- c("chr","st","end","cell","zscore","pvalue")
 #select only sig inters
 tp_dat <- rbind(tp_A,tp_B) %>% filter(pvalue <=0.05)
-tp_dat_sum = tp_dat %>% group_by(chr,st,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+tp_dat_sum = tp_dat %>% group_by(chr,st,cell) %>% dplyr::summarize(numSig=n())
 tp_dat_sum$chr <- gsub("chr", "", tp_dat_sum$chr)
+tp_dat_sum
 tp_dat_sum <- tp_dat_sum %>% mutate(chr=factor(chr, levels=p_chr_ord2))
 #scale pts by 1Mb
 tp_dat_sum$st <- tp_dat_sum$st / 1000000
@@ -1158,14 +1159,14 @@ for(i in unique(tp_dat_sum$chr)) {
   #i="X"
   xmax <- chrInf$size[match(paste0("chr",i),chrInf$chrom)] / 1000000
   tpp <- tp_dat_sum %>% filter(chr == i)
-  tp <- (ggplot(tpp, aes(st, y=1, fill = mzscore))
-         + geom_tile(aes(fill = mzscore), colour = "white")
-         + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per chromosomal pair", na.value = "grey")
+  tp <- (ggplot(tpp, aes(st, y=1, fill = numSig))
+         + geom_tile(aes(fill = numSig), colour = "white")
+         + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Total number of significant interactions", na.value = "grey")
          #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
          #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
          + labs(x = paste0("Chromosome ", i, " position [Mb]"),
                 y = "",
-                title = "Cis-chromosomal interactions (significant) z-scores")
+                title = "Cis-chromosomal interactions (significant)")
          + facet_grid(cell ~ .)
          #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
          #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
@@ -1178,7 +1179,7 @@ for(i in unique(tp_dat_sum$chr)) {
                  axis.ticks.y = element_blank())
          + theme(axis.text=element_text(size=5),panel.background = element_rect(fill = "grey85", colour = NA))
   )
-  filename <- paste0("zscore_chrom",i,"_mean_tickplot_sig_Interactions.pdf")
+  filename <- paste0("numSig_inters_chrom",i,"_tickplot_sig_Interactions.pdf")
   pdf(filename, width = 14, height = 8)
   print(tp)
   dev.off()
