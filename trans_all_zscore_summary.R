@@ -878,7 +878,7 @@ for(i in unique(tp_dat_sum$chr)) {
                  panel.spacing = unit(0, "lines"),
                  axis.text.y = element_blank(),
                  axis.ticks.y = element_blank())
-         + theme(axis.text=element_text(size=5),panel.background = element_rect(fill = "grey85", colour = NA))
+         + theme(axis.text=element_text(size=18),panel.background = element_rect(fill = "grey85", colour = NA))
   )
   filename <- paste0("zscore_chrom",i,"_mean_tickplot_sig_Interactions.pdf")
   pdf(filename, width = 14, height = 8)
@@ -927,7 +927,7 @@ for(i in unique(tp_dat_sum$chr)) {
                  panel.spacing = unit(0, "lines"),
                  axis.text.y = element_blank(),
                  axis.ticks.y = element_blank())
-         + theme(axis.text=element_text(size=5),panel.background = element_rect(fill = "grey85", colour = NA))
+         + theme(axis.text=element_text(size=18),panel.background = element_rect(fill = "grey85", colour = NA))
   )
   filename <- paste0("numSig_inters_chrom",i,"_tickplot_sig_Interactions.pdf")
   pdf(filename, width = 14, height = 8)
@@ -1186,7 +1186,7 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
        #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
        #       + theme(axis.text.x = element_text(angle = 90))
        + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
-               strip.background = element_rect(fill = "white"),
+               stns_all_zscore_summary.Rrip.background = element_rect(fill = "white"),
                panel.spacing = unit(0, "lines"),
                axis.text.y = element_blank(),
                panel.background = element_rect(fill = "grey85", colour = NA),
