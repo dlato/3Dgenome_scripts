@@ -1085,9 +1085,9 @@ bp <- (ggplot(chrpaircount, aes(y=obsCount, x=cell, fill = sig))
 pdf("number_of_inters_obs_exp_sig_allInters_bargraph.pdf", width = 14, height = 8)
 bp
 dev.off()
-#################
-# average z-score per chrom pair heatmap 
-#################
+print("#################")
+print("# average z-score per chrom pair heatmap")
+print("#################")
 head(r_dat)
 hm_dat <- r_dat
 hm_dat$chrPair <- paste0(hm_dat$chrA,hm_dat$chrB)
@@ -1162,9 +1162,9 @@ pdf("TEST_Aorta_zscore_chrom_pair_mean_heatmap_AllInteractions.pdf", width = 14,
 hm
 dev.off()
 
-##############
-# significant interactions
-##############
+print("##############")
+print("# significant interactions")
+print("##############")
 hm_dat2 = hm_dat %>% filter(cell != "fake_cell") %>% filter(sig == "sig") %>% group_by(chrPair,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
 hm_dat2$chrPair <- gsub("chr", "\\.chr", hm_dat2$chrPair)
 coln <- c("tmp","chrA", "chrB")
@@ -1173,6 +1173,7 @@ hm_dat2$chrA <- gsub("chr", "", hm_dat2$chrA)
 hm_dat2$chrB <- gsub("chr", "", hm_dat2$chrB)
 hm_dat2 <- hm_dat2 %>% mutate(chrA=factor(chrA, levels=p_chr_ord2))
 hm_dat2 <- hm_dat2 %>% mutate(chrB=factor(chrB, levels=p_chr_ord2))
+head(hm_dat2)
 hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
        + geom_tile(aes(fill = mzscore), colour = "white")
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per chromosomal pair", na.value = "grey")
