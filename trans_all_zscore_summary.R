@@ -1186,13 +1186,13 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
        #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
        #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
        #       + theme(axis.text.x = element_text(angle = 90))
-       + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
-               stns_all_zscore_summary.Rrip.background = element_rect(fill = "white"),
-               panel.spacing = unit(0, "lines"),
-               axis.text.y = element_blank(),
-               panel.background = element_rect(fill = "grey85", colour = NA),
-               axis.ticks.y = element_blank())
-       + theme(axis.text=element_text(size=5))
+#       + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#               stns_all_zscore_summary.Rrip.background = element_rect(fill = "white"),
+#               panel.spacing = unit(0, "lines"),
+#               axis.text.y = element_blank(),
+#               panel.background = element_rect(fill = "grey85", colour = NA),
+#               axis.ticks.y = element_blank())
+#       + theme(axis.text=element_text(size=5))
 )
 pdf("zscore_chrom_pair_mean_heatmap_sig_Interactions.pdf", width = 14, height = 8)
 hm

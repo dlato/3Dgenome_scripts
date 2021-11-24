@@ -759,21 +759,21 @@ p <- (ggplot(chrClass_dat, aes(x = chrClass, y = zscore))
 pdf("chrClass_violin_common_interactions_all_cells.pdf", width = 14, height = 8)
 p
 dev.off()
-print("#test between means of chrom classes")
-print("#Test each group for normality")
-print("sig = reject normality null")
-chrClass_dat$chrClass <- as.factor(chrClass_dat$chrClass)
-chrClass_dat %>%
-  group_by(chrClass) %>%
-  summarise(W = shapiro.test(zscore)$statistic,
-            p.value = shapiro.test(zscore)$p.value)
-print("#Perform the Kruskal-Wallis test")
-print("sig = mean is diff btwn groups")
-kruskal.test(zscore ~ chrClass, data=chrClass_dat)
-print("# check which groups have sig diff")
-print("# perform pairwise wilcoxon test with FDR (Benjamini-Hochberg) correction")
-pairwise.wilcox.test(chrClass_dat$zscore, chrClass_dat$chrClass,
-                 p.adjust.method = "BH")
+#print("#test between means of chrom classes")
+#print("#Test each group for normality")
+#print("sig = reject normality null")
+#chrClass_dat$chrClass <- as.factor(chrClass_dat$chrClass)
+#chrClass_dat %>%
+#  group_by(chrClass) %>%
+#  summarise(W = shapiro.test(zscore)$statistic,
+#            p.value = shapiro.test(zscore)$p.value)
+#print("#Perform the Kruskal-Wallis test")
+#print("sig = mean is diff btwn groups")
+#kruskal.test(zscore ~ chrClass, data=chrClass_dat)
+#print("# check which groups have sig diff")
+#print("# perform pairwise wilcoxon test with FDR (Benjamini-Hochberg) correction")
+#pairwise.wilcox.test(chrClass_dat$zscore, chrClass_dat$chrClass,
+#                 p.adjust.method = "BH")
 
 #with cell info
 #p <- (ggplot(chrClass_dat, aes(y = cell, x = zscore))
