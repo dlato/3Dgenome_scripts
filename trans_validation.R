@@ -221,7 +221,7 @@ dev.off()
 #sig interactions
 print("cells/datasets that have interactions btwn validated chromosomes")
 chrs_df2 <- chrs_df_allInters
-chrs_df2$zscore[as.numeric(chrs_df2$pvalue)>=0.05]  <- NA 
+chrs_df2$zscore[as.numeric(chrs_df2$pvalue)<=0.05]  <- NA 
 chrs_df <- chrs_df2 %>% select(-pvalue) %>% spread(key = cell, value = zscore)
 summary(chrs_df)
 allmisscols <- sapply(chrs_df, function(x) all(is.na(x) | x == '' ))
@@ -470,7 +470,7 @@ wilcox.test(zscore ~ validType, data=plot_d, na.rm=TRUE, paired=FALSE, exact=FAL
 ######
 print("#df with ALL sig interaction btwn validated chroms")
 chrs_df <- dat2[grep(chrs[1], dat2$ID), ]
-chrs_df$zscore[as.numeric(chrs_df$pvalue)>=0.05]  <- NA 
+chrs_df$zscore[as.numeric(chrs_df$pvalue)<=0.05]  <- NA 
 chrs_df <- chrs_df[grep(chrs[2],chrs_df$ID),]
 chrs_df <- chrs_df %>% select(-pvalue) %>% spread(key = cell, value = zscore)
 summary(chrs_df)
@@ -494,12 +494,12 @@ print("# only plot our 6 test cell types")
 sixcells_all <- filter(dat2, cell == "Dorsolateral_prefrontal_cortex" | cell == "Small_bowel_Schmitt" |
                          cell == "Aorta" | cell == "Right_ventricle_Schmitt" | cell == "Cardiomyocites_primitive_rep1" |
                          cell == "H1hESC_Oksuz")
-sixcells_all$zscore[as.numeric(sixcells_all$pvalue)>=0.05]  <- NA 
+sixcells_all$zscore[as.numeric(sixcells_all$pvalue)<=0.05]  <- NA 
 head(sixcells_all)
 sixcells_Vinter <- filter(Vinter, cell == "Dorsolateral_prefrontal_cortex" | cell == "Small_bowel_Schmitt" |
                             cell == "Aorta" | cell == "Right_ventricle_Schmitt" | cell == "Cardiomyocites_primitive_rep1" |
                             cell == "H1hESC_Oksuz")
-sixcells_Vinter$zscore[as.numeric(sixcells_Vinter$pvalue)>=0.05]  <- NA 
+sixcells_Vinter$zscore[as.numeric(sixcells_Vinter$pvalue)<=0.05]  <- NA 
 
 head(sixcells_Vinter)
 sixcells_chr <- select(chrs_df,c("ID",
@@ -785,7 +785,7 @@ dev.off()
 print("##########")
 print("# linear highly interacting regions between valid chrom pair")
 #only sig inters btwn that valid chroms
-hir_df <- hm_df %>% filter(pvalue >= 0.05) #filter for sig interactions
+hir_df <- hm_df %>% filter(pvalue <= 0.05) #filter for sig interactions
 length(hir_df$zscore)
 aorta_df <- hir_df %>% filter(cell == "Aorta")
 #p <- (ggplot(aorta_df, aes(x=st1, y=zscore)) 
