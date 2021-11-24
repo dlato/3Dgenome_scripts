@@ -198,6 +198,7 @@ dat2 <- dat2 %>% mutate(
   )
 )
 head(dat2)
+
 #################
 print("# PCA of zscore")
 #################
@@ -330,6 +331,98 @@ chrInf$chrom <- factor(chrInf$chrom, levels=p_chr_ord)
 rev_chrs_len_ord <- rev(p_chr_ord)
 chrs_len_ord <- p_chr_ord
 chrInf
+
+#######################
+print ("# chrom with highest proportional number of sig inters")
+sig_DF <- dat2 %>% filter(pvalue <= 0.05)
+# mark each interaction twice
+chrA_df <- sig_DF %>% select(chrA, st1, end1, cell, zscore)
+colnames(chrA_df) <- c("chrom","start","end","cell","zscore")
+chrB_df <- sig_DF %>% select(chrB, st2, end2, cell, zscore)
+colnames(chrB_df) <- c("chrom","start","end","cell","zscore")
+sigprop <- rbind(chrA_df, chrB_df)
+#df with total number of sig interactions per chrom (observed)
+totInter <- sigprop %>%
+  select(chrom, cell) %>%
+  group_by(chrom, cell) %>%
+  dplyr::summarise(n = n())
+#totInter$chrom <- factor(totInter$chrom, levels=rev_chrs_len_ord)
+totInter
+#df with total possible number of inters per chrom
+#mark each interaction twice
+chrA_df <- allinters %>% select(chrA, startA, endA)
+colnames(chrA_df) <- c("chrom","start","end")
+chrB_df <- allinters %>% select(chrB, startB, endB)
+colnames(chrB_df) <- c("chrom","start","end")
+allprop <- rbind(chrA_df, chrB_df)
+expInter <- allprop %>%
+  select(chrom, start) %>%
+  group_by(chrom) %>%
+  dplyr::summarise(n = n())
+#totInter$chrom <- factor(totInter$chrom, levels=rev_chrs_len_ord)
+expInter
+#combin above dfs
+totInter$allInters <- expInter$n[match(totInter$chrom, expInter$chrom)]
+totInter$prop <- totInter$n / totInter$allInters
+totInter$chrom <- gsub("chr","", totInter$chrom)
+totInter$chrom <- factor(totInter$chrom, levels=p_chr_ord)
+totInter <- totInter %>% filter(prop != "NA")
+p <- (ggplot(totInter, aes(y =prop,x=chrom))
+      + geom_boxplot()
+      + geom_jitter(width = 0.3, alpha = 0.4)
+      #      + scale_fill_manual(values =c("#FAC9A1", "#013040"), labels= c("Total Possible Interactions", "Common Interactions"))
+      + labs(y="Proportion of Significant Interactions [%]",
+             x="Chromosome",
+             title = "Significant Trans-chromosomal Interactions per Chromosome Across Cell Types",
+             fill = "")
+)
+pdf("proportion_per_chrom_sig_interactions_all_cells_boxplot.pdf", width = 14, height = 8)
+p
+dev.off()
+print("# chrom with highest proportion of sig inters")
+totInter[which(totInter$prop == max(totInter$prop)),]
+#######################
+print ("# chrom pair with highest proportional number of sig inters")
+sigprop <- dat2 %>% filter(pvalue <= 0.05)
+sigprop$chrpair <- paste0(sigprop$chrA,sigprop$chrB)
+head(sigprop)
+#df with total number of sig interactions per chrom (observed)
+totInter <- sigprop %>%
+  select(chrpair, cell) %>%
+  group_by(chrpair, cell) %>%
+  dplyr::summarise(n = n())
+#totInter$chrom <- factor(totInter$chrom, levels=rev_chrs_len_ord)
+totInter
+#df with total possible number of inters per chrom
+allprop <- allinters
+allprop$chrpair <- paste0(allinters$chrA,allinters$chrB)
+expInter <- allprop %>%
+  select(chrpair, start) %>%
+  group_by(chrpair) %>%
+  dplyr::summarise(n = n())
+#totInter$chrom <- factor(totInter$chrom, levels=rev_chrs_len_ord)
+expInter
+#combin above dfs
+totInter$allInters <- expInter$n[match(totInter$chrpair, expInter$chrpair)]
+totInter$prop <- totInter$n / totInter$allInters
+totInter <- totInter %>% filter(prop != "NA")
+set.seed(369)
+p <- (ggplot(totInter, aes(y =prop,x=chrpair))
+      + geom_boxplot()
+      + geom_jitter(width = 0.3, alpha = 0.4)
+      #      + scale_fill_manual(values =c("#FAC9A1", "#013040"), labels= c("Total Possible Interactions", "Common Interactions"))
+      + labs(y="Proportion of Significant Interactions [%]",
+             x="Chromosome",
+             title = "Significant Trans-chromosomal Interactions per Chromosome Pair Across Cell Types",
+             fill = "")
+      + theme(axis.text.x = element_text(angle = 90))
+)
+pdf("proportion_per_chromPair_sig_interactions_all_cells_boxplot.pdf", width = 14, height = 8)
+p
+dev.off()
+print("# chrom pair with highest proportion of sig inters")
+totInter[which(totInter$prop == max(totInter$prop)),]
+
 print("#circos plot of common interactions")
 ucells <- unique(dat2$cell)
 for(i in ucells) {
