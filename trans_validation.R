@@ -1127,7 +1127,7 @@ colnames(tp_B) <- c("chr","st","end","cell","zscore","pvalue")
 tp_dat <- rbind(tp_A,tp_B) %>% filter(pvalue <=0.05)
 tp_dat_sum = tp_dat %>% group_by(chr,st,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
 tp_dat_sum$chr <- gsub("chr", "", tp_dat_sum$chr)
-tp_dat_sum <- tp_dat_sum %>% mutate(chr=factor(chr, levels=p_chr_ord2))
+#tp_dat_sum <- tp_dat_sum %>% mutate(chr=factor(chr, levels=p_chr_ord))
 #scale pts by 1Mb
 #tp_dat_sum$st <- tp_dat_sum$st / 1000000
 summary(tp_dat_sum)
@@ -1176,7 +1176,7 @@ tp_dat <- rbind(tp_A,tp_B) %>% filter(pvalue <=0.05)
 tp_dat_sum = tp_dat %>% group_by(chr,st,cell) %>% dplyr::summarize(numSig=n())
 tp_dat_sum$chr <- gsub("chr", "", tp_dat_sum$chr)
 tp_dat_sum
-tp_dat_sum <- tp_dat_sum %>% mutate(chr=factor(chr, levels=p_chr_ord2))
+#tp_dat_sum <- tp_dat_sum %>% mutate(chr=factor(chr, levels=p_chr_ord))
 #scale pts by 1Mb
 #tp_dat_sum$st <- tp_dat_sum$st / 1000000
 summary(tp_dat_sum)
