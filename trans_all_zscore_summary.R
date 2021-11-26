@@ -365,8 +365,10 @@ expInter
 totInter$allInters <- expInter$n[match(totInter$chrom, expInter$chrom)]
 totInter$prop <- totInter$n / totInter$allInters
 totInter$chrom <- gsub("chr","", totInter$chrom)
-totInter$chrom <- factor(totInter$chrom, levels=p_chr_ord)
+pchrord <- gsub("chr","", p_chr_ord)
+totInter$chrom <- factor(totInter$chrom, levels=pchrord)
 totInter <- totInter %>% filter(prop != "NA")
+set.seed(369)
 p <- (ggplot(totInter, aes(y =prop,x=chrom))
       + geom_boxplot()
       + geom_jitter(width = 0.3, alpha = 0.4)
@@ -381,6 +383,47 @@ p
 dev.off()
 print("# chrom with highest proportion of sig inters")
 totInter[which(totInter$prop == max(totInter$prop)),]
+
+
+print("###############")
+print("# chrom with proportion of sig and all inters captured")
+print("###############")
+allobs_DF <- dat2
+# mark each interaction twice
+chrA_df <- allobs_DF %>% select(chrA, st1, end1, cell, zscore)
+colnames(chrA_df) <- c("chrom","start","end","cell","zscore")
+chrB_df <- allobs_DF %>% select(chrB, st2, end2, cell, zscore)
+colnames(chrB_df) <- c("chrom","start","end","cell","zscore")
+allobsprop <- rbind(chrA_df, chrB_df)
+#df with total number of sig interactions per chrom (observed)
+allobstotInter <- allobsprop %>%
+  select(chrom, cell) %>%
+  group_by(chrom, cell) %>%
+  dplyr::summarise(n = n())
+#totInter$chrom <- factor(totInter$chrom, levels=rev_chrs_len_ord)
+allobstotInter
+colnames(allobstotInter) <- c("chrom","cell","allobs")
+allobstotInter$chrom <- gsub("chr","", allobstotInter$chrom)
+mergedpos <- merge(totInter,allobstotInter, by = c("chrom", "cell"))
+mergedpos$allprop <- mergedpos$allobs / mergedpos$allInters
+mergedpos$chrom <- factor(mergedpos$chrom, levels=pchrord)
+mergedpos <- mergedpos %>% filter(allprop != "NA")
+mergedpos <- mergedpos %>% select(chrom, cell, prop, allprop) %>% gather(key="inter", value="perc", 3:4)
+head(mergedpos)
+set.seed(369)
+p <- (ggplot(mergedpos, aes(y =perc,x=chrom, colour = inter))
+      + geom_boxplot()
+      + geom_jitter(width = 0.3, alpha = 0.4)
+      + scale_colour_manual(values =c("#FAC9A1", "#013040"), labels= c("Total Possible", "Significant"))
+      + labs(y="Proportion of Interactions [%]",
+             x="Chromosome",
+             title = "Trans-chromosomal Interactions per Chromosome Across Cell Types",
+             colour = "Interactions")
+)
+pdf("proportion_per_chrom_sig_all_interactions_all_cells_boxplot.pdf", width = 14, height = 8)
+p
+dev.off()
+
 #######################
 print ("# chrom pair with highest proportional number of sig inters")
 sigprop <- dat2 %>% filter(pvalue <= 0.05)
@@ -422,6 +465,7 @@ p
 dev.off()
 print("# chrom pair with highest proportion of sig inters")
 totInter[which(totInter$prop == max(totInter$prop)),]
+
 
 print("#circos plot of common interactions")
 ucells <- unique(dat2$cell)
@@ -1178,6 +1222,7 @@ bp <- (ggplot(chrpaircount, aes(y=obsCount, x=cell, fill = sig))
 pdf("number_of_inters_obs_exp_sig_allInters_bargraph.pdf", width = 14, height = 8)
 bp
 dev.off()
+
 print("#################")
 print("# average z-score per chrom pair heatmap")
 print("#################")
