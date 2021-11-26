@@ -397,7 +397,7 @@ totInter
 allprop <- allinters
 allprop$chrpair <- paste0(allinters$chrA,allinters$chrB)
 expInter <- allprop %>%
-  select(chrpair, start) %>%
+  select(chrpair, chrA) %>%
   group_by(chrpair) %>%
   dplyr::summarise(n = n())
 #totInter$chrom <- factor(totInter$chrom, levels=rev_chrs_len_ord)
