@@ -165,4 +165,106 @@ row.names(tot_cells_per_inter) <- NULL
 colnames(tot_cells_per_inter) <- c("totCells","ID")
 head(tot_cells_per_inter)
 
+print("# histogram of how many cells most interactions have in common")
+p <- (ggplot(data=tot_cells_per_inter, aes(totCells)) 
+  + geom_histogram()
+  + labs(y="Number of Interactions",
+         x="Number of Cells With Common Interaction",
+         title = "Trans-chromosomal Common Interactions",
+         fill = "")
+  + scale_x_continuous(expand = c(0, 0))
+  + scale_y_continuous(expand = c(0, 0))
+)
+pdf("interactions_num_common_cells_histogram.pdf", width = 14, height = 8)
+p
+dev.off()
 
+print("# common interactions along chrom length")
+tmpD <- dat2
+#new col for the chr start and end
+tmpD$chrAID <- paste0(tmpD$chrA,".",tmpD$st1,".",tmpD$end1)
+tmpD$chrBID <- paste0(tmpD$chrB,".",tmpD$st2,".",tmpD$end2)
+tmpD <- tmpD %>% select(8:ncol(tmpD)) %>% select(chrAID, chrBID, everything())
+tmpA <- tmpD %>% select(-chrBID)
+colnames(tmpA)[1] <- "ID" 
+tmpB <- tmpD %>% select(-chrAID)
+colnames(tmpB)[1] <- "ID" 
+tmpD <- rbind(tmpA,tmpB)
+head(tmpD)
+#calculate number of cells with interaction for each row
+tot_cells_per_inter <- tmpD
+tot_cells_per_inter <- as.data.frame(t(as.data.frame(t(apply(tot_cells_per_inter, MARGIN = 1, FUN = function(x) length(x[!is.na(x)]) )))))
+tot_cells_per_inter <- bind_cols(tmpD$ID,tot_cells_per_inter$V1)
+colnames(tot_cells_per_inter) <- c("ID","totCells")
+head(tot_cells_per_inter)
+
+######### EDIT HERE #################
+
+
+print("# histogram of how many cells most interactions have in common")
+p <- (ggplot(data=tot_cells_per_inter, aes(totCells)) 
+      + geom_histogram()
+      + labs(y="Number of Interactions",
+             x="Number of Cells With Common Interaction",
+             title = "Trans-chromosomal Common Interactions",
+             fill = "")
+      + scale_x_continuous(expand = c(0, 0))
+      + scale_y_continuous(expand = c(0, 0))
+)
+pdf("interactions_num_common_cells_histogram.pdf", width = 14, height = 8)
+p
+dev.off()
+
+#split ID col
+tmpD <- tmpD %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
+#remove A and B from chrom names
+tmpD$chrA <- gsub("A", "", tmpD$chrA)
+tmpD$chrB <- gsub("B", "", tmpD$chrB)
+#count  each inter twice
+tp_A <- tmpD %>% select(chrA,st1,end1,totCells) 
+colnames(tp_A) <- c("chr","st","end","totCells")
+tp_B <- tmpD %>% select(chrB,st2,end2,totCells) 
+colnames(tp_B) <- c("chr","st","end","totCells")
+tp_dat <- rbind(tp_A,tp_B)
+
+
+
+
+#select only sig inters
+tp_dat <- rbind(tp_A,tp_B) %>% filter(pvalue <=0.05)
+tp_dat_sum = tp_dat %>% group_by(chr,st,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+tp_dat_sum$chr <- gsub("chr", "", tp_dat_sum$chr)
+tp_dat_sum <- tp_dat_sum %>% mutate(chr=factor(chr, levels=p_chr_ord2))
+#scale pts by 1Mb
+tp_dat_sum$st <- tp_dat_sum$st / 1000000
+summary(tp_dat_sum)
+head(tp_dat_sum)
+for(i in unique(tp_dat_sum$chr)) {
+  #i="X"
+  xmax <- chrInf$size[match(paste0("chr",i),chrInf$chrom)] / 1000000
+  tpp <- tp_dat_sum %>% filter(chr == i)
+  tp <- (ggplot(tpp, aes(st, y=1, fill = mzscore))
+         + geom_tile(aes(fill = mzscore), colour = "white")
+         + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per bin", na.value = "grey")
+         #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+         #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+         + labs(x = paste0("Chromosome ", i, " position [Mb]"),
+                y = "",
+                title = "Trans-chromosomal interactions (significant) z-scores")
+         + facet_grid(cell ~ .)
+         #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+         #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+         #       + theme(axis.text.x = element_text(angle = 90))
+         + expand_limits(x = c(0,xmax))
+         + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+                 strip.background = element_rect(fill = "white"),
+                 panel.spacing = unit(0, "lines"),
+                 axis.text.y = element_blank(),
+                 axis.ticks.y = element_blank())
+         + theme(axis.text=element_text(size=18),panel.background = element_rect(fill = "grey85", colour = NA))
+  )
+  filename <- paste0("zscore_chrom",i,"_mean_tickplot_sig_Interactions.pdf")
+  pdf(filename, width = 14, height = 8)
+  print(tp)
+  dev.off()
+}#for
