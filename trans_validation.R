@@ -1134,6 +1134,8 @@ summary(tp_dat_sum)
 head(tp_dat_sum)
 for(i in unique(tp_dat_sum$chr)) {
   #i="22"
+  print("######")
+  print(i)
   xmax <- chrInf$size[match(paste0("chr",i),chrInf$chrom)] / 1000000
   tpp <- tp_dat_sum %>% filter(chr == i)
   tp <- (ggplot(tpp, aes(st, y=1, fill = mzscore))
