@@ -197,7 +197,46 @@ tot_cells_per_inter <- as.data.frame(t(as.data.frame(t(apply(tot_cells_per_inter
 tot_cells_per_inter <- bind_cols(tmpD$ID,tot_cells_per_inter$V1)
 colnames(tot_cells_per_inter) <- c("ID","totCells")
 head(tot_cells_per_inter)
-
+#split ID col
+colN <- c("chr","start","end")
+tmpD <- tot_cells_per_inter %>% separate(ID, sep = "\\.", into = colN, remove = FALSE)
+tmpD$start <- as.numeric(tmpD$start) / 1000000
+head(tmpD)
+summary(tmpD)
+C=10
+uchroms <- unique(tmpD$chr)
+for(i in uchroms) {
+  print(i)
+  chr_df <- tmpD %>% filter(chr == i)
+  C = gsub("chr","",i)
+p <- (ggplot(data=chr_df, aes(x = start, y = totCells)) 
+      #+ geom_boxplot()
+      + geom_smooth(method = "loess", formula = y~x, colour="black")
+      + labs(x=paste("Chromosome",C,"position [Mbp]"),
+             y="Number of Cells With Common Interaction",
+             title = "Trans-chromosomal Common Interactions",
+             fill = "")
+      + scale_x_continuous(expand = c(0, 0))
+      + scale_y_continuous(expand = c(0, 0))
+)
+filename <- paste0("interactions_num_common_cells_chr",C,"_line.pdf")
+pdf(filename, width = 14, height = 8)
+print(p)
+dev.off()
+p <- (ggplot(data=chr_df, aes(x = start, y = totCells, group = start)) 
+      + geom_boxplot()
+      + labs(x=paste("Chromosome",C,"position [Mbp]"),
+             y="Number of Cells With Common Interaction",
+             title = "Trans-chromosomal Common Interactions",
+             fill = "")
+      + scale_x_continuous(expand = c(0, 0))
+      + scale_y_continuous(expand = c(0, 0))
+)
+filename <- paste0("interactions_num_common_cells_chr",C,"_boxplot.pdf")
+pdf(filename, width = 14, height = 8)
+print(p)
+dev.off()
+}#for
 ######### EDIT HERE #################
 
 
