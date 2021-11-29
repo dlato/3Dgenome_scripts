@@ -76,14 +76,14 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 ##interaction data
-Atype <- "1_vs_All"
-tissue_file <- "tissue_system_info.txt"
-dat_file <- "test_pairwise_dat.txt"
-allinters_file <- "all_trans_interactions_1Mb.txt"
-germlayer_file <- "germlayer_info.txt"
-bin_size <- 1000000
-library(factoextra)#for PCA
-library(harrypotter) #for colours
+#Atype <- "1_vs_All"
+#tissue_file <- "tissue_system_info.txt"
+#dat_file <- "test_pairwise_dat.txt"
+#allinters_file <- "all_trans_interactions_1Mb.txt"
+#germlayer_file <- "germlayer_info.txt"
+#bin_size <- 1000000
+#library(factoextra)#for PCA
+#library(harrypotter) #for colours
 
 allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
@@ -236,74 +236,4 @@ filename <- paste0("interactions_num_common_cells_chr",C,"_boxplot.pdf")
 pdf(filename, width = 14, height = 8)
 print(p)
 dev.off()
-}#for
-######### EDIT HERE #################
-
-
-print("# histogram of how many cells most interactions have in common")
-p <- (ggplot(data=tot_cells_per_inter, aes(totCells)) 
-      + geom_histogram()
-      + labs(y="Number of Interactions",
-             x="Number of Cells With Common Interaction",
-             title = "Trans-chromosomal Common Interactions",
-             fill = "")
-      + scale_x_continuous(expand = c(0, 0))
-      + scale_y_continuous(expand = c(0, 0))
-)
-pdf("interactions_num_common_cells_histogram.pdf", width = 14, height = 8)
-p
-dev.off()
-
-#split ID col
-tmpD <- tmpD %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
-#remove A and B from chrom names
-tmpD$chrA <- gsub("A", "", tmpD$chrA)
-tmpD$chrB <- gsub("B", "", tmpD$chrB)
-#count  each inter twice
-tp_A <- tmpD %>% select(chrA,st1,end1,totCells) 
-colnames(tp_A) <- c("chr","st","end","totCells")
-tp_B <- tmpD %>% select(chrB,st2,end2,totCells) 
-colnames(tp_B) <- c("chr","st","end","totCells")
-tp_dat <- rbind(tp_A,tp_B)
-
-
-
-
-#select only sig inters
-tp_dat <- rbind(tp_A,tp_B) %>% filter(pvalue <=0.05)
-tp_dat_sum = tp_dat %>% group_by(chr,st,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
-tp_dat_sum$chr <- gsub("chr", "", tp_dat_sum$chr)
-tp_dat_sum <- tp_dat_sum %>% mutate(chr=factor(chr, levels=p_chr_ord2))
-#scale pts by 1Mb
-tp_dat_sum$st <- tp_dat_sum$st / 1000000
-summary(tp_dat_sum)
-head(tp_dat_sum)
-for(i in unique(tp_dat_sum$chr)) {
-  #i="X"
-  xmax <- chrInf$size[match(paste0("chr",i),chrInf$chrom)] / 1000000
-  tpp <- tp_dat_sum %>% filter(chr == i)
-  tp <- (ggplot(tpp, aes(st, y=1, fill = mzscore))
-         + geom_tile(aes(fill = mzscore), colour = "white")
-         + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per bin", na.value = "grey")
-         #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
-         #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
-         + labs(x = paste0("Chromosome ", i, " position [Mb]"),
-                y = "",
-                title = "Trans-chromosomal interactions (significant) z-scores")
-         + facet_grid(cell ~ .)
-         #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
-         #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
-         #       + theme(axis.text.x = element_text(angle = 90))
-         + expand_limits(x = c(0,xmax))
-         + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
-                 strip.background = element_rect(fill = "white"),
-                 panel.spacing = unit(0, "lines"),
-                 axis.text.y = element_blank(),
-                 axis.ticks.y = element_blank())
-         + theme(axis.text=element_text(size=18),panel.background = element_rect(fill = "grey85", colour = NA))
-  )
-  filename <- paste0("zscore_chrom",i,"_mean_tickplot_sig_Interactions.pdf")
-  pdf(filename, width = 14, height = 8)
-  print(tp)
-  dev.off()
 }#for
