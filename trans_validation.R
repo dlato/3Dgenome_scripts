@@ -1133,7 +1133,7 @@ tp_dat_sum$chr <- gsub("chr", "", tp_dat_sum$chr)
 summary(tp_dat_sum)
 head(tp_dat_sum)
 for(i in unique(tp_dat_sum$chr)) {
-  i="22"
+  #i="22"
   print("######")
   print(i)
   xmax <- chrInf$size[match(paste0("chr",i),chrInf$chrom)] / 1000000
@@ -1279,11 +1279,12 @@ ucells <- unique(sig_pts$cell)
 xchr
 ychr
 for(i in ucells) {
-#  i="Aorta"
+  i="Aorta"
   print(i)
   c_dat <- sig_pts %>% filter(cell == i)
   p <- (ggplot(c_dat, aes(x=st2, y=zscore)) 
         + geom_point(colour = "#55828B", alpha = 0.6)
+       + geom_vline(aes(xintercept = ystart), colour = "red")
         + geom_smooth(colour = "#013040", method = "loess", formula = y ~ x)
         + labs(title = paste0("Significant trans-chromosomal interactions in ",i," between chromosomes ",xchr, " and ", ychr),
                #         subtitle = "Plot of length by dose",
@@ -1301,8 +1302,10 @@ for(i in ucells) {
   pdf(f_name, width = 14, height = 8)
   print(p)
   dev.off()
+  summary(c_dat)
   p <- (ggplot(c_dat, aes(x=st1, y=zscore)) 
         + geom_point(colour = "#55828B", alpha = 0.6)
+       + geom_vline(aes(xintercept = xstart), colour = "red")
         + geom_smooth(colour = "#013040", method = "loess", formula = y ~ x)
         + labs(title = paste0("Significant trans-chromosomal interactions in ",i," between chromosomes ",xchr, " and ", ychr),
                #         subtitle = "Plot of length by dose",
