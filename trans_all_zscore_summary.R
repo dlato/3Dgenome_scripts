@@ -368,6 +368,7 @@ totInter$chrom <- gsub("chr","", totInter$chrom)
 pchrord <- gsub("chr","", p_chr_ord)
 totInter$chrom <- factor(totInter$chrom, levels=pchrord)
 totInter <- totInter %>% filter(prop != "NA")
+totInter$prop <- totInter$prop * 100
 set.seed(369)
 p <- (ggplot(totInter, aes(y =prop,x=chrom))
       + geom_boxplot()
@@ -410,11 +411,12 @@ mergedpos$chrom <- factor(mergedpos$chrom, levels=pchrord)
 mergedpos <- mergedpos %>% filter(allprop != "NA")
 mergedpos <- mergedpos %>% select(chrom, cell, prop, allprop) %>% gather(key="inter", value="perc", 3:4)
 head(mergedpos)
+mergedpos$perc <- mergedpos$perc * 100
 set.seed(369)
 p <- (ggplot(mergedpos, aes(y =perc,x=chrom, colour = inter))
       + geom_boxplot()
       + geom_jitter(width = 0.3, alpha = 0.4)
-      + scale_colour_manual(values =c("#FAC9A1", "#013040"), labels= c("Total Possible", "Significant"))
+      + scale_colour_manual(values =c("#FAC9A1", "#013040"), labels= c("All", "Significant"))
       + labs(y="Proportion of Interactions [%]",
              x="Chromosome",
              title = "Trans-chromosomal Interactions per Chromosome Across Cell Types",
@@ -449,6 +451,7 @@ expInter
 totInter$allInters <- expInter$n[match(totInter$chrpair, expInter$chrpair)]
 totInter$prop <- totInter$n / totInter$allInters
 totInter <- totInter %>% filter(prop != "NA")
+totInter$prop <- totInter$prop * 100
 set.seed(369)
 p <- (ggplot(totInter, aes(y =prop,x=chrpair))
       + geom_boxplot()
