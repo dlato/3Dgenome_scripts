@@ -65,15 +65,15 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-#Atype <- "1_vs_All"
-#zdat_file <- "test_1vsAll_dat.txt"
-#pdat_file <- "test_1vsAll_pvalues.txt"
-#roi1_file <- "FIRRE.bed"
-#roi2_file <- "ATF4.bed"
-#xstart <- 131688779 /1000000
-#ystart <- 39519695 /1000000
-#library(harrypotter)
-#library(factoextra)
+Atype <- "1_vs_All"
+zdat_file <- "test_1vsAll_dat.txt"
+pdat_file <- "test_1vsAll_pvalues.txt"
+roi1_file <- "FIRRE.bed"
+roi2_file <- "ATF4.bed"
+xstart <- 131688779 /1000000
+ystart <- 39519695 /1000000
+library(harrypotter)
+library(factoextra)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
 ##dat <- read.table(dat_file, header = TRUE)
@@ -706,7 +706,7 @@ ymax <- chrInf$size[match(CB,chrInf$chrom)] / 1000000
 hm_df$st1 <- hm_df$st1/1000000
 hm_df$st2 <- hm_df$st2/1000000
 hm <- (ggplot(hm_df, aes(x=st1, y=st2, fill= zscore)) 
-           + geom_tile()
+           + geom_tile(width = 1, height = 1)
       + labs(title = "Distribution of z-scores along valid interacting chromosome (all interactions)",
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
@@ -735,7 +735,7 @@ dev.off()
 hm_dfsig <- hm_df %>% filter(pvalue <= 0.05)
 #hm <- (ggplot(testdf, aes(x=st1, y=st2, fill= zscore)) 
 hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= zscore)) 
-       + geom_tile()
+       + geom_tile(width = 1, height = 1)
        + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
               #         subtitle = "Plot of length by dose",
               #         caption = "Data source: ToothGrowth",
@@ -759,7 +759,7 @@ hm
 dev.off()
 #having the opposite chrom on the x axis
 hm <- (ggplot(hm_dfsig, aes(x=st2, y=st1, fill= zscore)) 
-       + geom_tile()
+       + geom_tile(width = 1, height = 1)
        + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
               #         subtitle = "Plot of length by dose",
               #         caption = "Data source: ToothGrowth",
@@ -804,7 +804,7 @@ p <- (ggplot(hir_df, aes(x=st1, y=zscore))
        + geom_point(alpha = 0.4)
        + geom_vline(aes(xintercept = xstart), colour = "red")
       + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
-       + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
+       + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
               #         subtitle = "Plot of length by dose",
               #         caption = "Data source: ToothGrowth",
               x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
@@ -855,7 +855,7 @@ p <- (ggplot(hir_df, aes(x=st2, y=zscore))
       + geom_point(alpha = 0.4)
       + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
       + geom_vline(aes(xintercept = ystart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
+      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
              x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
@@ -907,7 +907,7 @@ p <- (ggplot(hir_df, aes(x=st1, y=zscore))
 #      + geom_point(alpha = 0.4)
       + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
 + geom_vline(aes(xintercept = xstart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
+      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
              x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
@@ -958,7 +958,7 @@ p <- (ggplot(hir_df, aes(x=st2, y=zscore))
 #      + geom_point(alpha = 0.4)
       + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
 + geom_vline(aes(xintercept = ystart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
+      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
              x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
@@ -1012,7 +1012,7 @@ p <- (ggplot(hir_df, aes(x=st1, y=zscore, group=st2))
       #      + geom_point(alpha = 0.4)
       + geom_boxplot()
       + geom_vline(aes(xintercept = xstart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
+      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
              x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
@@ -1064,7 +1064,7 @@ p <- (ggplot(hir_df, aes(x=st2, y=zscore, group=st2))
       #      + geom_point(alpha = 0.4)
       + geom_boxplot()
       + geom_vline(aes(xintercept = ystart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
+      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
              x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
@@ -1133,13 +1133,13 @@ tp_dat_sum$chr <- gsub("chr", "", tp_dat_sum$chr)
 summary(tp_dat_sum)
 head(tp_dat_sum)
 for(i in unique(tp_dat_sum$chr)) {
-  #i="22"
+  i="22"
   print("######")
   print(i)
   xmax <- chrInf$size[match(paste0("chr",i),chrInf$chrom)] / 1000000
   tpp <- tp_dat_sum %>% filter(chr == i)
   tp <- (ggplot(tpp, aes(st, y=1, fill = mzscore))
-         + geom_tile(aes(fill = mzscore), colour = "white")
+         + geom_tile(aes(fill = mzscore), width = 1, height = 1)
          + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per bin", na.value = "grey")
          #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
          #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
@@ -1188,7 +1188,7 @@ for(i in unique(tp_dat_sum$chr)) {
   xmax <- chrInf$size[match(paste0("chr",i),chrInf$chrom)] / 1000000
   tpp <- tp_dat_sum %>% filter(chr == i)
   tp <- (ggplot(tpp, aes(st, y=1, fill = numSig))
-         + geom_tile(aes(fill = numSig), colour = "white")
+         + geom_tile(aes(fill = numSig), width = 1, height = 1)
          + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Total number of significant interactions", na.value = "grey")
          #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
          #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
@@ -1328,7 +1328,7 @@ for(i in ucells) {
 hm_dfsig <- hm_df %>% filter(pvalue <= 0.05)
 #hm <- (ggplot(testdf, aes(x=st1, y=st2, fill= zscore)) 
 hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= zscore)) 
-       + geom_tile()
+       + geom_tile(width = 1, height = 1)
        + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
               #         subtitle = "Plot of length by dose",
               #         caption = "Data source: ToothGrowth",
@@ -1354,7 +1354,7 @@ hm
 dev.off()
 #having the opposite chrom on the x axis
 hm <- (ggplot(hm_dfsig, aes(x=st2, y=st1, fill= zscore)) 
-       + geom_tile()
+       + geom_tile(width = 1, height = 1)
        + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
               #         subtitle = "Plot of length by dose",
               #         caption = "Data source: ToothGrowth",
@@ -1385,7 +1385,7 @@ dev.off()
 ##############
 #hm <- (ggplot(testdf, aes(x=st1, y=st2, fill= zscore)) 
 hm <- (ggplot(hm_df, aes(x=st1, y=st2, fill= pvalue)) 
-       + geom_tile()
+       + geom_tile(width = 1, height = 1)
        + labs(title = "Distribution of p-value along valid interacting chromosome (all interactions)",
               #         subtitle = "Plot of length by dose",
               #         caption = "Data source: ToothGrowth",
@@ -1413,7 +1413,7 @@ dev.off()
 ##############
 #hm <- (ggplot(testdf, aes(x=st1, y=st2, fill= zscore)) 
 hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= pvalue)) 
-       + geom_tile()
+       + geom_tile(width = 1, height = 1)
        + labs(title = "Distribution of p-value along valid interacting chromosome (significant interactions)",
               #         subtitle = "Plot of length by dose",
               #         caption = "Data source: ToothGrowth",

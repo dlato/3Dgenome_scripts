@@ -623,7 +623,7 @@ hm <- (ggplot(hm_dat, aes(x=AllSt,ordered(AllChr, levels=rev(chrs_ord)), fill = 
        #hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
        #       + geom_tile(aes(fill = mzscore), colour = "white")
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score", na.value = "grey")
-       + geom_tile(aes(fill = mzscore), colour = "white")
+       + geom_tile(aes(fill = mzscore), width = 1, height = 1)
 #       + scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
        + labs(x = "Genomic Postion [Mbp]",
               y = "Chromosome",
@@ -991,7 +991,7 @@ hm_dat = r_dat2 %>% group_by(AllChr,cell) %>% dplyr::summarize(mzscore=mean(zsco
 hm <- (ggplot(r_dat2, aes(AllChr, cell))
 #hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
 #       + geom_tile(aes(fill = mzscore), colour = "white")
-       + geom_tile(aes(fill = zscore), colour = "white")
+       + geom_tile(aes(fill = zscore), width = 1, height = 1)
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score", na.value = "grey")
 #       + scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
        + labs(x = "Chromosome",
@@ -1030,7 +1030,7 @@ hm_bothdirs <- bind_rows(hm_dat2,otherDir)
 hm_bothdirs$chrA <- factor(hm_bothdirs$chrA, levels=chrs_ord)
 hm_bothdirs$chrB <- factor(hm_bothdirs$chrB, levels=chrs_ord)
 hm <- (ggplot(hm_bothdirs, aes(chrA, ordered(chrB, levels=rev(chrs_ord)), fill = mzscore))
-       + geom_tile(aes(fill = mzscore), colour = "white")
+       + geom_tile(aes(fill = mzscore), width = 1, height = 1)
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per chromosomal pair", na.value = "grey")
        #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
        #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
