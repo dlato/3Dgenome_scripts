@@ -467,50 +467,50 @@ print("# chrom pair with highest proportion of sig inters")
 totInter[which(totInter$prop == max(totInter$prop)),]
 
 
-print("#circos plot of common interactions")
-ucells <- unique(dat2$cell)
-for(i in ucells) {
-  print(i)
-  #testC <- "Aorta"
-  circos_df <- dat2 %>% filter(cell == i) %>% filter(pvalue <= 0.05)
-  circos_df <- circos_df %>% select(chrA, st1, end1, chrB, st2,end2)
-  circos_df$chrA <- gsub("chr","",circos_df$chrA)
-  circos_df$chrB <- gsub("chr","",circos_df$chrB)
-  head(circos_df)
-  nuc1 <- circos_df %>% select(chrA, st1, end1)
-  nuc2 <- circos_df %>% select(chrB, st2, end2)
-  nuc1$st1 <- as.numeric(as.character(nuc1$st1))
-  nuc1$end1 <- as.numeric(as.character(nuc1$end1))
-  nuc2$st2 <- as.numeric(as.character(nuc2$st2))
-  nuc2$end2 <- as.numeric(as.character(nuc2$end2))
-  summary(nuc1)
-  filename <- paste0("circos_significant_trans_inters_",i,".pdf")
-  pdf(filename, width = 14, height = 8)
-  circos.clear()
-  col_text <- "grey40"
-  circos.par("track.height"=0.8,gap.degree=5,cell.padding=c(0,0,0,0))
-  circos.initialize(factors=gsub("chr","",chrInf$chrom),
-                    xlim=matrix(c(rep(0,length(chrInf$chrom)),chrInf$size),ncol=2))
-  
-  # genomes
-  circos.track(ylim=c(0,1),panel.fun=function(x,y) {
-    chr=CELL_META$sector.index
-    xlim=CELL_META$xlim
-    ylim=CELL_META$ylim
-    circos.text(mean(xlim),mean(ylim),chr,cex=0.5,col=col_text,
-                facing="bending.inside",niceFacing=TRUE)
-  },bg.col="grey90",bg.border=F,track.height=0.06)
-  # genomes x axis
-  brk <- seq(0,250, 50)*10^6
-  circos.track(track.index = get.current.track.index(), panel.fun = function(x, y) {
-    circos.axis(h="top",major.at=brk,labels=round(brk/10^6,1),labels.cex=0.4,
-                col=col_text,labels.col=col_text,lwd=0.7,labels.facing="clockwise")
-  },bg.border=F)
-  # add interactions to plot
-  rcols <- scales::alpha(ifelse(sign(nuc1$st1-nuc1$end1)!=sign(nuc2$st2-nuc2$end2),"black","black"),alpha=0.5)
-  circos.genomicLink(nuc1,nuc2, col=rcols, border=NA)
-  dev.off()
-}#for
+#print("#circos plot of sig interactions")
+#ucells <- unique(dat2$cell)
+#for(i in ucells) {
+#  print(i)
+#  #testC <- "Aorta"
+#  circos_df <- dat2 %>% filter(cell == i) %>% filter(pvalue <= 0.05)
+#  circos_df <- circos_df %>% select(chrA, st1, end1, chrB, st2,end2)
+#  circos_df$chrA <- gsub("chr","",circos_df$chrA)
+#  circos_df$chrB <- gsub("chr","",circos_df$chrB)
+#  head(circos_df)
+#  nuc1 <- circos_df %>% select(chrA, st1, end1)
+#  nuc2 <- circos_df %>% select(chrB, st2, end2)
+#  nuc1$st1 <- as.numeric(as.character(nuc1$st1))
+#  nuc1$end1 <- as.numeric(as.character(nuc1$end1))
+#  nuc2$st2 <- as.numeric(as.character(nuc2$st2))
+#  nuc2$end2 <- as.numeric(as.character(nuc2$end2))
+#  summary(nuc1)
+#  filename <- paste0("circos_significant_trans_inters_",i,".pdf")
+#  pdf(filename, width = 14, height = 8)
+#  circos.clear()
+#  col_text <- "grey40"
+#  circos.par("track.height"=0.8,gap.degree=5,cell.padding=c(0,0,0,0))
+#  circos.initialize(factors=gsub("chr","",chrInf$chrom),
+#                    xlim=matrix(c(rep(0,length(chrInf$chrom)),chrInf$size),ncol=2))
+#  
+#  # genomes
+#  circos.track(ylim=c(0,1),panel.fun=function(x,y) {
+#    chr=CELL_META$sector.index
+#    xlim=CELL_META$xlim
+#    ylim=CELL_META$ylim
+#    circos.text(mean(xlim),mean(ylim),chr,cex=0.5,col=col_text,
+#                facing="bending.inside",niceFacing=TRUE)
+#  },bg.col="grey90",bg.border=F,track.height=0.06)
+#  # genomes x axis
+#  brk <- seq(0,250, 50)*10^6
+#  circos.track(track.index = get.current.track.index(), panel.fun = function(x, y) {
+#    circos.axis(h="top",major.at=brk,labels=round(brk/10^6,1),labels.cex=0.4,
+#                col=col_text,labels.col=col_text,lwd=0.7,labels.facing="clockwise")
+#  },bg.border=F)
+#  # add interactions to plot
+#  rcols <- scales::alpha(ifelse(sign(nuc1$st1-nuc1$end1)!=sign(nuc2$st2-nuc2$end2),"black","black"),alpha=0.5)
+#  circos.genomicLink(nuc1,nuc2, col=rcols, border=NA)
+#  dev.off()
+#}#for
 r_dat$chrA <- factor(r_dat$chrA, levels=rev_chrs_len_ord)
 r_dat$chrB <- factor(r_dat$chrB, levels=rev_chrs_len_ord)
 r_dat$st1 <- as.numeric(as.character(r_dat$st1))
