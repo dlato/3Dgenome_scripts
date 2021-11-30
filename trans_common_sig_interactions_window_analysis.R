@@ -237,3 +237,5 @@ pdf(filename, width = 14, height = 8)
 print(p)
 dev.off()
 }#for
+warnings()
+print("# DONE")
