@@ -10,6 +10,7 @@
 #            all interactions file (tsv)
 #            tissue/system df (tsv)
 #            bin size (bp)
+#            window size (bp) *will calculate window size input in BOTH directions around bin. i.e. bin 5-10 would be 0-15 with a window size of 5
 ########################################
 
 options(echo=F)
@@ -19,6 +20,7 @@ germlayer_file <- args[2]
 allinters_file <- args[3]
 tissue_file <- args[4]
 bin_size <- args[5]
+window_sz <- args[6]
 #Atype <- args[4]
 
 ##########
@@ -82,6 +84,7 @@ print("#read in files")
 #allinters_file <- "all_trans_interactions_1Mb.txt"
 #germlayer_file <- "germlayer_info.txt"
 #bin_size <- 1000000
+#window_sz <- 5000000
 #library(factoextra)#for PCA
 #library(harrypotter) #for colours
 #library(circlize) #for circos
@@ -314,7 +317,6 @@ p_chr_ord <- c("chr1","chr2",
                "chr19","chr22",
                "chr21","chrX","chrY")
 head(dat2)
-window_sz <- 5000000
 dat2$st1 <- as.numeric(dat2$st1)
 dat2$st2 <- as.numeric(dat2$st2)
 dat2$end1 <- as.numeric(dat2$end1)
