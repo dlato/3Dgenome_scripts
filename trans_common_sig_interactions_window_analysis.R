@@ -76,14 +76,14 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 ##interaction data
-#Atype <- "1_vs_All"
-#tissue_file <- "tissue_system_info.txt"
-#dat_file <- "test_pairwise_dat.txt"
-#allinters_file <- "all_trans_interactions_1Mb.txt"
-#germlayer_file <- "germlayer_info.txt"
-#bin_size <- 1000000
-#library(factoextra)#for PCA
-#library(harrypotter) #for colours
+Atype <- "1_vs_All"
+tissue_file <- "tissue_system_info.txt"
+dat_file <- "test_pairwise_dat.txt"
+allinters_file <- "all_trans_interactions_1Mb.txt"
+germlayer_file <- "germlayer_info.txt"
+bin_size <- 1000000
+library(factoextra)#for PCA
+library(harrypotter) #for colours
 
 allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
@@ -210,7 +210,6 @@ for(i in uchroms) {
   print(i)
   chr_df <- tmpD %>% filter(chr == i)
   meandf <- chr_df %>% group_by(chr,start) %>%  dplyr::summarize(mNumCells=mean(totCells, na.rm = TRUE))
-  head(meandf)
   C = gsub("chr","",i)
 p <- (ggplot(data=meandf, aes(x = start, y = mNumCells)) 
       #+ geom_boxplot()
@@ -243,4 +242,115 @@ print(p)
 dev.off()
 }#for
 warnings()
+
+
+print('##############################')
+print("# COMMON INTERACTIONS USING SLIDING WINDOW")
+print('##############################')
+#re-order chroms based on chrom len
+chrs_len_ord <- c("chr1","chr2",
+                  "chr3","chr4",
+                  "chr5","chr6",
+                  "chr7","chrX",
+                  "chr8","chr9",
+                  "chr11","chr10",
+                  "chr12","chr13",
+                  "chr14","chr15",
+                  "chr16","chr17",
+                  "chr18","chr20",
+                  "chr19","chrY",
+                  "chr22","chr21")
+#chrom info: centromere (midpoint calculated from UCSC, aprox), chrom class
+chrInf <- data.frame( chrom = chrs_len_ord,
+                      centromere = c(123252373.5,93787431.5,
+                                     90856062,50074452.5,
+                                     48585285.5,60557102.5,
+                                     60058972.5,61016889,
+                                     45249872,43893383.5,
+                                     53454152,39800499.5,
+                                     35764400,17692000.5,
+                                     17117352,19037747.5,
+                                     36878628.5,25067566.5,
+                                     18464134,28099979.5,
+                                     26161912,10470308,
+                                     15520235.5,11917946),
+                      chrClass = c("Metacentric","Metacentric",
+                                   "Metacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Acrocentric",
+                                   "Acrocentric","Acrocentric",
+                                   "Metacentric","Submetacentric",
+                                   "Submetacentric","Metacentric",
+                                   "Metacentric","Acrocentric",
+                                   "Acrocentric","Acrocentric"),
+                      size = c(248956422,242193529,
+                               198295559,190214555,
+                               181538259,170805979,
+                               159345973,156040895,145138636,
+                               138394717,135086622,
+                               133797422,133275309,
+                               114364328,107043718,
+                               101991189,90338345,
+                               83257441,80373285,
+                               64444167,58617616,57227415,
+                               50818468,46709983)
+                      
+)
+head(dat2)
+window_sz <- 5000000
+dat2$st1 <- as.numeric(dat2$st1)
+dat2$st2 <- as.numeric(dat2$st2)
+dat2$end1 <- as.numeric(dat2$end1)
+dat2$end2 <- as.numeric(dat2$end2)
+#initiate new df for common inters within window
+common_window_df <- dat2[1,]
+common_window_df <- common_window_df[-1,]
+for(i in 1:length(dat2$ID)) {
+#  i=1
+  r=dat2[i,]
+  rstA <- r$st1
+  rendA <- r$end1
+  rstB <- r$st1
+  rendB <- r$end1
+  #if start is less than window size, alter range start to be beginning of chrom
+  if(r$st1 <= window_sz){
+    rstA <- 0
+  } else {
+    rstA <- rstA - window_sz
+  }
+  if(r$st2 <= window_sz){
+    rstB <- 0
+  } else {
+    rstB <- rstB - window_sz
+  }
+  #get end of chrom for each chrom
+Aend <- chrInf$size[match(r$chrA, chrInf$chrom)]
+Bend <- chrInf$size[match(r$chrB, chrInf$chrom)]
+  #if end is within window size, alter range end to be end of chrom
+  if(r$end1 >= Aend - window_sz){
+    rendA <- Aend
+  } else {
+    rendA <- rendA + window_sz
+  }
+  if(r$end2 >= Bend - window_sz){
+    rendB <- Bend
+  } else {
+    rendB <- rendB + window_sz
+  }
+  #grab the rows that fall within the range on BOTH chroms
+  tmp_df <- dat2 %>% filter(chrA == r$chrA & chrB == r$chrB) %>%
+                     #chrA needs to have both start and end within range 9bc we want the whole bin to be in the range)
+                     filter(st1 >= rstA & st1 <= rendA & end1 >= rstA & end1 <= rendA) %>%
+                     #chrB needs to have both start and end within range
+                     filter(st2 >= rstA & st2 <= rendA & end2 >= rstA & end2 <= rendA)
+  csum <- colSums(is.na(tmp_df))
+  if (length(class(which(csum == nrow(tmp_df)))) == 0) {
+   # print("#common interaction (one sig zscore in all cells)")
+    common_window_df <- rbind(common_window_df, r)
+  }
+}#for
+
 print("# DONE")
