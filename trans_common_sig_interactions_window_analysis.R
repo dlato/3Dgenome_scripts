@@ -203,21 +203,26 @@ tmpD <- tot_cells_per_inter %>% separate(ID, sep = "\\.", into = colN, remove = 
 tmpD$start <- as.numeric(tmpD$start) / 1000000
 head(tmpD)
 summary(tmpD)
-C=10
+#C=10
 uchroms <- unique(tmpD$chr)
 for(i in uchroms) {
+#  i="chr10"
   print(i)
   chr_df <- tmpD %>% filter(chr == i)
+  meandf <- chr_df %>% group_by(chr,start) %>%  dplyr::summarize(mNumCells=mean(totCells, na.rm = TRUE))
+  head(meandf)
   C = gsub("chr","",i)
-p <- (ggplot(data=chr_df, aes(x = start, y = totCells)) 
+p <- (ggplot(data=meandf, aes(x = start, y = mNumCells)) 
       #+ geom_boxplot()
-      + geom_smooth(method = "loess", formula = y~x, colour="black")
+      + geom_point(size =3)
+      +geom_line(size=1)
+#      + geom_smooth(method = "loess", formula = y~x, colour="black")
       + labs(x=paste("Chromosome",C,"position [Mbp]"),
-             y="Number of Cells With Common Interaction",
+             y="Mean Number of Cells With Common Interaction",
              title = "Trans-chromosomal Common Interactions",
              fill = "")
       + scale_x_continuous(expand = c(0, 0))
-      + scale_y_continuous(expand = c(0, 0))
+#      + scale_y_continuous(expand = c(0, 0))
 )
 filename <- paste0("interactions_num_common_cells_chr",C,"_line.pdf")
 pdf(filename, width = 14, height = 8)
