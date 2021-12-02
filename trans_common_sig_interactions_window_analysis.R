@@ -20,7 +20,7 @@ germlayer_file <- args[2]
 allinters_file <- args[3]
 tissue_file <- args[4]
 bin_size <- args[5]
-window_sz <- args[6]
+window_sz <- as.numeric(args[6])
 #Atype <- args[4]
 
 ##########
