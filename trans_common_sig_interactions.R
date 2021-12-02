@@ -1093,6 +1093,9 @@ p <- (ggplot(bpD, aes(y =mzscore,x=chrPair, group = 1))
 pdf("zscore_chromPair_common_inters_all_cells_boxplot.pdf", width = 14, height = 8)
 p
 dev.off()
+print("# top 10 chrom pair ordered highest to lowest MEAN of mean zscore per chrom pair (across all cells)")
+meanprop <- bpD %>% group_by(chrPair) %>% dplyr::summarize(mProp=mean(mzscore, na.rm = TRUE))
+meanprop[order(meanprop$mProp, decreasing = TRUE),]
 #################
 #parallel sets
 #################
