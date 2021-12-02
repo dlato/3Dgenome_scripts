@@ -1162,4 +1162,44 @@ hm <- (ggplot(hm_bothdirs, aes(chrA, ordered(chrB, levels=rev(chrs_ord)), fill =
 pdf("zscore_chrom_pair_mean_heatmap_common_interactions.pdf", width = 14, height = 8)
 hm
 dev.off()
+
+print("# boxplot of chrom pair mean zscores (common inters)")
+bpD <- hm_bothdirs %>% select(chrPair,cell,mzscore) %>% distinct()
+bpD$chrPair <- gsub("\\.","", bpD$chrPair)
+set.seed(369)
+p <- (ggplot(bpD, aes(y =mzscore,x=chrPair))
+      + geom_boxplot()
+      + geom_jitter(width = 0.3, alpha = 0.4)
+      #+ scale_colour_manual(values =c("#FAC9A1", "#013040"), labels= c("All", "Significant"))
+      + labs(y="Mean z-score per Chromosome Pair",
+             x="Chromosome Pair",
+             title = "Common Trans-chromosomal Interactions Across Cell Types",
+             colour = "Interactions")
+      + theme(axis.text.x = element_text(angle = 90))
+)
+pdf("zscore_chromPair_common_inters_all_cells_line.pdf", width = 14, height = 8)
+p
+dev.off()
+#lineplot
+set.seed(369)
+p <- (ggplot(bpD, aes(y =mzscore,x=chrPair, group = 1))
+      + geom_point(alpha = 0.4)
+      + geom_smooth(method = "loess", formula = y~x, colour = 'red')
+      #+ geom_boxplot()
+      #+ geom_jitter(width = 0.3, alpha = 0.4)
+      #+ scale_colour_manual(values =c("#FAC9A1", "#013040"), labels= c("All", "Significant"))
+      + labs(y="Mean z-score per Chromosome Pair",
+             x="Chromosome Pair",
+             title = "Common Trans-chromosomal Interactions Across Cell Types",
+             colour = "Interactions")
+      + theme(axis.text.x = element_text(angle = 90))
+)
+pdf("zscore_chromPair_common_inters_all_cells_boxplot.pdf", width = 14, height = 8)
+p
+dev.off()
+print("# top 10 chrom pair ordered highest to lowest MEAN of mean zscore per chrom pair (across all cells)")
+meanprop <- bpD %>% group_by(chrPair) %>% dplyr::summarize(mProp=mean(mzscore, na.rm = TRUE))
+meanprop[order(meanprop$mProp, decreasing = TRUE),]
+
+
 print("# DONE")
