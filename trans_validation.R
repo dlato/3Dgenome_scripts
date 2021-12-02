@@ -1398,7 +1398,7 @@ ucells <- unique(sig_pts$cell)
 xchr
 ychr
 for(i in ucells) {
-  i="Aorta"
+  #i="Aorta"
   print(i)
   c_dat <- sig_pts %>% filter(cell == i)
   p <- (ggplot(c_dat, aes(x=st2, y=zscore)) 
