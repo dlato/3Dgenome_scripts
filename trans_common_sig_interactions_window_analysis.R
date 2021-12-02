@@ -250,6 +250,10 @@ warnings()
 print('##############################')
 print("# COMMON INTERACTIONS USING SLIDING WINDOW")
 print('##############################')
+print("window size")
+window_sz
+class(window_sz)
+type(window_sz)
 #re-order chroms based on chrom len
 chrs_len_ord <- c("chr1","chr2",
                   "chr3","chr4",
@@ -321,13 +325,14 @@ dat2$st1 <- as.numeric(dat2$st1)
 dat2$st2 <- as.numeric(dat2$st2)
 dat2$end1 <- as.numeric(dat2$end1)
 dat2$end2 <- as.numeric(dat2$end2)
+chrInf$size <- as.numeric(chrInf$size)
 #initiate new df for common inters within window
 common_window_df <- dat2[1,]
 common_window_df <- common_window_df[-1,]
 for(i in 1:length(dat2$ID)) {
 #  i=32
   r=dat2[i,]
-  r
+#  r
   rstA <- r$st1
   rendA <- r$end1
   rstB <- r$st2
@@ -357,25 +362,23 @@ Bend <- chrInf$size[match(r$chrB, chrInf$chrom)]
   } else {
     rendB <- rendB + window_sz
   }
-  rstA
-  rendA
-  rstB
-  rendB
+#  rstA
+#  rendA
+#  rstB
+#  rendB
   #grab the rows that fall within the range on BOTH chroms
   tmp_df <- dat2 %>% filter(chrA == r$chrA & chrB == r$chrB) %>%
                      #chrA needs to have both start and end within range 9bc we want the whole bin to be in the range)
                      filter(st1 >= rstA & st1 <= rendA & end1 >= rstA & end1 <= rendA) %>%
                      #chrB needs to have both start and end within range
                      filter(st2 >= rstB & st2 <= rendB & end2 >= rstB & end2 <= rendB)
-  tmp_df
+#  tmp_df
   csum <- colSums(is.na(tmp_df))
   if (length(which(csum == nrow(tmp_df))) == 0) {
-    print("#common interaction (one sig zscore in all cells)")
+#    print("#common interaction (one sig zscore in all cells)")
     common_window_df <- rbind(common_window_df, r)
   }
 }#for
-
-######################## edit here ################
 
 print("###############################")
 print("# graphs and tests for common inters with window")
