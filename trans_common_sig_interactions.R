@@ -625,6 +625,8 @@ hm <- (ggplot(hm_dat, aes(x=AllSt,ordered(AllChr, levels=rev(chrs_ord)), fill = 
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score", na.value = "grey")
        + geom_tile(aes(fill = mzscore), width = 1, height = 1)
 #       + scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+      + scale_y_discrete(expand = c(0, 0))
+      + scale_x_continuous(expand = c(0, 0))
        + labs(x = "Genomic Postion [Mbp]",
               y = "Chromosome",
               title = "Common Trans-chromosomal Interactions z-scores")
@@ -994,6 +996,8 @@ hm <- (ggplot(r_dat2, aes(AllChr, cell))
        + geom_tile(aes(fill = zscore), width = 1, height = 1)
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score", na.value = "grey")
 #       + scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+      + scale_y_discrete(expand = c(0, 0))
+      + scale_x_discrete(expand = c(0, 0))
        + labs(x = "Chromosome",
               y = "Cell",
               title = "Common Trans-chromosomal Interactions z-scores")
@@ -1041,6 +1045,8 @@ hm <- (ggplot(hm_bothdirs, aes(chrA, ordered(chrB, levels=rev(chrs_ord)), fill =
        #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
        #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
        #       + theme(axis.text.x = element_text(angle = 90))
+      + scale_y_discrete(expand = c(0, 0))
+      + scale_x_discrete(expand = c(0, 0))
        + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
                strip.background = element_rect(fill = "white"),
                panel.spacing = unit(0, "lines"),
@@ -1053,8 +1059,40 @@ pdf("zscore_chrom_pair_mean_heatmap_common_interactions.pdf", width = 14, height
 hm
 dev.off()
 
-
-
+print("# boxplot of chrom pair mean zscores (common inters)")
+bpD <- hm_bothdirs %>% select(chrPair,cell,mzscore) %>% distinct()
+bpD$chrPair <- gsub("\\.","", bpD$chrPair)
+set.seed(369)
+p <- (ggplot(bpD, aes(y =mzscore,x=chrPair))
+      + geom_boxplot()
+      + geom_jitter(width = 0.3, alpha = 0.4)
+      #+ scale_colour_manual(values =c("#FAC9A1", "#013040"), labels= c("All", "Significant"))
+      + labs(y="Mean z-score per Chromosome Pair",
+             x="Chromosome Pair",
+             title = "Common Trans-chromosomal Interactions Across Cell Types",
+             colour = "Interactions")
+      + theme(axis.text.x = element_text(angle = 90))
+)
+pdf("zscore_chromPair_common_inters_all_cells_line.pdf", width = 14, height = 8)
+p
+dev.off()
+#lineplot
+set.seed(369)
+p <- (ggplot(bpD, aes(y =mzscore,x=chrPair, group = 1))
+      + geom_point(alpha = 0.4)
+      + geom_smooth(method = "loess", formula = y~x, colour = 'red')
+      #+ geom_boxplot()
+      #+ geom_jitter(width = 0.3, alpha = 0.4)
+      #+ scale_colour_manual(values =c("#FAC9A1", "#013040"), labels= c("All", "Significant"))
+      + labs(y="Mean z-score per Chromosome Pair",
+             x="Chromosome Pair",
+             title = "Common Trans-chromosomal Interactions Across Cell Types",
+             colour = "Interactions")
+      + theme(axis.text.x = element_text(angle = 90))
+)
+pdf("zscore_chromPair_common_inters_all_cells_boxplot.pdf", width = 14, height = 8)
+p
+dev.off()
 #################
 #parallel sets
 #################
