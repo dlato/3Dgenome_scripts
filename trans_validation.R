@@ -705,6 +705,8 @@ ymax <- chrInf$size[match(CB,chrInf$chrom)] / 1000000
 #scale genomic position by 1Mb
 hm_df$st1 <- hm_df$st1/1000000
 hm_df$st2 <- hm_df$st2/1000000
+#gtext = textGrob("xyz", y = -5, gp = gpar(col = "red"))
+#gline = linesGrob(y = c(-.02, .02),  gp = gpar(col = "red", lwd = 2))
 hm <- (ggplot(hm_df, aes(x=st1, y=st2, fill= zscore)) 
            + geom_tile(width = 1, height = 1)
       + labs(title = "Distribution of z-scores along valid interacting chromosome (all interactions)",
@@ -712,10 +714,16 @@ hm <- (ggplot(hm_df, aes(x=st1, y=st2, fill= zscore))
              #         caption = "Data source: ToothGrowth",
              x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
              y = paste0("Chromosome ", ychr, " Genomic Position"))
+     # + annotate("rect", xmin = 39, xmax = 40, ymin = -2, ymax = -1, fill = "red")
       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
       + facet_grid(cell ~.)
       # expand axis limits so whole chrom len is accounted for
       + expand_limits(y=c(0,ymax), x = c(0,xmax))
+#      + annotation_custom(gtext, xmin=30, xmax=30, ymin=-Inf, ymax=Inf)
+#      + annotation_custom(gline, xmin=30, xmax=30, ymin=-Inf, ymax=Inf)
+      + geom_vline(xintercept = xstart, colour = "black")
+      + scale_y_continuous(expand = c(0, 0))
+      + scale_x_continuous(expand = c(0, 0))
       + theme(panel.spacing = unit(0, "lines"),
               strip.text.y.right = element_text(angle = 0), #rotate facet labels
               strip.background = element_rect(fill = "white"),
@@ -726,6 +734,9 @@ hm <- (ggplot(hm_df, aes(x=st1, y=st2, fill= zscore))
 )
 f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_heatmap_allInters",Atype,".pdf"))
 pdf(f_name, width = 14, height = 8)
+#g = ggplotGrob(hm)
+#g$layout$clip[g$layout$name=="panel"] <- "off"
+#grid.draw(g)
 hm
 dev.off()
 
@@ -742,9 +753,12 @@ hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= zscore))
               x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", ychr, " Genomic Position"))
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+      + geom_vline(xintercept = xstart, colour = "black")
        + facet_grid(cell ~.)
       # expand axis limits so whole chrom len is accounted for
       + expand_limits(y=c(0,ymax), x = c(0,xmax))
+      + scale_y_continuous(expand = c(0, 0))
+      + scale_x_continuous(expand = c(0, 0))
        + theme(panel.spacing = unit(0, "lines"),
                strip.text.y.right = element_text(angle = 0), #rotate facet labels
                strip.background = element_rect(fill = "white"),
@@ -765,10 +779,13 @@ hm <- (ggplot(hm_dfsig, aes(x=st2, y=st1, fill= zscore))
               #         caption = "Data source: ToothGrowth",
               x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", xchr, " Genomic Position"))
+      + geom_vline(xintercept = ystart, colour = "black")
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
        + facet_grid(cell ~.)
        # expand axis limits so whole chrom len is accounted for
        + expand_limits(y=c(0,xmax), x = c(0,ymax))
+      + scale_y_continuous(expand = c(0, 0))
+      + scale_x_continuous(expand = c(0, 0))
        + theme(panel.spacing = unit(0, "lines"),
                strip.text.y.right = element_text(angle = 0), #rotate facet labels
                strip.background = element_rect(fill = "white"),
@@ -1456,10 +1473,13 @@ hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= zscore))
               #         caption = "Data source: ToothGrowth",
               x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", ychr, " Genomic Position"))
+       + geom_vline(xintercept = xstart, colour = "black")
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
        + facet_grid(cell ~.)
        # expand axis limits so whole chrom len is accounted for
        + expand_limits(y=c(0,ymax), x = c(0,xmax))
+      + scale_y_continuous(expand = c(0, 0))
+      + scale_x_continuous(expand = c(0, 0))
 #       +theme_grey(base_size=10)
        + theme(panel.spacing = unit(0, "lines"),
                strip.text.y.right = element_text(angle = 0), #rotate facet labels
@@ -1482,10 +1502,13 @@ hm <- (ggplot(hm_dfsig, aes(x=st2, y=st1, fill= zscore))
               #         caption = "Data source: ToothGrowth",
               x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", xchr, " Genomic Position"))
+       + geom_vline(xintercept = ystart, colour = "black")
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
        + facet_grid(cell ~.)
        # expand axis limits so whole chrom len is accounted for
        + expand_limits(y=c(0,xmax), x = c(0,ymax))
+      + scale_y_continuous(expand = c(0, 0))
+      + scale_x_continuous(expand = c(0, 0))
        + theme(panel.spacing = unit(0, "lines"),
                strip.text.y.right = element_text(angle = 0), #rotate facet labels
                strip.background = element_rect(fill = "white"),
@@ -1515,8 +1538,11 @@ hm <- (ggplot(hm_df, aes(x=st1, y=st2, fill= pvalue))
               y = paste0("Chromosome ", ychr, " Genomic Position"))
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "p-value")
        + facet_grid(cell ~.)
+       + geom_vline(xintercept = xstart, colour = "black")
       # expand axis limits so whole chrom len is accounted for
       + expand_limits(y=c(0,ymax), x = c(0,xmax))
+      + scale_y_continuous(expand = c(0, 0))
+      + scale_x_continuous(expand = c(0, 0))
        + theme(panel.spacing = unit(0, "lines"),
                strip.text.y.right = element_text(angle = 0), #rotate facet labels
                strip.background = element_rect(fill = "white"),
@@ -1542,9 +1568,12 @@ hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= pvalue))
               x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", ychr, " Genomic Position"))
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "p-value")
+       + geom_vline(xintercept = xstart, colour = "black")
        + facet_grid(cell ~.)
       # expand axis limits so whole chrom len is accounted for
       + expand_limits(y=c(0,ymax), x = c(0,xmax))
+      + scale_y_continuous(expand = c(0, 0))
+      + scale_x_continuous(expand = c(0, 0))
        + theme(panel.spacing = unit(0, "lines"),
                strip.text.y.right = element_text(angle = 0), #rotate facet labels
                strip.background = element_rect(fill = "white"),
