@@ -923,6 +923,8 @@ hm <- (ggplot(hm_dat2, aes(AllChr, cell, fill = zscore))
               y = "Cell",
               title = "All Trans-chromosomal Interactions z-scores")
 #       + facet_wrap(.~sig)
+       + scale_y_discrete(expand = c(0, 0))
+       + scale_x_discrete(expand = c(0, 0))
        + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
          c("nonsig" = "Non-significant", "sig" = "Significant"))))
 #       + theme(axis.text.x = element_text(angle = 90))
@@ -944,6 +946,8 @@ hm <- (ggplot(hm_dat2, aes(AllChr, cell, fill = zscore))
 + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score", na.value = "grey")
 #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
        #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+       + scale_y_discrete(expand = c(0, 0))
+       + scale_x_discrete(expand = c(0, 0))
        + labs(x = "Chromosome",
               y = "Cell",
               title = "Trans-chromosomal Interactions (all) z-scores")
@@ -971,6 +975,8 @@ hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
 + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score", na.value = "grey")
 #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
        #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+       + scale_y_discrete(expand = c(0, 0))
+       + scale_x_discrete(expand = c(0, 0))
        + labs(x = "Chromosome",
               y = "Cell",
               title = "Trans-chromosomal Interactions (significant) z-scores")
@@ -1007,7 +1013,7 @@ for(i in unique(tp_dat_sum$chr)) {
   xmax <- chrInf$size[match(paste0("chr",i),chrInf$chrom)] / 1000000
   tpp <- tp_dat_sum %>% filter(chr == i)
   tp <- (ggplot(tpp, aes(st, y=1, fill = mzscore))
-         + geom_tile(aes(fill = mzscore), colour = "white")
+         + geom_tile(aes(fill = mzscore))
          + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per bin", na.value = "grey")
          #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
          #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
@@ -1019,6 +1025,8 @@ for(i in unique(tp_dat_sum$chr)) {
          #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
          #       + theme(axis.text.x = element_text(angle = 90))
          + expand_limits(x = c(0,xmax))
+       + scale_y_discrete(expand = c(0, 0))
+       + scale_x_continuous(expand = c(0, 0))
          + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
                  strip.background = element_rect(fill = "white"),
                  panel.spacing = unit(0, "lines"),
@@ -1056,7 +1064,7 @@ for(i in unique(tp_dat_sum$chr)) {
   xmax <- chrInf$size[match(paste0("chr",i),chrInf$chrom)] / 1000000
   tpp <- tp_dat_sum %>% filter(chr == i)
   tp <- (ggplot(tpp, aes(st, y=1, fill = numSig))
-         + geom_tile(aes(fill = numSig), colour = "white")
+         + geom_tile(aes(fill = numSig))
          + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Total number of significant interactions", na.value = "grey")
          #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
          #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
@@ -1068,6 +1076,8 @@ for(i in unique(tp_dat_sum$chr)) {
          #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
          #       + theme(axis.text.x = element_text(angle = 90))
          + expand_limits(x = c(0,xmax))
+       + scale_y_discrete(expand = c(0, 0))
+       + scale_x_continuous(expand = c(0, 0))
          + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
                  strip.background = element_rect(fill = "white"),
                  panel.spacing = unit(0, "lines"),
@@ -1260,6 +1270,8 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
        + labs(x = "Chromosome",
               y = "",
               title = "Trans-chromosomal Interactions (all) z-scores")
+       + scale_y_discrete(expand = c(0, 0))
+       + scale_x_discrete(expand = c(0, 0))
        + facet_wrap(cell ~ .)
 #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
 #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
@@ -1297,6 +1309,8 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
        + labs(x = "Chromosome",
               y = "",
               title = "Trans-chromosomal Interactions (all) z-scores")
+       + scale_y_discrete(expand = c(0, 0))
+       + scale_x_discrete(expand = c(0, 0))
 #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
 #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
        #       + theme(axis.text.x = element_text(angle = 90))
@@ -1329,6 +1343,8 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
        + labs(x = "Chromosome",
               y = "",
               title = "Trans-chromosomal Interactions (significant) z-scores")
+       + scale_y_discrete(expand = c(0, 0))
+       + scale_x_discrete(expand = c(0, 0))
        + facet_wrap(cell ~ .)
        #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
        #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
