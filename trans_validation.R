@@ -821,16 +821,17 @@ print("# two graphs for pos and neg")
 hir_df <- hir_df %>% mutate(sign = ifelse(zscore >= 0, "pos", "neg"))
 head(hir_df)
 p <- (ggplot(hir_df, aes(x=st1, y=zscore, fill=sign)) 
-      + geom_point(alpha = 0.4)
+      + geom_point(alpha = 0.4, aes(color = sign))
       + geom_vline(aes(xintercept = xstart), colour = "red")
-      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
+      + geom_smooth(aes(colour = sign), method = 'loess', formula = y ~ x)
       + labs(title = "Distribution of z-scores between valid interacting chromosomes (significant interactions)",
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
              x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
              y = "z-score",
              fill = "z-score sign")
-      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), labels = c("pos" = "Positive","neg" ="Negative"))
+      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
+      + scale_colour_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign", labels = c("pos" = "Positive","neg" ="Negative"))
       #       # expand axis limits so whole chrom len is accounted for
       + expand_limits(x = c(0,xmax))
       + scale_x_continuous(expand = c(0, 0))
@@ -848,16 +849,17 @@ pdf(f_name, width = 14, height = 8)
 p
 dev.off()
 p <- (ggplot(hir_df, aes(x=st2, y=zscore, fill=sign)) 
-      + geom_point(alpha = 0.4)
+      + geom_point(alpha = 0.4, aes(color = sign))
       + geom_vline(aes(xintercept = ystart), colour = "red")
-      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
+      + geom_smooth(aes(colour = sign), method = 'loess', formula = y ~ x)
       + labs(title = "Distribution of z-scores between valid interacting chromosomes (significant interactions)",
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
              x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
              y = "z-score",
              fill = "z-score sign")
-      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), labels = c("pos" = "Positive","neg" ="Negative"))
+      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
+      + scale_colour_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign", labels = c("pos" = "Positive","neg" ="Negative"))
       #       # expand axis limits so whole chrom len is accounted for
       + expand_limits(x = c(0,ymax))
       + scale_x_continuous(expand = c(0, 0))
@@ -875,7 +877,7 @@ pdf(f_name, width = 14, height = 8)
 p
 dev.off()
 print("# boxplot of above data")
-p <- (ggplot(hir_df, aes(x=st1, y=zscore, group=st1, fill=sign)) 
+p <- (ggplot(hir_df, aes(x=st1, y=zscore, group=st1, fill=factor(sign)) )
       #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
       #      + geom_point(alpha = 0.4)
       + geom_boxplot()
@@ -888,7 +890,8 @@ p <- (ggplot(hir_df, aes(x=st1, y=zscore, group=st1, fill=sign))
              fill = "z-score sign")
       #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
       #       + facet_grid(cell ~.)
-      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), labels = c("pos" = "Positive","neg" ="Negative"))
+      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
+      + scale_colour_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign", labels = c("pos" = "Positive","neg" ="Negative"))
       #       # expand axis limits so whole chrom len is accounted for
       + expand_limits(x = c(0,xmax))
       + scale_x_continuous(expand = c(0, 0))
@@ -1287,12 +1290,14 @@ for(i in unique(tp_dat_sum$chr)) {
          #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
          #       + theme(axis.text.x = element_text(angle = 90))
          + expand_limits(x = c(0,xmax))
+      + scale_y_continuous(expand = c(0, 0))
+      + scale_x_continuous(expand = c(0, 0))
          + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
                  strip.background = element_rect(fill = "white"),
                  panel.spacing = unit(0, "lines"),
                  axis.text.y = element_blank(),
                  axis.ticks.y = element_blank())
-         + theme(axis.text=element_text(size=5),panel.background = element_rect(fill = "grey85", colour = NA))
+         + theme(panel.background = element_rect(fill = "grey85", colour = NA))
   )
   filename <- paste0("zscore_chrom",i,"_mean_tickplot_sig_Interactions.pdf")
   pdf(filename, width = 14, height = 8)
@@ -1336,12 +1341,14 @@ for(i in unique(tp_dat_sum$chr)) {
          #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
          #       + theme(axis.text.x = element_text(angle = 90))
          + expand_limits(x = c(0,xmax))
+      + scale_y_continuous(expand = c(0, 0))
+      + scale_x_continuous(expand = c(0, 0))
          + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
                  strip.background = element_rect(fill = "white"),
                  panel.spacing = unit(0, "lines"),
                  axis.text.y = element_blank(),
                  axis.ticks.y = element_blank())
-         + theme(axis.text=element_text(size=5),panel.background = element_rect(fill = "grey85", colour = NA))
+         + theme(panel.background = element_rect(fill = "grey85", colour = NA))
   )
   filename <- paste0("numSig_inters_chrom",i,"_tickplot_sig_Interactions.pdf")
   pdf(filename, width = 14, height = 8)
