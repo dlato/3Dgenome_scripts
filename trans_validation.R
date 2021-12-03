@@ -702,6 +702,16 @@ chrInf <- data.frame( chrom = chrs_len_ord,
 head(chrInf)
 xmax <- chrInf$size[match(CA,chrInf$chrom)] / 1000000
 ymax <- chrInf$size[match(CB,chrInf$chrom)] / 1000000
+# getting the valid inter positions to match with the x and y chroms in the graphs
+valid_df <- rbind(roi1, roi2)
+xdf <- valid_df %>% filter(chrom == paste0("chr",xchr))
+xstart <- xdf$start /1000000
+xdf
+xstart
+ydf <- valid_df %>% filter(chrom == paste0("chr",ychr))
+ystart <- ydf$start /1000000
+ydf
+ystart
 #scale genomic position by 1Mb
 hm_df$st1 <- hm_df$st1/1000000
 hm_df$st2 <- hm_df$st2/1000000
@@ -806,16 +816,6 @@ hir_df <- hm_df %>% filter(pvalue <= 0.05) #filter for sig interactions
 length(hir_df$zscore)
 aorta_df <- hir_df %>% filter(cell == "Aorta")
 #p <- (ggplot(aorta_df, aes(x=st1, y=zscore)) 
-# getting the valid inter positions to match with the x and y chroms in the graphs
-valid_df <- rbind(roi1, roi2)
-xdf <- valid_df %>% filter(chrom == paste0("chr",xchr))
-xstart <- xdf$start /1000000
-xdf
-xstart
-ydf <- valid_df %>% filter(chrom == paste0("chr",ychr))
-ystart <- ydf$start /1000000
-ydf
-ystart
 print("# pts and line")
 print("# two graphs for pos and neg")
 hir_df <- hir_df %>% mutate(sign = ifelse(zscore >= 0, "pos", "neg"))
