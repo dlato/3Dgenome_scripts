@@ -409,12 +409,12 @@ allobstotInter
 colnames(allobstotInter) <- c("chrom","cell","allobs")
 allobstotInter$chrom <- gsub("chr","", allobstotInter$chrom)
 mergedpos <- merge(totInter,allobstotInter, by = c("chrom", "cell"))
-mergedpos$allprop <- mergedpos$allobs / mergedpos$allInters
+mergedpos$allprop <- (mergedpos$allobs / mergedpos$allInters)*100
 mergedpos$chrom <- factor(mergedpos$chrom, levels=pchrord)
 mergedpos <- mergedpos %>% filter(allprop != "NA")
 mergedpos <- mergedpos %>% select(chrom, cell, prop, allprop) %>% gather(key="inter", value="perc", 3:4)
 head(mergedpos)
-mergedpos$perc <- mergedpos$perc * 100
+mergedpos$perc <- mergedpos$perc
 set.seed(369)
 p <- (ggplot(mergedpos, aes(y =perc,x=chrom, colour = inter))
       + geom_boxplot()
@@ -452,9 +452,9 @@ expInter <- allprop %>%
 expInter
 #combin above dfs
 totInter$allInters <- expInter$n[match(totInter$chrpair, expInter$chrpair)]
-totInter$prop <- totInter$n / totInter$allInters
+totInter$prop <- (totInter$n / totInter$allInters) *100
 totInter <- totInter %>% filter(prop != "NA")
-totInter$prop <- totInter$prop * 100
+totInter$prop <- totInter$prop
 set.seed(369)
 p <- (ggplot(totInter, aes(y =prop,x=chrpair))
       + geom_boxplot()
