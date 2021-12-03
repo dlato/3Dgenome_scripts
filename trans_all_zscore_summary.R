@@ -419,7 +419,7 @@ set.seed(369)
 p <- (ggplot(mergedpos, aes(y =perc,x=chrom, colour = inter))
       + geom_boxplot()
       + geom_jitter(width = 0.3, alpha = 0.4)
-      + scale_colour_manual(values =c("#FAC9A1", "#013040"), labels= c("All", "Significant"))
+      + scale_colour_manual(values =c("#FAC9A1", "#013040"), labels= c("allprop" = "All", "prop" = "Significant"))
       + labs(y="Proportion of Interactions [%]",
              x="Chromosome",
              title = "Trans-chromosomal Interactions per Chromosome Across Cell Types",
