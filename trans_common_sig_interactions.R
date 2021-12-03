@@ -10,6 +10,7 @@
 #            all interactions file (tsv)
 #            tissue/system df (tsv)
 #            bin size (bp)
+#            full path and name of output file
 ########################################
 
 options(echo=F)
@@ -19,6 +20,7 @@ germlayer_file <- args[2]
 allinters_file <- args[3]
 tissue_file <- args[4]
 bin_size <- args[5]
+outfile <- args[6]
 #Atype <- args[4]
 
 ##########
@@ -82,6 +84,7 @@ print("#read in files")
 #allinters_file <- "all_trans_interactions_1Mb.txt"
 #germlayer_file <- "germlayer_info.txt"
 #bin_size <- 1000000
+#outfile <- "test_common_inters_df.txt"
 #library(factoextra)#for PCA
 #library(harrypotter) #for colours
 
@@ -144,6 +147,8 @@ dat2 <- df %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
 #remove A and B from chrom names
 dat2$chrA <- gsub("A", "", dat2$chrA)
 dat2$chrB <- gsub("B", "", dat2$chrB)
+#save df
+write.table(dat2 %>% select(chrA, st1, end1,chrB,st2,end2), file = outfile, sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
 
 print("all chroms involved in common interactions")
 Achrs <- unique(c(dat2$chrA, dat2$chrB))

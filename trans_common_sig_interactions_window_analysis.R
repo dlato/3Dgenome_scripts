@@ -11,6 +11,7 @@
 #            tissue/system df (tsv)
 #            bin size (bp)
 #            window size (bp) *will calculate window size input in BOTH directions around bin. i.e. bin 5-10 would be 0-15 with a window size of 5
+#            full path and name of output file
 ########################################
 
 options(echo=F)
@@ -21,6 +22,7 @@ allinters_file <- args[3]
 tissue_file <- args[4]
 bin_size <- args[5]
 window_sz <- as.numeric(args[6])
+outfile <- args[7]
 #Atype <- args[4]
 
 ##########
@@ -85,6 +87,7 @@ print("#read in files")
 #germlayer_file <- "germlayer_info.txt"
 #bin_size <- 1000000
 #window_sz <- 5000000
+#outfile <- "test_common_inters_df.txt"
 #library(factoextra)#for PCA
 #library(harrypotter) #for colours
 #library(circlize) #for circos
@@ -379,6 +382,9 @@ Bend <- chrInf$size[match(r$chrB, chrInf$chrom)]
     common_window_df <- rbind(common_window_df, r)
   }
 }#for
+#save df
+options(scipen=999)
+write.table(common_window_df %>% select(chrA, st1, end1,chrB,st2,end2), file = outfile, sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
 
 print("###############################")
 print("# graphs and tests for common inters with window")
