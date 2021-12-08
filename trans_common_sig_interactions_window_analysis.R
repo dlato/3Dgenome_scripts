@@ -329,9 +329,10 @@ dat2$st2 <- as.numeric(dat2$st2)
 dat2$end1 <- as.numeric(dat2$end1)
 dat2$end2 <- as.numeric(dat2$end2)
 chrInf$size <- as.numeric(chrInf$size)
-#initiate new df for common inters within window
+print("#initiate new df for common inters within window")
 common_window_df <- dat2[1,]
 common_window_df <- common_window_df[-1,]
+print("for loop")
 for(i in 1:length(dat2$ID)) {
 #  i=32
   r=dat2[i,]
