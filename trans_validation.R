@@ -29,6 +29,7 @@ library(GenomicRanges)
 library(ggplot2)
 library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
 library(nortest, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1") #for normality test with large sample size
+library(hexbin)
 ##########
 
 #########################################################################
@@ -74,6 +75,7 @@ print("#read in files")
 #ystart <- 39519695 /1000000
 #library(harrypotter)
 #library(factoextra)
+#library(hexbin)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
 ##dat <- read.table(dat_file, header = TRUE)
@@ -876,6 +878,51 @@ f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_pts_posneg
 pdf(f_name, width = 14, height = 8)
 p
 dev.off()
+#hex map
+hir_df$sign <- factor(hir_df$sign,      # Reordering group factor levels
+                         levels = c("pos", "neg"))
+p <- (ggplot(hir_df, aes(y = zscore, fill = sign, x = st1))
+      + geom_vline(aes(xintercept = xstart), colour = "red")
+      + facet_wrap(~sign, ncol = 1, scales  = 'free_y') 
+      + stat_binhex(aes(alpha = ..count..), colour = 'grey80')  
+      + scale_alpha(name = 'Frequency', range = c(0,1))  
+      + labs(title = "Distribution of z-scores between valid interacting chromosomes (significant interactions)",
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
+             y = "z-score",
+             fill = "z-score sign")
+      + theme(strip.background = element_blank(), strip.text = element_blank())
+      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
+      + expand_limits(x = c(0,xmax))
+      + scale_x_continuous(expand = c(0, 0))
+)
+f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_hex_posneg_sigInters_all_cells",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
+p <- (ggplot(hir_df, aes(y = zscore, fill = sign, x = st2))
+      + geom_vline(aes(xintercept = ystart), colour = "red")
+  + facet_wrap(~sign, ncol = 1, scales  = 'free_y') 
+  + stat_binhex(aes(alpha = ..count..), colour = 'grey80')  
+  + scale_alpha(name = 'Frequency', range = c(0,1))  
+  + labs(title = "Distribution of z-scores between valid interacting chromosomes (significant interactions)",
+         #         subtitle = "Plot of length by dose",
+         #         caption = "Data source: ToothGrowth",
+         x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+         y = "z-score",
+         fill = "z-score sign")
+  + theme(strip.background = element_blank(), strip.text = element_blank())
+  + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
+      + expand_limits(x = c(0,ymax))
+      + scale_x_continuous(expand = c(0, 0))
+)
+f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_hex_posneg_YX_sigInters_all_cells",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
+
+
 print("# boxplot of above data")
 p <- (ggplot(hir_df, aes(x=st1, y=zscore, group=st1, fill=factor(sign)) )
       #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
