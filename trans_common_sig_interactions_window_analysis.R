@@ -385,7 +385,10 @@ Bend <- chrInf$size[match(r$chrB, chrInf$chrom)]
 }#for
 #save df
 options(scipen=999)
-write.table(common_window_df %>% select(chrA, st1, end1,chrB,st2,end2), file = outfile, sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+type(outfile)
+class(outfile)
+outfile
+write.table(common_window_df %>% select(chrA, st1, end1,chrB,st2,end2), file = as.character(outfile), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
 
 print("###############################")
 print("# graphs and tests for common inters with window")
