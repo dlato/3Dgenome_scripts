@@ -336,7 +336,7 @@ print("for loop")
 for(i in 1:length(dat2$ID)) {
 #  i=32
   r=dat2[i,]
-#  r
+  print(r)
   rstA <- r$st1
   rendA <- r$end1
   rstB <- r$st2
@@ -366,10 +366,10 @@ Bend <- chrInf$size[match(r$chrB, chrInf$chrom)]
   } else {
     rendB <- rendB + window_sz
   }
-#  rstA
-#  rendA
-#  rstB
-#  rendB
+  print(rstA)
+  print(rendA)
+  print(rstB)
+  print(rendB)
   #grab the rows that fall within the range on BOTH chroms
   tmp_df <- dat2 %>% filter(chrA == r$chrA & chrB == r$chrB) %>%
                      #chrA needs to have both start and end within range 9bc we want the whole bin to be in the range)
@@ -383,7 +383,7 @@ Bend <- chrInf$size[match(r$chrB, chrInf$chrom)]
     common_window_df <- rbind(common_window_df, r)
   }
 }#for
-#save df
+print("#save df")
 options(scipen=999)
 type(outfile)
 class(outfile)

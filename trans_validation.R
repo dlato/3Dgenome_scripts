@@ -884,7 +884,7 @@ hir_df$sign <- factor(hir_df$sign,      # Reordering group factor levels
 p <- (ggplot(hir_df, aes(y = zscore, fill = sign, x = st1))
       + geom_vline(aes(xintercept = xstart), colour = "red")
       + facet_wrap(~sign, ncol = 1, scales  = 'free_y') 
-      + stat_binhex(aes(alpha = ..count..), colour = 'grey80')  
+      + stat_binhex(aes(alpha = ..count..), colour = 'grey90')  
       + scale_alpha(name = 'Frequency', range = c(0,1))  
       + labs(title = "Distribution of z-scores between valid interacting chromosomes (significant interactions)",
              #         subtitle = "Plot of length by dose",
