@@ -117,5 +117,24 @@ for(i in 1:nrow(u_inters)) {
 common_genes
 write.table(common_genes, file = as.character(outfile), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
+# dealing with genes that are found in two bins: counting twice
+tdup_anno <- anno_df %>% filter(bin_start != bin_end)
+tdup_anno <- tdup_anno %>% select("seqname","source", "feature","start","end","score","strand","frame","gene_id","gene_type","gene_name","level","hgnc_id","havana_gene","transcript_id","transcript_type","transcript_name","transcript_support_level","tag","havana_transcript","exon_number","exon_id","ont","protein_id","ccdsid","broad_class","bin_end","bin_start")
+colnames(tdup_anno) <- c("seqname","source", "feature","start","end","score","strand","frame","gene_id","gene_type","gene_name","level","hgnc_id","havana_gene","transcript_id","transcript_type","transcript_name","transcript_support_level","tag","havana_transcript","exon_number","exon_id","ont","protein_id","ccdsid","broad_class","bin_start","bin_end")
+dup_anno <- rbind(anno_df,tdup_anno)
 
+#filter by common interactions
+dup_anno$ID <- paste0(dup_anno$seqname,".",dup_anno$bin_start)
+head(dup_anno)
+u_inters$ID <- paste0(u_inters$chr,".",u_inters$st)
+head(u_inters)
+c_dup_anno <- dup_anno %>% filter(ID %in% u_inters$ID)
+head(c_dup_anno)
+
+#sum broad category per chrom per bin
+cat_sum <- c_dup_anno %>%
+  select(seqname, broad_class,bin_start) %>%
+  group_by(seqname, broad_class, bin_start) %>%
+  dplyr::summarise(n = n())
+head(cat_sum)
 
