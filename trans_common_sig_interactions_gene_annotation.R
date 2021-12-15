@@ -256,7 +256,7 @@ p <- (ggplot(bdat, aes(x=broad_class, y=n,fill=factor(broad_class)) )
       + labs(title = paste(gsub("_","",Atype), "Common Interactions"),
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
-             x = paste0("Gene Catefory"),
+             x = paste0("Gene Category"),
              y = "Number of Genes per 1Mb Bin",
              fill = "Gene Category")
       + scale_x_discrete(expand = c(0, 0))
@@ -282,3 +282,72 @@ print("# check which groups have sig diff")
 print("# perform pairwise wilcoxon test with FDR (Benjamini-Hochberg) correction")
 pairwise.wilcox.test(bdat$n, bdat$broad_class,
                  p.adjust.method = "BH")
+
+print("lncRNA summary")
+#df for non-common inters
+nc_dup_anno <- dup_anno %>% filter(!ID %in% u_inters$ID)
+nc_dup_anno$inter <- rep("nonCommon",nrow(nc_dup_anno))
+#add col for common inters
+c_dup_anno$inter <- rep("common",nrow(c_dup_anno))
+comb_anno <- rbind(c_dup_anno,nc_dup_anno)
+#add col for gene length
+comb_anno$len <- comb_anno$end - comb_anno$start
+lnc_df <- comb_anno %>% filter(broad_class == "lncRNA")
+head(lnc_df)
+summary(lnc_df)
+lnc_df[which(lnc_df$len == min(lnc_df$len)),]
+
+#boxplot of all chroms together
+lnc_df$len <- lnc_df$len / 1000000
+p <- (ggplot(lnc_df, aes(x=inter, y=len,fill=factor(strand) ))
+      + geom_boxplot()
+      + labs(title = paste(gsub("_","",Atype), "All Interactions"),
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = paste0("Interaction Category"),
+             y = "lncRNA length [Mb]",
+             fill = "Strand")
+      + scale_x_discrete(expand = c(0, 0))
+      + scale_y_continuous(expand = c(0, 0))
+      #      + facet_grid(seqname ~ .)
+)
+f_name <- gsub(" ","",paste("common_interactions_lncRNA_noncommon_boxplot",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
+#print("#test between means of common and non-common lncRNAs length (all chroms data)")
+#print("#Test each group for normality")
+#print("sig = reject normality null")
+#lnc_df$inter <- as.factor(lnc_df$inter)
+#lnc_df %>%
+#  group_by(inter) %>%
+#  summarise(W = shapiro.test(len)$statistic,
+#            p.value = shapiro.test(length())$p.value)
+#print("#Perform the Kruskal-Wallis test")
+#print("sig = mean is diff btwn groups")
+#kruskal.test(n ~ broad_class, data=bdat)
+#print("# check which groups have sig diff")
+#print("# perform pairwise wilcoxon test with FDR (Benjamini-Hochberg) correction")
+#pairwise.wilcox.test(bdat$n, bdat$broad_class,
+#                     p.adjust.method = "BH")
+
+#boxoplot of lncRNAs in common inters ONLY per chrom
+bdat <- lnc_df
+bdat$seqname <- gsub("chr","",bdat$seqname)
+bdat$seqname <- factor(bdat$seqname, levels=p_chr_ord_gsub)
+p <- (ggplot(bdat %>% filter(inter == "common"), aes(x=seqname, y=len,fill=factor(strand) ))
+      + geom_boxplot()
+      + labs(title = paste(gsub("_","",Atype), "Common Interactions"),
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = paste0("Chromosome"),
+             y = "lncRNA length [Mb]",
+             fill = "Strand")
+      + scale_x_discrete(expand = c(0, 0))
+      + scale_y_continuous(expand = c(0, 0))
+      #      + facet_grid(seqname ~ .)
+)
+f_name <- gsub(" ","",paste("common_interactions_lncRNA_common_boxplot",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
