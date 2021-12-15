@@ -5,23 +5,20 @@
 #            email:  daniellalato@gmail.com
 #            github: https://github.com/dlato
 ######
-# arguments: 3Dflow output data (tsv)
-#            germlayer df (tsv)
-#            all interactions file (tsv)
-#            tissue/system df (tsv)
+# arguments: common interactions output data (from R script) (tsv)
 #            bin size (bp)
+#            annotation file (from python script) (tsv)
 #            full path and name of output file
+#            type of analysis with underscore between words (i.e. 1_vs_All)
 ########################################
 
 options(echo=F)
 args <- commandArgs(trailingOnly = TRUE)
 dat_file <- args[1]
-germlayer_file <- args[2]
-allinters_file <- args[3]
-tissue_file <- args[4]
-bin_size <- args[5]
-outfile <- args[6]
-#Atype <- args[4]
+bin_size <- args[2]
+anno_file <- args[3]
+outfile <- args[4]
+Atype <- args[5]
 
 ##########
 library(tidyr)
@@ -32,6 +29,7 @@ library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 library(ggbiplot)#for PCA
 library(devtools)#for PCA
+#library(multcomp) # for anova and tukey test
 .libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2")
 library(circlize,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/") # for circos
 library(regioneR,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/")#for permutation
@@ -76,17 +74,17 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-##interaction data
-Atype <- "1_vs_All"
-tissue_file <- "tissue_system_info.txt"
-dat_file <- "test_common_inters_df.txt"
-allinters_file <- "all_trans_interactions_1Mb.txt"
-germlayer_file <- "germlayer_info.txt"
-bin_size <- 1000000
-anno_file <- "hg38_p13_v32_annotation.txt"
-outfile <- "GO_analysis_common_inters_gene_list.txt"
-library(factoextra)#for PCA
-library(harrypotter) #for colours
+###interaction data
+#Atype <- "1_vs_All"
+##tissue_file <- "tissue_system_info.txt"
+#dat_file <- "test_common_inters_df.txt"
+##allinters_file <- "all_trans_interactions_1Mb.txt"
+##germlayer_file <- "germlayer_info.txt"
+#bin_size <- 1000000
+#anno_file <- "hg38_p13_v32_annotation.txt"
+#outfile <- "GO_analysis_common_inters_gene_list.txt"
+#library(factoextra)#for PCA
+#library(harrypotter) #for colours
 
 #re-order chroms based on chrom len
 chrs_len_ord <- c("chr1","chr2",
@@ -320,16 +318,19 @@ dev.off()
 #print("sig = reject normality null")
 #lnc_df$inter <- as.factor(lnc_df$inter)
 #lnc_df %>%
-#  group_by(inter) %>%
+#  group_by(inter, strand) %>%
 #  summarise(W = shapiro.test(len)$statistic,
 #            p.value = shapiro.test(length())$p.value)
-#print("#Perform the Kruskal-Wallis test")
-#print("sig = mean is diff btwn groups")
-#kruskal.test(n ~ broad_class, data=bdat)
-#print("# check which groups have sig diff")
-#print("# perform pairwise wilcoxon test with FDR (Benjamini-Hochberg) correction")
-#pairwise.wilcox.test(bdat$n, bdat$broad_class,
-#                     p.adjust.method = "BH")
+#print("#Perform ANOVA")
+#res.aov2 <- aov(len ~ inter + strand, data = lnc_df)
+#summary(res.aov2)
+#summary(glht(res.aov2, linfct = mcp(inter = "Tukey")))
+##print("sig = mean is diff btwn groups")
+##kruskal.test(n ~ broad_class, data=bdat)
+##print("# check which groups have sig diff")
+##print("# perform pairwise wilcoxon test with FDR (Benjamini-Hochberg) correction")
+##pairwise.wilcox.test(bdat$n, bdat$broad_class,
+##                     p.adjust.method = "BH")
 
 #boxoplot of lncRNAs in common inters ONLY per chrom
 bdat <- lnc_df
@@ -351,3 +352,4 @@ f_name <- gsub(" ","",paste("common_interactions_lncRNA_common_boxplot",Atype,".
 pdf(f_name, width = 14, height = 8)
 p
 dev.off()
+print("DONE")
