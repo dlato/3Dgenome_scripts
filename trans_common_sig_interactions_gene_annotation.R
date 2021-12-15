@@ -88,6 +88,73 @@ outfile <- "GO_analysis_common_inters_gene_list.txt"
 library(factoextra)#for PCA
 library(harrypotter) #for colours
 
+#re-order chroms based on chrom len
+chrs_len_ord <- c("chr1","chr2",
+                  "chr3","chr4",
+                  "chr5","chr6",
+                  "chr7","chrX",
+                  "chr8","chr9",
+                  "chr11","chr10",
+                  "chr12","chr13",
+                  "chr14","chr15",
+                  "chr16","chr17",
+                  "chr18","chr20",
+                  "chr19","chrY",
+                  "chr22","chr21")
+rev_chrs_len_ord <- rev(chrs_len_ord)
+#chrom info: centromere (midpoint calculated from UCSC, aprox), chrom class
+chrInf <- data.frame( chrom = chrs_len_ord,
+                      centromere = c(123252373.5,93787431.5,
+                                     90856062,50074452.5,
+                                     48585285.5,60557102.5,
+                                     60058972.5,61016889,
+                                     45249872,43893383.5,
+                                     53454152,39800499.5,
+                                     35764400,17692000.5,
+                                     17117352,19037747.5,
+                                     36878628.5,25067566.5,
+                                     18464134,28099979.5,
+                                     26161912,10470308,
+                                     15520235.5,11917946),
+                      chrClass = c("Metacentric","Metacentric",
+                                   "Metacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Acrocentric",
+                                   "Acrocentric","Acrocentric",
+                                   "Metacentric","Submetacentric",
+                                   "Submetacentric","Metacentric",
+                                   "Metacentric","Acrocentric",
+                                   "Acrocentric","Acrocentric"),
+                      size = c(248956422,242193529,
+                               198295559,190214555,
+                               181538259,170805979,
+                               159345973,156040895,145138636,
+                               138394717,135086622,
+                               133797422,133275309,
+                               114364328,107043718,
+                               101991189,90338345,
+                               83257441,80373285,
+                               64444167,58617616,57227415,
+                               50818468,46709983)
+                      
+)
+#re-order chrInf df based on order Phil wants
+p_chr_ord <- c("chr1","chr2",
+               "chr3","chr4",
+               "chr5","chr6",
+               "chr7",
+               "chr8","chr9",
+               "chr11","chr10",
+               "chr12","chr13",
+               "chr14","chr15",
+               "chr16","chr17",
+               "chr18","chr20",
+               "chr19","chr22",
+               "chr21","chrX","chrY")
+p_chr_ord_gsub <- gsub("chr","",p_chr_ord)
 #allinters <- read.table(allinters_file, header = FALSE)
 #colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
 #head(allinters)
@@ -132,9 +199,86 @@ c_dup_anno <- dup_anno %>% filter(ID %in% u_inters$ID)
 head(c_dup_anno)
 
 #sum broad category per chrom per bin
-cat_sum <- c_dup_anno %>%
+cat_sum_bin <- c_dup_anno %>%
   select(seqname, broad_class,bin_start) %>%
   group_by(seqname, broad_class, bin_start) %>%
   dplyr::summarise(n = n())
-head(cat_sum)
+head(cat_sum_bin)
+#sum broad category per chrom
+cat_sum_chrom <- c_dup_anno %>%
+  select(seqname, broad_class,bin_start) %>%
+  group_by(seqname, broad_class) %>%
+  dplyr::summarise(n = n())
+head(cat_sum_chrom)
 
+#boxplot of per chrom summary
+bdat <- cat_sum_bin
+bdat$seqname <- gsub("chr","",bdat$seqname)
+bdat$seqname <- factor(bdat$seqname, levels=p_chr_ord_gsub)
+p <- (ggplot(bdat, aes(x=seqname, y=n,fill=factor(broad_class)) )
+      + geom_boxplot()
+      + labs(title = paste(gsub("_","",Atype), "Common Interactions: Number of Genes per Chromosome"),
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = paste0("Chromosome"),
+             y = "Number of Genes per 1Mb Bin",
+             fill = "Gene Category")
+      + scale_x_discrete(expand = c(0, 0))
+      + scale_y_continuous(expand = c(0, 0))
+)
+f_name <- gsub(" ","",paste("common_interactions_gene_density_per_chrom_boxplot",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
+
+bdat$bin_start <- bdat$bin_start / 1000000
+p <- (ggplot(bdat, aes(x=bin_start, y=n,colour=factor(broad_class)) )
+      + geom_point()
+      + geom_smooth(method = "loess", formula = y~x)
+      + labs(title = paste(gsub("_","",Atype), "Common Interactions: Number of Genes per Chromosome"),
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = paste0("Genomic Position [Mb]"),
+             y = "Number of Genes per 1Mb Bin",
+             fill = "Gene Category")
+      + scale_x_continuous(expand = c(0, 0))
+      + scale_y_continuous(expand = c(0, 0))
+      + facet_grid(seqname ~ .)
+)
+f_name <- gsub(" ","",paste("common_interactions_gene_density_per_chrom_pts_line",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
+
+#boxplot of all chroms together
+p <- (ggplot(bdat, aes(x=broad_class, y=n,fill=factor(broad_class)) )
+      + geom_boxplot()
+      + labs(title = paste(gsub("_","",Atype), "Common Interactions"),
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = paste0("Gene Catefory"),
+             y = "Number of Genes per 1Mb Bin",
+             fill = "Gene Category")
+      + scale_x_discrete(expand = c(0, 0))
+      + scale_y_continuous(expand = c(0, 0))
+#      + facet_grid(seqname ~ .)
+)
+f_name <- gsub(" ","",paste("common_interactions_gene_density_per_gene_boxplot",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
+print("#test between means of gene classes (all chroms data)")
+print("#Test each group for normality")
+print("sig = reject normality null")
+bdat$broad_class <- as.factor(bdat$broad_class)
+bdat %>%
+  group_by(broad_class) %>%
+  summarise(W = shapiro.test(n)$statistic,
+            p.value = shapiro.test(n)$p.value)
+print("#Perform the Kruskal-Wallis test")
+print("sig = mean is diff btwn groups")
+kruskal.test(n ~ broad_class, data=bdat)
+print("# check which groups have sig diff")
+print("# perform pairwise wilcoxon test with FDR (Benjamini-Hochberg) correction")
+pairwise.wilcox.test(bdat$n, bdat$broad_class,
+                 p.adjust.method = "BH")
