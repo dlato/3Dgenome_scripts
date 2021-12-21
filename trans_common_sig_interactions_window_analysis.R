@@ -332,9 +332,14 @@ chrInf$size <- as.numeric(chrInf$size)
 print("#initiate new df for common inters within window")
 common_window_df <- dat2[1,]
 common_window_df <- common_window_df[-1,]
+print("window_sz")
+print(window_sz)
+print(type(window_sz))
+print(class(window_sz))
 print("for loop")
 for(i in 1:length(dat2$ID)) {
 #  i=32
+print ("--------------")
   r=dat2[i,]
   print(r)
   rstA <- r$st1
@@ -355,6 +360,10 @@ for(i in 1:length(dat2$ID)) {
   #get end of chrom for each chrom
 Aend <- chrInf$size[match(r$chrA, chrInf$chrom)]
 Bend <- chrInf$size[match(r$chrB, chrInf$chrom)]
+print("Aend")
+  print(Aend)
+print("Bend")
+  print(Bend)
   #if end is within window size, alter range end to be end of chrom
   if(r$end1 >= Aend - window_sz){
     rendA <- Aend
