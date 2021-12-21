@@ -40,14 +40,16 @@ out_ftrans = open(out_trans,"w+")
 with open(mat, 'r') as f:
     for row in f:
         sub_row = re.split("\t",row)
-        A = sub_row[0] 
-        B = sub_row[3] 
-        out_id = "anchor_" + A + "/" + sub_row[1] + "/" + sub_row[2] + "__target_" + B + "/" + sub_row[4] + "/" + sub_row[5] + "\t" + sub_row[7]
+# remove rows with no balanced interaction value
+        if (sub_row[7] != "\n"):
+            A = sub_row[0] 
+            B = sub_row[3] 
+            out_id = "anchor_" + A + "/" + sub_row[1] + "/" + sub_row[2] + "__target_" + B + "/" + sub_row[4] + "/" + sub_row[5] + "\t" + f'{float(sub_row[7]):.8f}'
 #        print(out_id)
 #print cis to cis and trans to trans
-        A_spl = re.split("/",A)
-        B_spl = re.split("/",B)
-        if (A_spl[0] == B_spl[0]):
-            out_fcis.write(str(out_id))
-        else:
-            out_ftrans.write(str(out_id))
+            A_spl = re.split("/",A)
+            B_spl = re.split("/",B)
+            if (A_spl[0] == B_spl[0]):
+                out_fcis.write(str(out_id))
+            else:
+                out_ftrans.write(str(out_id))
