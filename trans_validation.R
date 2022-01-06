@@ -66,16 +66,18 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-#Atype <- "1_vs_All"
-#zdat_file <- "test_1vsAll_dat.txt"
-#pdat_file <- "test_1vsAll_pvalues.txt"
-#roi1_file <- "FIRRE.bed"
-#roi2_file <- "ATF4.bed"
-#xstart <- 131688779 /1000000
-#ystart <- 39519695 /1000000
-#library(harrypotter)
-#library(factoextra)
-#library(hexbin)
+Atype <- "1_vs_All"
+zdat_file <- "test_1vsAll_dat.txt"
+pdat_file <- "test_1vsAll_pvalues.txt"
+roi1_file <- "FIRRE.bed"
+roi2_file <- "ATF4.bed"
+xchr <- "X"
+ychr <- "22"
+xstart <- 131688779 /1000000
+ystart <- 39519695 /1000000
+library(harrypotter)
+library(factoextra)
+library(hexbin)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
 ##dat <- read.table(dat_file, header = TRUE)
@@ -1320,6 +1322,12 @@ summary(tp_dat_sum)
 head(tp_dat_sum)
 for(i in unique(tp_dat_sum$chr)) {
   #i="22"
+  interpos <- xstart
+  if (xchr == i) {
+    interpos = xstart
+  } else {
+    interpos = ystart
+  }
   print("######")
   print(i)
   xmax <- chrInf$size[match(paste0("chr",i),chrInf$chrom)] / 1000000
@@ -1333,6 +1341,7 @@ for(i in unique(tp_dat_sum$chr)) {
                 y = "",
                 title = "Trans-chromosomal interactions (significant) z-scores")
          + facet_grid(cell ~ .)
+         + geom_vline(xintercept = interpos, colour = "black")
          #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
          #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
          #       + theme(axis.text.x = element_text(angle = 90))
@@ -1372,7 +1381,13 @@ tp_dat_sum
 summary(tp_dat_sum)
 head(tp_dat_sum)
 for(i in unique(tp_dat_sum$chr)) {
-#  i="X"
+  #i="22"
+  interpos <- xstart
+  if (xchr == i) {
+    interpos = xstart
+  } else {
+    interpos = ystart
+  }
   xmax <- chrInf$size[match(paste0("chr",i),chrInf$chrom)] / 1000000
   tpp <- tp_dat_sum %>% filter(chr == i)
   tp <- (ggplot(tpp, aes(st, y=1, fill = numSig))
@@ -1384,6 +1399,7 @@ for(i in unique(tp_dat_sum$chr)) {
                 y = "",
                 title = "Trans-chromosomal interactions (significant)")
          + facet_grid(cell ~ .)
+         + geom_vline(xintercept = interpos, colour = "black")
          #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
          #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
          #       + theme(axis.text.x = element_text(angle = 90))
