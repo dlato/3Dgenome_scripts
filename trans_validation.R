@@ -1493,6 +1493,36 @@ for(i in unique(tp_dat_sum$chr)) {
   pdf(filename, width = 14, height = 8)
   print(tp)
   dev.off()
+  # line plot of mean zscore of all cell types per bin
+  lp = tpp %>% group_by(chr,st) %>% dplyr::summarize(mmzscore=mean(mzscore, na.rm = TRUE))
+  tp <- (ggplot(lp, aes(st, y= mmzscore))
+         + geom_point(alpha = 0.5, size= 3)
+         +geom_smooth(method = 'loess',formula ='y ~ x')
+         #+ scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per bin", na.value = "grey")
+         #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+         #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+         + labs(x = paste0("Chromosome ", i, " position [Mb]"),
+                y = "Mean z-score per bin across cells",
+                title = "Trans-chromosomal interactions (significant) z-scores (all cells)")
+         #+ facet_grid(cell ~ .)
+         + geom_vline(xintercept = interpos, colour = "red")
+         #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+         #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+         #       + theme(axis.text.x = element_text(angle = 90))
+         + expand_limits(x = c(0,xmax))
+         + scale_y_continuous(expand = c(0, 0))
+         + scale_x_continuous(expand = c(0, 0))
+         + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+                 strip.background = element_rect(fill = "white"),
+                 panel.spacing = unit(0, "lines"))
+                 #axis.text.y = element_blank(),
+                 #axis.ticks.y = element_blank())
+         #+ theme(panel.background = element_rect(fill = "grey85", colour = NA))
+  )
+  filename <- paste0("zscore_chrom",i,"_mean_line_sig_Interactions.pdf")
+  pdf(filename, width = 14, height = 8)
+  print(tp)
+  dev.off()
 }#for
 print("##########")
 print("##########")
@@ -1548,6 +1578,36 @@ for(i in unique(tp_dat_sum$chr)) {
          + theme(panel.background = element_rect(fill = "grey85", colour = NA))
   )
   filename <- paste0("numSig_inters_chrom",i,"_tickplot_sig_Interactions.pdf")
+  pdf(filename, width = 14, height = 8)
+  print(tp)
+  dev.off()
+  # line plot of mean zscore of all cell types per bin
+  lp = tpp %>% group_by(chr,st) %>% dplyr::summarize(mnumSig=mean(numSig, na.rm = TRUE))
+  tp <- (ggplot(lp, aes(st, y= mnumSig))
+         + geom_point(alpha = 0.5, size= 3)
+         +geom_smooth(method = 'loess',formula ='y ~ x')
+         #+ scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per bin", na.value = "grey")
+         #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+         #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+         + labs(x = paste0("Chromosome ", i, " position [Mb]"),
+                y = "Mean number of significant interactions per bin across cells",
+                title = "Trans-chromosomal significant interactions (all cells)")
+         #+ facet_grid(cell ~ .)
+         + geom_vline(xintercept = interpos, colour = "red")
+         #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+         #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+         #       + theme(axis.text.x = element_text(angle = 90))
+         + expand_limits(x = c(0,xmax))
+         + scale_y_continuous(expand = c(0, 0))
+         + scale_x_continuous(expand = c(0, 0))
+         + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+                 strip.background = element_rect(fill = "white"),
+                 panel.spacing = unit(0, "lines"))
+         #axis.text.y = element_blank(),
+         #axis.ticks.y = element_blank())
+         #+ theme(panel.background = element_rect(fill = "grey85", colour = NA))
+  )
+  filename <- paste0("numSig_inters_",i,"_mean_line_sig_Interactions.pdf")
   pdf(filename, width = 14, height = 8)
   print(tp)
   dev.off()
