@@ -66,18 +66,18 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-#Atype <- "1_vs_All"
-#zdat_file <- "test_1vsAll_dat.txt"
-#pdat_file <- "test_1vsAll_pvalues.txt"
-#roi1_file <- "FIRRE.bed"
-#roi2_file <- "ATF4.bed"
-#xchr <- "X"
-#ychr <- "22"
-#xstart <- 131688779 /1000000
-#ystart <- 39519695 /1000000
-#library(harrypotter)
-#library(factoextra)
-#library(hexbin)
+Atype <- "1_vs_All"
+zdat_file <- "test_1vsAll_dat.txt"
+pdat_file <- "test_1vsAll_pvalues.txt"
+roi1_file <- "FIRRE.bed"
+roi2_file <- "ATF4.bed"
+xchr <- "X"
+ychr <- "22"
+xstart <- 131688779 /1000000
+ystart <- 39519695 /1000000
+library(harrypotter)
+library(factoextra)
+library(hexbin)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
 ##dat <- read.table(dat_file, header = TRUE)
@@ -1665,6 +1665,10 @@ pdf(filename, width = 14, height = 8)
 print(bg)
 dev.off()
 }#for
+print("########")
+print("# Pearson correlation between mean zscore and mean number of sig inters per chrom per bin across cells")
+print("########")
+cor.test(bg_dat$mmzscore, bg_dat$mnumSig, method = 'pearson')
 
 print("##########")
 
