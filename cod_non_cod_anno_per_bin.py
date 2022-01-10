@@ -59,6 +59,8 @@ df_genes.loc[df_genes['gene_type'].str.contains("pseudogene"), 'broad_class'] = 
 # Immunoglobulin/T-cell receptor gene segments
 df_genes.loc[df_genes['gene_type'].str.contains("TR_"), 'broad_class'] = 'Tcell'
 df_genes.loc[df_genes['gene_type'].str.contains("IG_"), 'broad_class'] = 'immunoglob'
+# dealing with odd scRNA (classify as lncRNA)
+df_genes.loc[df_genes['gene_type'] == "scRNA", 'broad_class'] = 'lncRNA'
 ##print(df_genes['gene_type'].str.contains("pseudogene"))
 ##print(df[df['gene_type'].str.contains("pseudogene")])
 ##df_genes[df_genes['gene_type'].str.contains('pseudogene', case=False, na=False)]
