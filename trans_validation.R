@@ -66,18 +66,18 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-Atype <- "1_vs_All"
-zdat_file <- "test_1vsAll_dat.txt"
-pdat_file <- "test_1vsAll_pvalues.txt"
-roi1_file <- "FIRRE.bed"
-roi2_file <- "ATF4.bed"
-xchr <- "X"
-ychr <- "22"
-xstart <- 131688779 /1000000
-ystart <- 39519695 /1000000
-library(harrypotter)
-library(factoextra)
-library(hexbin)
+#Atype <- "1_vs_All"
+#zdat_file <- "test_1vsAll_dat.txt"
+#pdat_file <- "test_1vsAll_pvalues.txt"
+#roi1_file <- "FIRRE.bed"
+#roi2_file <- "ATF4.bed"
+#xchr <- "X"
+#ychr <- "22"
+#xstart <- 131688779 /1000000
+#ystart <- 39519695 /1000000
+#library(harrypotter)
+#library(factoextra)
+#library(hexbin)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
 ##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
 ##dat <- read.table(dat_file, header = TRUE)
@@ -1524,6 +1524,8 @@ for(i in unique(tp_dat_sum$chr)) {
   print(tp)
   dev.off()
 }#for
+#df of mean zscore for bubble graph
+bgz_dat <- tp_dat_sum %>% group_by(chr,st) %>% dplyr::summarize(mmzscore=mean(mzscore, na.rm = TRUE))
 print("##########")
 print("##########")
 print("# tickplot per chrom, each bin represented fact with cells")
@@ -1612,6 +1614,58 @@ for(i in unique(tp_dat_sum$chr)) {
   print(tp)
   dev.off()
 }#for
+#df of mean number of inters for bubble graph
+bgi_dat <- tp_dat_sum %>% group_by(chr,st) %>% dplyr::summarize(mnumSig=mean(numSig, na.rm = TRUE))
+head(bgi_dat)
+
+print("########")
+print("# bubble graph for mean zscore and mean number of sig inters per chrom per bin across cells")
+print("########")
+#combine dfs
+bg_dat <- merge(bgz_dat, bgi_dat, by = c('chr','st'))
+head(bg_dat)
+summary(bg_dat)
+for(i in unique(bg_dat$chr)) {
+  #i="22"
+  interpos <- xstart
+  if (xchr == i) {
+    interpos = xstart
+  } else {
+    interpos = ystart
+  }
+  xmax <- chrInf$size[match(paste0("chr",i),chrInf$chrom)] / 1000000
+  tpp <- bg_dat %>% filter(chr == i)
+bg <- (ggplot(tpp, aes(st, y= mmzscore, size=mnumSig))
+       + geom_point(alpha = 0.5)
+       #+geom_smooth(method = 'loess',formula ='y ~ x')
+       #+ scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per bin", na.value = "grey")
+       #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+       #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+       + labs(x = paste0("Chromosome ", i, " position [Mb]"),
+              y = "Mean z-score per bin across cells",
+              title = "Trans-chromosomal significant interactions (all cells)")
+       #+ facet_grid(cell ~ .)
+       + geom_vline(xintercept = interpos, colour = "red")
+       #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+       #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+       #       + theme(axis.text.x = element_text(angle = 90))
+       + expand_limits(x = c(0,xmax))
+       + scale_y_continuous(expand = c(0, 0))
+       + scale_x_continuous(expand = c(0, 0))
+       + scale_size("Mean number of significant interactions")
+       + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+               strip.background = element_rect(fill = "white"),
+               panel.spacing = unit(0, "lines"))
+       #axis.text.y = element_blank(),
+       #axis.ticks.y = element_blank())
+       #+ theme(panel.background = element_rect(fill = "grey85", colour = NA))
+)
+filename <- paste0("numSig_inters_zscore_",i,"_mean_bubble_sig_Interactions.pdf")
+pdf(filename, width = 14, height = 8)
+print(bg)
+dev.off()
+}#for
+
 print("##########")
 
 
