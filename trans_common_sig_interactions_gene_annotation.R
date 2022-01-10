@@ -172,15 +172,18 @@ colnames(Bdf) <- c("chr","st","end")
 u_inters <- distinct(rbind(Adf,Bdf))
 summary(u_inters)
 common_genes <- c()
+common_genes_metascape <- c()
 for(i in 1:nrow(u_inters)) {
   #i=1
   td <- u_inters[i,]
   tgenes_df <- anno_df %>% filter(seqname == td$chr & bin_start == td$st | bin_end == td$st) %>% 
     filter(broad_class =="prot")
   common_genes <- append(common_genes,gsub("\\..*", "",tgenes_df$gene_id, perl=TRUE))
+  common_genes_metascape <- append(common_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
 } #for
 common_genes
 write.table(common_genes, file = as.character(outfile), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(common_genes_metascape, file = as.character(paste0("metascape",outfile)), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
 # dealing with genes that are found in two bins: counting twice
 tdup_anno <- anno_df %>% filter(bin_start != bin_end)
