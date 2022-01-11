@@ -1626,7 +1626,7 @@ bg_dat <- merge(bgz_dat, bgi_dat, by = c('chr','st'))
 head(bg_dat)
 summary(bg_dat)
 for(i in unique(bg_dat$chr)) {
-  #i="22"
+  i="22"
   interpos <- xstart
   if (xchr == i) {
     interpos = xstart
@@ -1635,15 +1635,17 @@ for(i in unique(bg_dat$chr)) {
   }
   xmax <- chrInf$size[match(paste0("chr",i),chrInf$chrom)] / 1000000
   tpp <- bg_dat %>% filter(chr == i)
-bg <- (ggplot(tpp, aes(st, y= mmzscore, size=mnumSig))
+bg <- (ggplot(tpp, aes(st, y= mmzscore, size=mnumSig, colour=mnumSig))
        + geom_point(alpha = 0.5)
        #+geom_smooth(method = 'loess',formula ='y ~ x')
-       #+ scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per bin", na.value = "grey")
+       + scale_color_hp(discrete = FALSE, option = "ronweasley2", guide="legend")
        #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
        #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
        + labs(x = paste0("Chromosome ", i, " position [Mb]"),
               y = "Mean z-score per bin across cells",
-              title = "Trans-chromosomal significant interactions (all cells)")
+              title = "Trans-chromosomal significant interactions (all cells)",
+              size = "Mean number of significant interactions per bin",
+              color = "Mean number of significant interactions per bin")
        #+ facet_grid(cell ~ .)
        + geom_vline(xintercept = interpos, colour = "red")
        #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
@@ -1652,7 +1654,7 @@ bg <- (ggplot(tpp, aes(st, y= mmzscore, size=mnumSig))
        + expand_limits(x = c(0,xmax))
        + scale_y_continuous(expand = c(0, 0))
        + scale_x_continuous(expand = c(0, 0))
-       + scale_size("Mean number of significant interactions")
+       #+ scale_size("Mean number of significant interactions")
        + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
                strip.background = element_rect(fill = "white"),
                panel.spacing = unit(0, "lines"))
