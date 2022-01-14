@@ -74,17 +74,17 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-###interaction data
-Atype <- "1_vs_All"
-#tissue_file <- "tissue_system_info.txt"
-dat_file <- "test_common_inters_df.txt"
-#allinters_file <- "all_trans_interactions_1Mb.txt"
-#germlayer_file <- "germlayer_info.txt"
-bin_size <- 1000000
-anno_file <- "hg38_p13_v32_annotation.txt"
-outfile <- "GO_analysis_common_inters_gene_list.txt"
-library(factoextra)#for PCA
-library(harrypotter) #for colours
+####interaction data
+#Atype <- "1_vs_All"
+##tissue_file <- "tissue_system_info.txt"
+#dat_file <- "test_common_inters_df.txt"
+##allinters_file <- "all_trans_interactions_1Mb.txt"
+##germlayer_file <- "germlayer_info.txt"
+#bin_size <- 1000000
+#anno_file <- "hg38_p13_v32_annotation.txt"
+#outfile <- "GO_analysis_common_inters_gene_list.txt"
+#library(factoextra)#for PCA
+#library(harrypotter) #for colours
 
 #re-order chroms based on chrom len
 chrs_len_ord <- c("chr1","chr2",
@@ -181,7 +181,10 @@ for(i in 1:nrow(u_inters)) {
   common_genes <- append(common_genes,gsub("\\..*", "",tgenes_df$gene_id, perl=TRUE))
   common_genes_metascape <- append(common_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
 } #for
+common_genes <- unique(common_genes)
 common_genes
+print("#### number of genes in common interactions")
+length(common_genes)
 write.table(common_genes, file = as.character(paste0(outfile,"_common_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 write.table(common_genes_metascape, file = as.character(paste0(outfile,"_common_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
@@ -209,7 +212,10 @@ for(i in 1:nrow(tu_inters)) {
   tcommon_genes <- append(tcommon_genes,gsub("\\..*", "",tgenes_df$gene_id, perl=TRUE))
   tcommon_genes_metascape <- append(tcommon_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
 } #for
+tcommon_genes <- unique(tcommon_genes)
 tcommon_genes
+print("#### number of genes in common interactions")
+length(tcommon_genes)
 write.table(tcommon_genes, file = as.character(paste0(outfile,"_top3000_common_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 write.table(tcommon_genes_metascape, file = as.character(paste0(outfile,"_top3000_common_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
