@@ -182,8 +182,8 @@ for(i in 1:nrow(u_inters)) {
   common_genes_metascape <- append(common_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
 } #for
 common_genes
-write.table(common_genes, file = as.character(paste0("GO_analysis_",outfile)), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-write.table(common_genes_metascape, file = as.character(paste0("metascape_analysis_",outfile)), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(common_genes, file = as.character(paste0(outfile,"_common_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(common_genes_metascape, file = as.character(paste0(outfile,"_common_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
 # dealing with genes that are found in two bins: counting twice
 tdup_anno <- anno_df %>% filter(bin_start != bin_end)
