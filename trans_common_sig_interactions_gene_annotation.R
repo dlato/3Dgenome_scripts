@@ -75,16 +75,16 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 ###interaction data
-#Atype <- "1_vs_All"
-##tissue_file <- "tissue_system_info.txt"
-#dat_file <- "test_common_inters_df.txt"
-##allinters_file <- "all_trans_interactions_1Mb.txt"
-##germlayer_file <- "germlayer_info.txt"
-#bin_size <- 1000000
-#anno_file <- "hg38_p13_v32_annotation.txt"
-#outfile <- "GO_analysis_common_inters_gene_list.txt"
-#library(factoextra)#for PCA
-#library(harrypotter) #for colours
+Atype <- "1_vs_All"
+#tissue_file <- "tissue_system_info.txt"
+dat_file <- "test_common_inters_df.txt"
+#allinters_file <- "all_trans_interactions_1Mb.txt"
+#germlayer_file <- "germlayer_info.txt"
+bin_size <- 1000000
+anno_file <- "hg38_p13_v32_annotation.txt"
+outfile <- "GO_analysis_common_inters_gene_list.txt"
+library(factoextra)#for PCA
+library(harrypotter) #for colours
 
 #re-order chroms based on chrom len
 chrs_len_ord <- c("chr1","chr2",
@@ -184,6 +184,36 @@ for(i in 1:nrow(u_inters)) {
 common_genes
 write.table(common_genes, file = as.character(paste0(outfile,"_common_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 write.table(common_genes_metascape, file = as.character(paste0(outfile,"_common_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+
+#########
+# top 3000 genes in common interactions (roughly top 79 interactions)
+# calculate the mean zscore per interaction (mean across all cells), then taking the top 79 interactions
+# file comes from the trans_common_sig_interactions.R script
+topdat <- dat %>% arrange(desc(mzscore))
+topdat
+topdat <- topdat[1:79,]
+topdat
+Adf <- topdat %>% select(chrA, st1,end1)
+colnames(Adf) <- c("chr","st","end")
+Bdf <- topdat %>% select(chrB, st2,end1)
+colnames(Bdf) <- c("chr","st","end")
+tu_inters <- distinct(rbind(Adf,Bdf))
+summary(tu_inters)
+tcommon_genes <- c()
+tcommon_genes_metascape <- c()
+for(i in 1:nrow(tu_inters)) {
+  #i=1
+  td <- tu_inters[i,]
+  tgenes_df <- anno_df %>% filter(seqname == td$chr & bin_start == td$st | bin_end == td$st) %>% 
+    filter(broad_class =="prot")
+  tcommon_genes <- append(tcommon_genes,gsub("\\..*", "",tgenes_df$gene_id, perl=TRUE))
+  tcommon_genes_metascape <- append(tcommon_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
+} #for
+tcommon_genes
+write.table(tcommon_genes, file = as.character(paste0(outfile,"_top3000_common_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(tcommon_genes_metascape, file = as.character(paste0(outfile,"_top3000_common_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+
+
 
 # dealing with genes that are found in two bins: counting twice
 tdup_anno <- anno_df %>% filter(bin_start != bin_end)
