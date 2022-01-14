@@ -192,7 +192,7 @@ write.table(common_genes_metascape, file = as.character(paste0(outfile,"_common_
 # top 3000 genes in common interactions (roughly top 79 interactions)
 # calculate the mean zscore per interaction (mean across all cells), then taking the top 79 interactions
 # file comes from the trans_common_sig_interactions.R script
-topdat <- dat %>% arrange(desc(mzscore))
+topdat <- dat %>% arrange(desc(meanZscore))
 topdat
 topdat <- topdat[1:79,]
 topdat

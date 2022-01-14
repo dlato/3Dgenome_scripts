@@ -152,7 +152,7 @@ cellcolnames <- colnames(mdat2)
 cellcolnames <- cellcolnames[-c(1,2,3,4,5,6,7)]
 mdat2$meanZscore <- rowMeans(mdat2[,cellcolnames])
 #save df
-write.table(dat2 %>% select(chrA, st1, end1,chrB,st2,end2,mzscore), file = outfile, sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+write.table(dat2 %>% select(chrA, st1, end1,chrB,st2,end2,meanZscore), file = outfile, sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
 
 print("all chroms involved in common interactions")
 Achrs <- unique(c(dat2$chrA, dat2$chrB))
