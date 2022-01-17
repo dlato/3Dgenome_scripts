@@ -1,12 +1,12 @@
 ########################################
-#validating known trans-chromosomal interactions
+# all genes present in common trans-chromosomal interactions
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com
 #            github: https://github.com/dlato
 ######
 # arguments: common interactions output data (from R script) (tsv)
-#            bin size (bp)
+#            bin size used for Hi-C data analysis (bp)
 #            annotation file (from python script) (tsv)
 #            full path and name of output file
 #            type of analysis with underscore between words (i.e. 1_vs_All)
@@ -189,12 +189,12 @@ write.table(common_genes, file = as.character(paste0(outfile,"_common_inters_GO_
 write.table(common_genes_metascape, file = as.character(paste0(outfile,"_common_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
 #########
-# top 3000 genes in common interactions (roughly top 79 interactions)
+# top 3000 genes in common interactions (roughly top 50 interactions)
 # calculate the mean zscore per interaction (mean across all cells), then taking the top 79 interactions
 # file comes from the trans_common_sig_interactions.R script
 topdat <- dat %>% arrange(desc(meanZscore))
 topdat
-topdat <- topdat[1:79,]
+topdat <- topdat[1:50,]
 topdat
 Adf <- topdat %>% select(chrA, st1,end1)
 colnames(Adf) <- c("chr","st","end")
