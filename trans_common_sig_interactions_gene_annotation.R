@@ -194,7 +194,7 @@ write.table(common_genes_metascape, file = as.character(paste0(outfile,"_common_
 # file comes from the trans_common_sig_interactions.R script
 topdat <- dat %>% arrange(desc(meanZscore))
 topdat
-topdat <- topdat[1:50,]
+topdat <- topdat[1:15,]
 topdat
 Adf <- topdat %>% select(chrA, st1,end1)
 colnames(Adf) <- c("chr","st","end")

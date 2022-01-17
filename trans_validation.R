@@ -822,8 +822,12 @@ aorta_df <- hir_df %>% filter(cell == "Aorta")
 #p <- (ggplot(aorta_df, aes(x=st1, y=zscore)) 
 print("# pts and line")
 print("# two graphs for pos and neg")
+head(hir_df)
+summary(hir_df)
 hir_df <- hir_df %>% mutate(sign = ifelse(zscore >= 0, "pos", "neg"))
 head(hir_df)
+summary(hir_df)
+unique(hir_df$sign)
 #p <- (ggplot(hir_df, aes(x=st1, y=zscore, fill=sign)) 
 #      + geom_point(alpha = 0.4, aes(color = sign))
 #      + geom_vline(aes(xintercept = xstart), colour = "red")
@@ -884,7 +888,7 @@ head(hir_df)
 ########
 # facet line and pts
 ########
-#change positive to be listed first
+print("#change positive to be listed first")
 hir_df$sign = factor(hir_df$sign, levels=c("pos" ="pos","neg" = "neg"))
 p <- (ggplot(hir_df, aes(x=st1, y=zscore, fill=sign)) 
       + geom_point(alpha = 0.4, aes(color = sign))
