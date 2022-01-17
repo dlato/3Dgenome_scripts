@@ -66,7 +66,7 @@ colnames(gtf) <- c("chrom", "db", "geneType","st","end","score","strand","frame"
 head(gtf)
 summary(gtf)
 # get bin start for each gene
-gtf$bin_start <- plyr::round_any(gtf$st, bin_size, f = floor)
+gtf$bin_start <- plyr::round_any(gtf$st, as.numeric(as.character(bin_size)), f = floor)
 # sum up the number of genes per bin
 num_genes <- gtf %>% group_by(bin_start) %>% dplyr::summarize(n=n())
 # adjust bin start for graph
@@ -144,7 +144,9 @@ p_chr_ord_gsub <- gsub("chr","",p_chr_ord)
 print("##########")
 print("# tickplot with number of OR genes per bin")
 xchr <- gsub("chr","", gtf$chrom[1])
-xmax <- chrInf$size[match(paste0("chr",xchr),chrInf$chrom)] / 1000000
+xmax <- as.numeric(chrInf$size[match(paste0("chr",xchr),chrInf$chrom)]) / 1000000
+print("xmax")
+xmax
 # adding values of 0 for all other bins
 allbins = seq(0, xmax*1000000, 1000000)
 allbins
