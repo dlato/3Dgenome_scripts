@@ -173,18 +173,21 @@ nonsig_cells
 print("# plot presence/absence of valid interaction with all cell types")
 #######
 mytitle <- gsub("_", " ", Atype)
-#data for presence/absence
+print("#data for presence/absence")
 pa_dat <- as.data.frame(cbind(all_cells, allmisscols))
+head(pa_dat)
 pa_dat <- pa_dat[-c(1,2,3,4,5,6,7),]
 pa_dat$allmisscols <- factor(pa_dat$allmisscols)
-#reorder based on T/F status
+head(pa_dat)
+print("#reorder based on T/F status")
+unique(pa_dat$allmisscols)
 pa_dat <- pa_dat %>% arrange(desc(allmisscols)) %>%    
   mutate(all_cells=factor(all_cells, levels=all_cells)) 
-#change name of T/F levels
+print("#change name of T/F levels")
 levels(pa_dat$allmisscols) <- list("Present" = "FALSE",
                                    "Absent"="TRUE")
 #get column for presence z-score sign info
-#convert df with just interacting region to long format
+print("#convert df with just interacting region to long format")
 #VinterL <- gather(Vinter, cell, zscore, 8:length(colnames(Vinter)), factor_key=TRUE)
 VinterL <- Vinter
 VinterL$zsign <- VinterL$zscore
@@ -890,554 +893,555 @@ unique(hir_df$sign)
 ########
 print("#change positive to be listed first")
 hir_df$sign = factor(hir_df$sign, levels=c("pos" ="pos","neg" = "neg"))
-p <- (ggplot(hir_df, aes(x=st1, y=zscore, fill=sign)) 
-      + geom_point(alpha = 0.4, aes(color = sign))
-      + geom_vline(aes(xintercept = xstart), colour = "red")
-      + geom_smooth(aes(colour = sign), method = 'loess', formula = y ~ x)
-      + labs(title = "Distribution of z-scores between valid interacting chromosomes (significant interactions)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
-             y = "z-score",
-             fill = "z-score sign")
-      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
-      + scale_colour_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign", labels = c("pos" = "Positive","neg" ="Negative"))
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,xmax))
-      + scale_x_continuous(expand = c(0, 0))
-            + facet_grid(sign ~ ., scales = "free")
-             + theme(panel.spacing = unit(0, "lines"),
-                     strip.text.y.right = element_blank())
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_pts_posneg_facet_sigInters_all_cells",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-p <- (ggplot(hir_df, aes(x=st2, y=zscore, fill=sign)) 
-      + geom_point(alpha = 0.4, aes(color = sign))
-      + geom_vline(aes(xintercept = ystart), colour = "red")
-      + geom_smooth(aes(colour = sign), method = 'loess', formula = y ~ x)
-      + labs(title = "Distribution of z-scores between valid interacting chromosomes (significant interactions)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
-             y = "z-score",
-             fill = "z-score sign")
-      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
-      + scale_colour_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign", labels = c("pos" = "Positive","neg" ="Negative"))
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,ymax))
-      + scale_x_continuous(expand = c(0, 0))
-            + facet_grid(sign ~ ., scales = "free")
-             + theme(panel.spacing = unit(0, "lines"),
-                     strip.text.y.right = element_blank())
-      #      + facet_wrap(.~ sign, scales = "free")
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_pts_posneg_facet_YX_sigInters_all_cells",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-
-
+levels(hir_df$sign)
+#p <- (ggplot(hir_df, aes(x=st1, y=zscore, fill=sign)) 
+#      + geom_point(alpha = 0.4, aes(color = sign))
+#      + geom_vline(aes(xintercept = xstart), colour = "red")
+#      + geom_smooth(aes(colour = sign), method = 'loess', formula = y ~ x)
+#      + labs(title = "Distribution of z-scores between valid interacting chromosomes (significant interactions)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
+#             y = "z-score",
+#             fill = "z-score sign")
+#      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
+#      + scale_colour_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign", labels = c("pos" = "Positive","neg" ="Negative"))
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,xmax))
+#      + scale_x_continuous(expand = c(0, 0))
+#            + facet_grid(sign ~ ., scales = "free")
+#             + theme(panel.spacing = unit(0, "lines"),
+#                     strip.text.y.right = element_blank())
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_pts_posneg_facet_sigInters_all_cells",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#p <- (ggplot(hir_df, aes(x=st2, y=zscore, fill=sign)) 
+#      + geom_point(alpha = 0.4, aes(color = sign))
+#      + geom_vline(aes(xintercept = ystart), colour = "red")
+#      + geom_smooth(aes(colour = sign), method = 'loess', formula = y ~ x)
+#      + labs(title = "Distribution of z-scores between valid interacting chromosomes (significant interactions)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+#             y = "z-score",
+#             fill = "z-score sign")
+#      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
+#      + scale_colour_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign", labels = c("pos" = "Positive","neg" ="Negative"))
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,ymax))
+#      + scale_x_continuous(expand = c(0, 0))
+#            + facet_grid(sign ~ ., scales = "free")
+#             + theme(panel.spacing = unit(0, "lines"),
+#                     strip.text.y.right = element_blank())
+#      #      + facet_wrap(.~ sign, scales = "free")
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_pts_posneg_facet_YX_sigInters_all_cells",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#
+#
 #hex map
 hir_df$sign <- factor(hir_df$sign,      # Reordering group factor levels
                          levels = c("pos", "neg"))
-p <- (ggplot(hir_df, aes(y = zscore, fill = sign, x = st1))
-      + geom_vline(aes(xintercept = xstart), colour = "red")
-      + facet_wrap(~sign, ncol = 1, scales  = 'free_y') 
-      + stat_binhex(aes(alpha = ..count..), colour = 'grey90')  
-      + scale_alpha(name = 'Frequency', range = c(0,1))  
-      + labs(title = "Distribution of z-scores between valid interacting chromosomes (significant interactions)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
-             y = "z-score",
-             fill = "z-score sign")
-      + theme(strip.background = element_blank(), strip.text = element_blank())
-      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
-      + expand_limits(x = c(0,xmax))
-      + scale_x_continuous(expand = c(0, 0))
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_hex_posneg_sigInters_all_cells",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-p <- (ggplot(hir_df, aes(y = zscore, fill = sign, x = st2))
-      + geom_vline(aes(xintercept = ystart), colour = "red")
-  + facet_wrap(~sign, ncol = 1, scales  = 'free_y') 
-  + stat_binhex(aes(alpha = ..count..), colour = 'grey80')  
-  + scale_alpha(name = 'Frequency', range = c(0,1))  
-  + labs(title = "Distribution of z-scores between valid interacting chromosomes (significant interactions)",
-         #         subtitle = "Plot of length by dose",
-         #         caption = "Data source: ToothGrowth",
-         x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
-         y = "z-score",
-         fill = "z-score sign")
-  + theme(strip.background = element_blank(), strip.text = element_blank())
-  + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
-      + expand_limits(x = c(0,ymax))
-      + scale_x_continuous(expand = c(0, 0))
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_hex_posneg_YX_sigInters_all_cells",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-
-
-print("# boxplot of above data")
-p <- (ggplot(hir_df, aes(x=st1, y=zscore, group=st1, fill=factor(sign)) )
-      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
-      #      + geom_point(alpha = 0.4)
-      + geom_boxplot()
-      + geom_vline(aes(xintercept = xstart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
-             y = "z-score",
-             fill = "z-score sign")
-      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      #       + facet_grid(cell ~.)
-      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
-      + scale_colour_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign", labels = c("pos" = "Positive","neg" ="Negative"))
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,xmax))
-      + scale_x_continuous(expand = c(0, 0))
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_posneg_sigInters_all_cells",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-p <- (ggplot(hir_df, aes(x=st2, y=zscore, group=st2, fill=sign)) 
-      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
-      #      + geom_point(alpha = 0.4)
-      + geom_boxplot()
-      + geom_vline(aes(xintercept = ystart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
-             y = "z-score",
-             fill = "z-score sign")
-      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      #       + facet_grid(cell ~.)
-      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), labels = c("pos" = "Positive","neg" ="Negative"))
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,ymax))
-      + scale_x_continuous(expand = c(0, 0))
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_posneg_YX_sigInters_all_cells",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-########
-# facet box plot
-########
-p <- (ggplot(hir_df, aes(x=st1, y=zscore, group=st1, fill=factor(sign)) )
-      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
-      #      + geom_point(alpha = 0.4)
-      + geom_boxplot()
-      + geom_vline(aes(xintercept = xstart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
-             y = "z-score",
-             fill = "z-score sign")
-      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      #       + facet_grid(cell ~.)
-      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
-      + scale_colour_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign", labels = c("pos" = "Positive","neg" ="Negative"))
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,xmax))
-      + scale_x_continuous(expand = c(0, 0))
-            + facet_grid(sign ~ ., scales = "free")
-             + theme(panel.spacing = unit(0, "lines"),
-                     strip.text.y.right = element_blank())
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_posneg_facet_sigInters_all_cells",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-p <- (ggplot(hir_df, aes(x=st2, y=zscore, group=st2, fill=sign)) 
-      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
-      #      + geom_point(alpha = 0.4)
-      + geom_boxplot()
-      + geom_vline(aes(xintercept = ystart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
-             y = "z-score",
-             fill = "z-score sign")
-      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      #       + facet_grid(cell ~.)
-      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), labels = c("pos" = "Positive","neg" ="Negative"))
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,ymax))
-      + scale_x_continuous(expand = c(0, 0))
-            + facet_grid(sign ~ ., scales = "free")
-             + theme(panel.spacing = unit(0, "lines"),
-                     strip.text.y.right = element_blank())
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_posneg_facet_YX_sigInters_all_cells",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-
-
-p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
-       + geom_point(alpha = 0.4)
-       + geom_vline(aes(xintercept = xstart), colour = "red")
-      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
-       + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
-              #         subtitle = "Plot of length by dose",
-              #         caption = "Data source: ToothGrowth",
-              x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
-              y = "z-score")
-#       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-#       + facet_grid(cell ~.)
-#       # expand axis limits so whole chrom len is accounted for
-       + expand_limits(x = c(0,xmax))
-#       + theme(panel.spacing = unit(0, "lines"),
-#               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-#               strip.background = element_rect(fill = "white"),
-#               #               axis.text.x = element_blank(),
-#               #               axis.ticks.x = element_blank(),
-#               axis.text.y = element_blank(),
-#               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_pts_sigInters_all_cells",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-p <- (ggplot(aorta_df, aes(x=st1, y=zscore)) 
+#p <- (ggplot(hir_df, aes(y = zscore, fill = sign, x = st1))
+#      + geom_vline(aes(xintercept = xstart), colour = "red")
+#      + facet_wrap(~sign, ncol = 1, scales  = 'free_y') 
+#      + stat_binhex(aes(alpha = ..count..), colour = 'grey90')  
+#      + scale_alpha(name = 'Frequency', range = c(0,1))  
+#      + labs(title = "Distribution of z-scores between valid interacting chromosomes (significant interactions)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
+#             y = "z-score",
+#             fill = "z-score sign")
+#      + theme(strip.background = element_blank(), strip.text = element_blank())
+#      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
+#      + expand_limits(x = c(0,xmax))
+#      + scale_x_continuous(expand = c(0, 0))
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_hex_posneg_sigInters_all_cells",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#p <- (ggplot(hir_df, aes(y = zscore, fill = sign, x = st2))
+#      + geom_vline(aes(xintercept = ystart), colour = "red")
+#  + facet_wrap(~sign, ncol = 1, scales  = 'free_y') 
+#  + stat_binhex(aes(alpha = ..count..), colour = 'grey80')  
+#  + scale_alpha(name = 'Frequency', range = c(0,1))  
+#  + labs(title = "Distribution of z-scores between valid interacting chromosomes (significant interactions)",
+#         #         subtitle = "Plot of length by dose",
+#         #         caption = "Data source: ToothGrowth",
+#         x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+#         y = "z-score",
+#         fill = "z-score sign")
+#  + theme(strip.background = element_blank(), strip.text = element_blank())
+#  + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
+#      + expand_limits(x = c(0,ymax))
+#      + scale_x_continuous(expand = c(0, 0))
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_hex_posneg_YX_sigInters_all_cells",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#
+#
+#print("# boxplot of above data")
+#p <- (ggplot(hir_df, aes(x=st1, y=zscore, group=st1, fill=factor(sign)) )
+#      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
+#      #      + geom_point(alpha = 0.4)
+#      + geom_boxplot()
+#      + geom_vline(aes(xintercept = xstart), colour = "red")
+#      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
+#             y = "z-score",
+#             fill = "z-score sign")
+#      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+#      #       + facet_grid(cell ~.)
+#      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
+#      + scale_colour_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign", labels = c("pos" = "Positive","neg" ="Negative"))
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,xmax))
+#      + scale_x_continuous(expand = c(0, 0))
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_posneg_sigInters_all_cells",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#p <- (ggplot(hir_df, aes(x=st2, y=zscore, group=st2, fill=sign)) 
+#      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
+#      #      + geom_point(alpha = 0.4)
+#      + geom_boxplot()
+#      + geom_vline(aes(xintercept = ystart), colour = "red")
+#      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+#             y = "z-score",
+#             fill = "z-score sign")
+#      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+#      #       + facet_grid(cell ~.)
+#      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), labels = c("pos" = "Positive","neg" ="Negative"))
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,ymax))
+#      + scale_x_continuous(expand = c(0, 0))
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_posneg_YX_sigInters_all_cells",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#########
+## facet box plot
+#########
+#p <- (ggplot(hir_df, aes(x=st1, y=zscore, group=st1, fill=factor(sign)) )
+#      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
+#      #      + geom_point(alpha = 0.4)
+#      + geom_boxplot()
+#      + geom_vline(aes(xintercept = xstart), colour = "red")
+#      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
+#             y = "z-score",
+#             fill = "z-score sign")
+#      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+#      #       + facet_grid(cell ~.)
+#      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign",labels = c("pos" = "Positive","neg" ="Negative"))
+#      + scale_colour_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), name = "z-score sign", labels = c("pos" = "Positive","neg" ="Negative"))
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,xmax))
+#      + scale_x_continuous(expand = c(0, 0))
+#            + facet_grid(sign ~ ., scales = "free")
+#             + theme(panel.spacing = unit(0, "lines"),
+#                     strip.text.y.right = element_blank())
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_posneg_facet_sigInters_all_cells",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#p <- (ggplot(hir_df, aes(x=st2, y=zscore, group=st2, fill=sign)) 
+#      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
+#      #      + geom_point(alpha = 0.4)
+#      + geom_boxplot()
+#      + geom_vline(aes(xintercept = ystart), colour = "red")
+#      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+#             y = "z-score",
+#             fill = "z-score sign")
+#      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+#      #       + facet_grid(cell ~.)
+#      + scale_fill_manual(values =c("pos" = "#EE9B00", "neg" = "#005F73"), labels = c("pos" = "Positive","neg" ="Negative"))
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,ymax))
+#      + scale_x_continuous(expand = c(0, 0))
+#            + facet_grid(sign ~ ., scales = "free")
+#             + theme(panel.spacing = unit(0, "lines"),
+#                     strip.text.y.right = element_blank())
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_posneg_facet_YX_sigInters_all_cells",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#
+#
 #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
-      + geom_point(alpha = 0.4)
-      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
-+ geom_vline(aes(xintercept = xstart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
-             y = "z-score")
-      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      #       + facet_grid(cell ~.)
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,xmax))
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_pts_sigInters_Aorat_test",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-p <- (ggplot(hir_df, aes(x=st2, y=zscore)) 
-      + geom_point(alpha = 0.4)
-      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
-      + geom_vline(aes(xintercept = ystart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
-             y = "z-score")
-      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      #       + facet_grid(cell ~.)
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,ymax))
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_pts_sigInters_YX_all_cells",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-p <- (ggplot(aorta_df, aes(x=st2, y=zscore)) 
-      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
-      + geom_point(alpha = 0.4)
-      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
-      + geom_vline(aes(xintercept = ystart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
-             y = "z-score")
-      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      #       + facet_grid(cell ~.)
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,ymax))
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_pts_sigInters_YX_Aorat_test",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-print("# just the line, no pts")
-p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
+#       + geom_point(alpha = 0.4)
+#       + geom_vline(aes(xintercept = xstart), colour = "red")
+#      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
+#       + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
+#              #         subtitle = "Plot of length by dose",
+#              #         caption = "Data source: ToothGrowth",
+#              x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
+#              y = "z-score")
+##       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+##       + facet_grid(cell ~.)
+##       # expand axis limits so whole chrom len is accounted for
+#       + expand_limits(x = c(0,xmax))
+##       + theme(panel.spacing = unit(0, "lines"),
+##               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+##               strip.background = element_rect(fill = "white"),
+##               #               axis.text.x = element_blank(),
+##               #               axis.ticks.x = element_blank(),
+##               axis.text.y = element_blank(),
+##               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_pts_sigInters_all_cells",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#p <- (ggplot(aorta_df, aes(x=st1, y=zscore)) 
+##p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
 #      + geom_point(alpha = 0.4)
-      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
-+ geom_vline(aes(xintercept = xstart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
-             y = "z-score")
-      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      #       + facet_grid(cell ~.)
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,xmax))
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_line_sigInters_all_cells",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-p <- (ggplot(aorta_df, aes(x=st1, y=zscore)) 
-      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
+#      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
+#+ geom_vline(aes(xintercept = xstart), colour = "red")
+#      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
+#             y = "z-score")
+#      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+#      #       + facet_grid(cell ~.)
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,xmax))
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_pts_sigInters_Aorat_test",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#p <- (ggplot(hir_df, aes(x=st2, y=zscore)) 
 #      + geom_point(alpha = 0.4)
-      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
-+ geom_vline(aes(xintercept = xstart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
-             y = "z-score")
-      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      #       + facet_grid(cell ~.)
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,xmax))
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_line_sigInters_Aorat_test",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-p <- (ggplot(hir_df, aes(x=st2, y=zscore)) 
+#      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
+#      + geom_vline(aes(xintercept = ystart), colour = "red")
+#      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+#             y = "z-score")
+#      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+#      #       + facet_grid(cell ~.)
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,ymax))
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_pts_sigInters_YX_all_cells",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#p <- (ggplot(aorta_df, aes(x=st2, y=zscore)) 
+#      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
 #      + geom_point(alpha = 0.4)
-      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
-+ geom_vline(aes(xintercept = ystart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
-             y = "z-score")
-      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      #       + facet_grid(cell ~.)
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,ymax))
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_line_sigInters_YX_all_cells",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-p <- (ggplot(aorta_df, aes(x=st2, y=zscore)) 
-      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
-#      + geom_point(alpha = 0.4)
-      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
-+ geom_vline(aes(xintercept = ystart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
-             y = "z-score")
-      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      #       + facet_grid(cell ~.)
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,ymax))
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_line_sigInters_YX_Aorat_test",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-
-print("# boxplot of above data")
-p <- (ggplot(hir_df, aes(x=st1, y=zscore, group=st1)) 
-      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
-      #      + geom_point(alpha = 0.4)
-      + geom_boxplot()
-      + geom_vline(aes(xintercept = xstart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
-             y = "z-score")
-      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      #       + facet_grid(cell ~.)
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,xmax))
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_sigInters_all_cells",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-p <- (ggplot(aorta_df, aes(x=st1, y=zscore, group=st1)) 
-      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
-      #      + geom_point(alpha = 0.4)
-      + geom_boxplot()
-      + geom_vline(aes(xintercept = xstart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
-             y = "z-score")
-      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      #       + facet_grid(cell ~.)
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,xmax))
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_sigInters_Aorat_test",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-p <- (ggplot(hir_df, aes(x=st2, y=zscore, group=st2)) 
-      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
-      #      + geom_point(alpha = 0.4)
-      + geom_boxplot()
-      + geom_vline(aes(xintercept = ystart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
-             y = "z-score")
-      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      #       + facet_grid(cell ~.)
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,ymax))
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_sigInters_YX_all_cells",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-p <- (ggplot(aorta_df, aes(x=st2, y=zscore, group=st2)) 
-      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
-      #      + geom_point(alpha = 0.4)
-      + geom_boxplot()
-      + geom_vline(aes(xintercept = ystart), colour = "red")
-      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
-             y = "z-score")
-      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      #       + facet_grid(cell ~.)
-      #       # expand axis limits so whole chrom len is accounted for
-      + expand_limits(x = c(0,ymax))
-      #       + theme(panel.spacing = unit(0, "lines"),
-      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
-      #               strip.background = element_rect(fill = "white"),
-      #               #               axis.text.x = element_blank(),
-      #               #               axis.ticks.x = element_blank(),
-      #               axis.text.y = element_blank(),
-      #               axis.ticks.y = element_blank())
-)
-f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_sigInters_YX_Aorat_test",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
-
+#      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
+#      + geom_vline(aes(xintercept = ystart), colour = "red")
+#      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+#             y = "z-score")
+#      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+#      #       + facet_grid(cell ~.)
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,ymax))
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_pts_sigInters_YX_Aorat_test",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#print("# just the line, no pts")
+#p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
+##      + geom_point(alpha = 0.4)
+#      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
+#+ geom_vline(aes(xintercept = xstart), colour = "red")
+#      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
+#             y = "z-score")
+#      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+#      #       + facet_grid(cell ~.)
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,xmax))
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_line_sigInters_all_cells",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#p <- (ggplot(aorta_df, aes(x=st1, y=zscore)) 
+#      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
+##      + geom_point(alpha = 0.4)
+#      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
+#+ geom_vline(aes(xintercept = xstart), colour = "red")
+#      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
+#             y = "z-score")
+#      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+#      #       + facet_grid(cell ~.)
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,xmax))
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_line_sigInters_Aorat_test",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#p <- (ggplot(hir_df, aes(x=st2, y=zscore)) 
+##      + geom_point(alpha = 0.4)
+#      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
+#+ geom_vline(aes(xintercept = ystart), colour = "red")
+#      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+#             y = "z-score")
+#      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+#      #       + facet_grid(cell ~.)
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,ymax))
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_line_sigInters_YX_all_cells",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#p <- (ggplot(aorta_df, aes(x=st2, y=zscore)) 
+#      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
+##      + geom_point(alpha = 0.4)
+#      + geom_smooth(colour = "black", method = 'loess', formula = y ~ x)
+#+ geom_vline(aes(xintercept = ystart), colour = "red")
+#      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+#             y = "z-score")
+#      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+#      #       + facet_grid(cell ~.)
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,ymax))
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_line_sigInters_YX_Aorat_test",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#
+#print("# boxplot of above data")
+#p <- (ggplot(hir_df, aes(x=st1, y=zscore, group=st1)) 
+#      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
+#      #      + geom_point(alpha = 0.4)
+#      + geom_boxplot()
+#      + geom_vline(aes(xintercept = xstart), colour = "red")
+#      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
+#             y = "z-score")
+#      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+#      #       + facet_grid(cell ~.)
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,xmax))
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_sigInters_all_cells",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#p <- (ggplot(aorta_df, aes(x=st1, y=zscore, group=st1)) 
+#      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
+#      #      + geom_point(alpha = 0.4)
+#      + geom_boxplot()
+#      + geom_vline(aes(xintercept = xstart), colour = "red")
+#      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
+#             y = "z-score")
+#      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+#      #       + facet_grid(cell ~.)
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,xmax))
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_sigInters_Aorat_test",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#p <- (ggplot(hir_df, aes(x=st2, y=zscore, group=st2)) 
+#      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
+#      #      + geom_point(alpha = 0.4)
+#      + geom_boxplot()
+#      + geom_vline(aes(xintercept = ystart), colour = "red")
+#      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+#             y = "z-score")
+#      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+#      #       + facet_grid(cell ~.)
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,ymax))
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_sigInters_YX_all_cells",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#p <- (ggplot(aorta_df, aes(x=st2, y=zscore, group=st2)) 
+#      #p <- (ggplot(hir_df, aes(x=st1, y=zscore)) 
+#      #      + geom_point(alpha = 0.4)
+#      + geom_boxplot()
+#      + geom_vline(aes(xintercept = ystart), colour = "red")
+#      + labs(title = "Distribution of z-scores along valid interacting chromosome (significant interactions, Aorta)",
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+#             y = "z-score")
+#      #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
+#      #       + facet_grid(cell ~.)
+#      #       # expand axis limits so whole chrom len is accounted for
+#      + expand_limits(x = c(0,ymax))
+#      #       + theme(panel.spacing = unit(0, "lines"),
+#      #               strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#      #               strip.background = element_rect(fill = "white"),
+#      #               #               axis.text.x = element_blank(),
+#      #               #               axis.ticks.x = element_blank(),
+#      #               axis.text.y = element_blank(),
+#      #               axis.ticks.y = element_blank())
+#)
+#f_name <- gsub(" ","",paste("allCells_valid_interaction_chroms_zscore_box_sigInters_YX_Aorat_test",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
+#
 
 
 print("##########")
@@ -1587,6 +1591,8 @@ for(i in unique(tp_dat_sum$chr)) {
   pdf(filename, width = 14, height = 8)
   print(tp)
   dev.off()
+  # save df from bubble graph for quantification test
+  write.table(tpp, file = as.character(paste0("chrom",i,"_bubble_data.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
   # line plot of mean zscore of all cell types per bin
   lp = tpp %>% group_by(chr,st) %>% dplyr::summarize(mnumSig=mean(numSig, na.rm = TRUE))
   tp <- (ggplot(lp, aes(st, y= mnumSig))
