@@ -12,6 +12,7 @@
 ########################################
 
 options(echo=F)
+options(scipen = 999) 
 args <- commandArgs(trailingOnly = TRUE)
 dat_file <- args[1]
 perc <- args[2]
@@ -65,7 +66,6 @@ library(dplyr)
 #perc <- 0.4
 #bin_size <- 1000000
 #chrom_in <- "12"
-#options(scipen = 999) 
 ### create fake df for now
 ##bin_start <- seq(0,10000000,1000000)
 ##zscore <- c(1.2,1.5,2,-0.2,-1,0,1.6,1.4,1,2,1.5)
