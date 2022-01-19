@@ -96,7 +96,7 @@ uchrPair <- unique(dat$chrPair)
 #loop through each chrom pair and determine highly interacting regions
 fbed_df <- data.frame()
 for (p in uchrPair){
-  p = "chr12chr17"
+#  p = "chr12chr17"
   tdat <- dat %>% filter(chrPair == p)
   uchrs <- c(tdat$chrA[1],tdat$chrB[1])
   #######
