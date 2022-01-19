@@ -20,43 +20,43 @@ bin_size <- args[3]
 ##########
 library(tidyr)
 library(dplyr)
-library(GenomicRanges)
-library(ggplot2)
-library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
-library(nortest, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1") #for normality test with large sample size
-library(hexbin)
+#library(GenomicRanges)
+#library(ggplot2)
+#library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
+#library(nortest, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1") #for normality test with large sample size
+#library(hexbin)
 ##########
 
-#########################################################################
-#set graph theme
-theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
-            #change size of facet header text
-            theme(strip.text = element_text(size =10.49)) +
-            theme(plot.title = element_text(hjust = 0.5, size = 18),
-                  panel.background = element_rect(fill = "white", colour = NA),
-                  panel.grid.major = element_blank(),
-                  panel.grid.minor = element_blank(),
-                  panel.spacing = unit(0.25, "lines"),
-                  axis.text=element_text(size=18),
-                  axis.title = element_text(size = 18),
-                  #plot margins
-                  #plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm"),
-                  #for second legend on y-axis
-                  axis.text.y.right = element_text(size=18),
-                 # legend.title = element_blank(),
-                  legend.text = element_text(size = 18),
-                  #change the colour of facet label background
-                  strip.background = element_rect(fill = "#E6E1EA"),
-                  #remove space between facest
-                  panel.spacing.x=unit(0, "lines"),
-                  #                  legend.key = element_blank(),
-                  legend.background=element_blank(),
-                  #legend background
-                  legend.key = element_rect(fill = NA),
-                  #                  legend.position="none")
-                  legend.position="top")
-)
-#########################################################################
+##########################################################################
+##set graph theme
+#theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
+#            #change size of facet header text
+#            theme(strip.text = element_text(size =10.49)) +
+#            theme(plot.title = element_text(hjust = 0.5, size = 18),
+#                  panel.background = element_rect(fill = "white", colour = NA),
+#                  panel.grid.major = element_blank(),
+#                  panel.grid.minor = element_blank(),
+#                  panel.spacing = unit(0.25, "lines"),
+#                  axis.text=element_text(size=18),
+#                  axis.title = element_text(size = 18),
+#                  #plot margins
+#                  #plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm"),
+#                  #for second legend on y-axis
+#                  axis.text.y.right = element_text(size=18),
+#                 # legend.title = element_blank(),
+#                  legend.text = element_text(size = 18),
+#                  #change the colour of facet label background
+#                  strip.background = element_rect(fill = "#E6E1EA"),
+#                  #remove space between facest
+#                  panel.spacing.x=unit(0, "lines"),
+#                  #                  legend.key = element_blank(),
+#                  legend.background=element_blank(),
+#                  #legend background
+#                  legend.key = element_rect(fill = NA),
+#                  #                  legend.position="none")
+#                  legend.position="top")
+#)
+##########################################################################
 
 
 # for testing only!
@@ -108,8 +108,8 @@ for (p in uchrPair){
   #merge the two dfs
   mdat <- merge(mZdat,mNdat, c("chrA","st1"))
   #get userc specified nth percentile
-  toppercZ <- quantile(mdat$mzscore, probs = perc)
-  toppercN <- quantile(mdat$mnSig, probs = perc)
+  toppercZ <- quantile(mdat$mzscore, probs = as.numeric(perc))
+  toppercN <- quantile(mdat$mnSig, probs = as.numeric(perc))
   #find regions that are above percent cutoff
   highinter <- mdat %>% arrange(st1) %>%
     filter(mzscore >= toppercZ) %>%
@@ -123,7 +123,7 @@ for (p in uchrPair){
   tmps <- NA
 if (nrow(highinter) <=2){
   for (z in 1:nrow(highinter)){
-    tmpe <- highinter$st1[z] + bin_size
+    tmpe <- as.numeric(highinter$st1[z]) + as.numeric(bin_size)
     tmps <- highinter$st1[z]
     bedstart <- c(bedstart,tmps)
     bedend <- c(bedend,tmpe)
@@ -135,16 +135,16 @@ if (nrow(highinter) <=2){
     } else {
       # end of the df
       if (i == nrow(highinter)){
-        tmpe <- highinter$st1[i] + bin_size
+        tmpe <- highinter$st1[i] + as.numeric(bin_size)
         bedstart <- c(bedstart,tmps)
         bedend <- c(bedend,tmpe)
       }#if
       # if difference is less than 2 bins, keep going until we get a diff that is >2 bins
-      if (highinter$tdiff[i] <= bin_size *2) {
+      if (highinter$tdiff[i] <= as.numeric(bin_size) *2) {
         next
         # difference is more than 2 bins
       } else {
-          tmpe <- highinter$st1[i-1] + bin_size
+          tmpe <- highinter$st1[i-1] + as.numeric(bin_size)
           bedstart <- c(bedstart,tmps)
           bedend <- c(bedend,tmpe)
           tmps <- highinter$st1[i]
@@ -165,8 +165,8 @@ if (nrow(highinter) <=2){
   #merge the two dfs
   mdat <- merge(mZdat,mNdat, c("chrB","st2"))
   #get userc specified nth percentile
-  toppercZ <- quantile(mdat$mzscore, probs = perc)
-  toppercN <- quantile(mdat$mnSig, probs = perc)
+  toppercZ <- quantile(mdat$mzscore, probs = as.numeric(perc))
+  toppercN <- quantile(mdat$mnSig, probs = as.numeric(perc))
   #find regions that are above percent cutoff
   highinter <- mdat %>% arrange(st2) %>%
     filter(mzscore >= toppercZ) %>%
@@ -180,7 +180,7 @@ if (nrow(highinter) <=2){
   tmps <- NA
   if (nrow(highinter) <=2){
     for (z in 1:nrow(highinter)){
-      tmpe <- highinter$st2[z] + bin_size
+      tmpe <- as.numeric(highinter$st2[z]) + as.numeric(bin_size)
       tmps <- highinter$st2[z]
       bedstart <- c(bedstart,tmps)
       bedend <- c(bedend,tmpe)
@@ -192,16 +192,16 @@ if (nrow(highinter) <=2){
       } else {
         # end of the df
         if (i == nrow(highinter)){
-          tmpe <- highinter$st2[i] + bin_size
+          tmpe <- as.numeric(highinter$st2[i]) + as.numeric(bin_size)
           bedstart <- c(bedstart,tmps)
           bedend <- c(bedend,tmpe)
         }#if
         # if difference is less than 2 bins, keep going until we get a diff that is >2 bins
-        if (highinter$tdiff[i] <= bin_size *2) {
+        if (highinter$tdiff[i] <= as.numeric(bin_size) *2) {
           next
           # difference is more than 2 bins
         } else {
-          tmpe <- highinter$st2[i-1] + bin_size
+          tmpe <- as.numeric(highinter$st2[i-1]) + as.numeric(bin_size)
           bedstart <- c(bedstart,tmps)
           bedend <- c(bedend,tmpe)
           tmps <- highinter$st2[i]
@@ -306,3 +306,4 @@ write.table(fbed_df, file = as.character(paste0("highly_interacting_regions_",pe
 ##save bed file to table
 #write.table(bed_df, file = as.character(paste0("highly_interacting_regions_",perc,"_percentile.bed")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 #highinter
+print("DONE")
