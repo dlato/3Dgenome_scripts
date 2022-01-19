@@ -190,10 +190,13 @@ levels(pa_dat$allmisscols) <- list("Present" = "FALSE",
 print("#convert df with just interacting region to long format")
 #VinterL <- gather(Vinter, cell, zscore, 8:length(colnames(Vinter)), factor_key=TRUE)
 VinterL <- Vinter
+head(VinterL)
 VinterL$zsign <- VinterL$zscore
 VinterL$zsign[VinterL$zsign>=0]  <- "Pos" 
+head(VinterL)
 VinterL$zsign[VinterL$zsign<0]  <- "Neg" 
 VinterL$zsign[is.na(VinterL$zsign)] <- "Abs"
+head(VinterL)
 VinterL <- VinterL %>% select(cell,zsign)
 colnames(VinterL) <- c("all_cells","zsign")
 pa_dat_m <- merge(pa_dat, VinterL, by = "all_cells")
@@ -1744,55 +1747,55 @@ f_name <- gsub(" ","",paste("zscore_along_",ychr,"_facet_",Atype,".pdf"))
 pdf(f_name, width = 14, height = 8)
 p
 dev.off()
-print("#zscore point plot of sig inters per cell")
+#print("#zscore point plot of sig inters per cell")
 ucells <- unique(sig_pts$cell)
-xchr
-ychr
-for(i in ucells) {
-  #i="Aorta"
-  print(i)
-  c_dat <- sig_pts %>% filter(cell == i)
-  p <- (ggplot(c_dat, aes(x=st2, y=zscore)) 
-        + geom_point(colour = "#55828B", alpha = 0.6)
-       + geom_vline(aes(xintercept = ystart), colour = "red")
-        + geom_smooth(colour = "#013040", method = "loess", formula = y ~ x)
-        + labs(title = paste0("Significant trans-chromosomal interactions in ",i," between chromosomes ",xchr, " and ", ychr),
-               #         subtitle = "Plot of length by dose",
-               #         caption = "Data source: ToothGrowth",
-               x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
-               y = "z-score")
-        #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "p-value")
-        + scale_x_continuous(expand = c(0, 0))
-        + scale_y_continuous(expand = c(0, 0))
-        # expand axis limits so whole chrom len is accounted for
-        + expand_limits(x = c(0,ymax))
-  
-  )
-  f_name <- gsub(" ","",paste("zscore_along_",ychr,"_",i,"_",Atype,".pdf"))
-  pdf(f_name, width = 14, height = 8)
-  print(p)
-  dev.off()
-  summary(c_dat)
-  p <- (ggplot(c_dat, aes(x=st1, y=zscore)) 
-        + geom_point(colour = "#55828B", alpha = 0.6)
-       + geom_vline(aes(xintercept = xstart), colour = "red")
-        + geom_smooth(colour = "#013040", method = "loess", formula = y ~ x)
-        + labs(title = paste0("Significant trans-chromosomal interactions in ",i," between chromosomes ",xchr, " and ", ychr),
-               #         subtitle = "Plot of length by dose",
-               #         caption = "Data source: ToothGrowth",
-               x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
-               y = "z-score")
-        #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "p-value")
-        + scale_x_continuous(expand = c(0, 0))
-        + scale_y_continuous(expand = c(0, 0))
-        # expand axis limits so whole chrom len is accounted for
-        + expand_limits(x = c(0,xmax))
-  )
-  f_name <- gsub(" ","",paste("zscore_along_",xchr,"_",i,"_",Atype,".pdf"))
-  pdf(f_name, width = 14, height = 8)
-  print(p)
-  dev.off()
-}#for
+#xchr
+#ychr
+#for(i in ucells) {
+#  #i="Aorta"
+#  print(i)
+#  c_dat <- sig_pts %>% filter(cell == i)
+#  p <- (ggplot(c_dat, aes(x=st2, y=zscore)) 
+#        + geom_point(colour = "#55828B", alpha = 0.6)
+#       + geom_vline(aes(xintercept = ystart), colour = "red")
+#        + geom_smooth(colour = "#013040", method = "loess", formula = y ~ x)
+#        + labs(title = paste0("Significant trans-chromosomal interactions in ",i," between chromosomes ",xchr, " and ", ychr),
+#               #         subtitle = "Plot of length by dose",
+#               #         caption = "Data source: ToothGrowth",
+#               x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
+#               y = "z-score")
+#        #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "p-value")
+#        + scale_x_continuous(expand = c(0, 0))
+#        + scale_y_continuous(expand = c(0, 0))
+#        # expand axis limits so whole chrom len is accounted for
+#        + expand_limits(x = c(0,ymax))
+#  
+#  )
+#  f_name <- gsub(" ","",paste("zscore_along_",ychr,"_",i,"_",Atype,".pdf"))
+#  pdf(f_name, width = 14, height = 8)
+#  print(p)
+#  dev.off()
+#  summary(c_dat)
+#  p <- (ggplot(c_dat, aes(x=st1, y=zscore)) 
+#        + geom_point(colour = "#55828B", alpha = 0.6)
+#       + geom_vline(aes(xintercept = xstart), colour = "red")
+#        + geom_smooth(colour = "#013040", method = "loess", formula = y ~ x)
+#        + labs(title = paste0("Significant trans-chromosomal interactions in ",i," between chromosomes ",xchr, " and ", ychr),
+#               #         subtitle = "Plot of length by dose",
+#               #         caption = "Data source: ToothGrowth",
+#               x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
+#               y = "z-score")
+#        #       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "p-value")
+#        + scale_x_continuous(expand = c(0, 0))
+#        + scale_y_continuous(expand = c(0, 0))
+#        # expand axis limits so whole chrom len is accounted for
+#        + expand_limits(x = c(0,xmax))
+#  )
+#  f_name <- gsub(" ","",paste("zscore_along_",xchr,"_",i,"_",Atype,".pdf"))
+#  pdf(f_name, width = 14, height = 8)
+#  print(p)
+#  dev.off()
+#}#for
 
 # heatmap with grey in place of all white space
 ##############
