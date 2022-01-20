@@ -100,7 +100,7 @@ for (p in uchrPair){
   tdat <- dat %>% filter(chrPair == p)
   uchrs <- c(tdat$chrA[1],tdat$chrB[1])
   #######
-  #for chrA
+print("  #for chrA")
   #######
   mZdat <- tdat %>% group_by(chrA,st1) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
   tmNdat <- tdat %>% group_by(chrA,st1, cell) %>% dplyr::summarize(nSig=n())
@@ -114,9 +114,15 @@ for (p in uchrPair){
   highinter <- mdat %>% arrange(st1) %>%
     filter(mzscore >= toppercZ) %>%
     filter(mnSig >= toppercN)
+print(head(highinter))
+# if there are no interactions that meet the cutoff
+if (dim(highinter)[1] == 0) {
+ next
+}
   # go through df and create bed file with the regions
-  # skipping up to 2 consecutive regions is ok
+print("A  # skipping up to 2 consecutive regions is ok")
   highinter$tdiff <- c(NA,diff(highinter$st1))
+print(head(highinter))
   bedstart <- c()
   bedend <- c()
   tmps <- NA
@@ -171,8 +177,13 @@ if (nrow(highinter) <=2){
   highinter <- mdat %>% arrange(st2) %>%
     filter(mzscore >= toppercZ) %>%
     filter(mnSig >= toppercN)
+# if there are no interactions that meet the cutoff
+if (dim(highinter)[1] == 0) {
+ next
+}
   # go through df and create bed file with the regions
-  # skipping up to 2 consecutive regions is ok
+print("B  # skipping up to 2 consecutive regions is ok")
+print(head(highinter))
   highinter$tdiff <- c(NA,diff(highinter$st2))
   bedstart <- c()
   bedend <- c()
