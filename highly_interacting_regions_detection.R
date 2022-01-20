@@ -71,6 +71,8 @@ library(dplyr)
 ##zscore <- c(1.2,1.5,2,-0.2,-1,0,1.6,1.4,1,2,1.5)
 ##numInters <- c(17,13,20,4,5,2,19,20,5,17,18)
 ##tpp <- as.data.frame(cbind(bin_start,zscore,numInters))
+## reading in chr 12 bubble data from valid inters 1vsAll run
+##dat_file <- "chrom12_bubble_data.txt"
 
 
 print("#read in files")
@@ -100,7 +102,6 @@ for (p in uchrPair){
   tdat <- dat %>% filter(chrPair == p)
   uchrs <- c(tdat$chrA[1],tdat$chrB[1])
   #######
-print("  #for chrA")
   #######
   mZdat <- tdat %>% group_by(chrA,st1) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
   tmNdat <- tdat %>% group_by(chrA,st1, cell) %>% dplyr::summarize(nSig=n())
@@ -114,15 +115,12 @@ print("  #for chrA")
   highinter <- mdat %>% arrange(st1) %>%
     filter(mzscore >= toppercZ) %>%
     filter(mnSig >= toppercN)
-print(head(highinter))
 # if there are no interactions that meet the cutoff
 if (dim(highinter)[1] == 0) {
  next
 }
   # go through df and create bed file with the regions
-print("A  # skipping up to 2 consecutive regions is ok")
   highinter$tdiff <- c(NA,diff(highinter$st1))
-print(head(highinter))
   bedstart <- c()
   bedend <- c()
   tmps <- NA
@@ -182,8 +180,6 @@ if (dim(highinter)[1] == 0) {
  next
 }
   # go through df and create bed file with the regions
-print("B  # skipping up to 2 consecutive regions is ok")
-print(head(highinter))
   highinter$tdiff <- c(NA,diff(highinter$st2))
   bedstart <- c()
   bedend <- c()
