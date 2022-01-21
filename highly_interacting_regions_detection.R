@@ -99,6 +99,7 @@ uchrPair <- unique(dat$chrPair)
 fbed_df <- data.frame()
 for (p in uchrPair){
 #  p = "chr12chr17"
+print(p)
   tdat <- dat %>% filter(chrPair == p)
   uchrs <- c(tdat$chrA[1],tdat$chrB[1])
   #######
@@ -108,9 +109,14 @@ for (p in uchrPair){
   mNdat <- tmNdat %>% group_by(chrA,st1) %>% dplyr::summarize(mnSig=mean(nSig, na.rm = TRUE))
   #merge the two dfs
   mdat <- merge(mZdat,mNdat, c("chrA","st1"))
+print(mdat)
   #get userc specified nth percentile
   toppercZ <- quantile(mdat$mzscore, probs = as.numeric(perc))
   toppercN <- quantile(mdat$mnSig, probs = as.numeric(perc))
+print("top perc z-score")
+print(toppercZ)
+print("top perc num inters")
+print(toppercN)
   #find regions that are above percent cutoff
   highinter <- mdat %>% arrange(st1) %>%
     filter(mzscore >= toppercZ) %>%
@@ -119,6 +125,7 @@ for (p in uchrPair){
 if (dim(highinter)[1] == 0) {
  next
 }
+  print(highinter)
   # go through df and create bed file with the regions
   highinter$tdiff <- c(NA,diff(highinter$st1))
   bedstart <- c()
@@ -171,6 +178,10 @@ if (nrow(highinter) <=2){
   #get userc specified nth percentile
   toppercZ <- quantile(mdat$mzscore, probs = as.numeric(perc))
   toppercN <- quantile(mdat$mnSig, probs = as.numeric(perc))
+print("top perc z-score")
+print(toppercZ)
+print("top perc num inters")
+print(toppercN)
   #find regions that are above percent cutoff
   highinter <- mdat %>% arrange(st2) %>%
     filter(mzscore >= toppercZ) %>%
@@ -179,6 +190,7 @@ if (nrow(highinter) <=2){
 if (dim(highinter)[1] == 0) {
  next
 }
+  print(highinter)
   # go through df and create bed file with the regions
   highinter$tdiff <- c(NA,diff(highinter$st2))
   bedstart <- c()
