@@ -1651,7 +1651,7 @@ for(i in unique(bg_dat$chr)) {
 bg <- (ggplot(tpp, aes(st, y= mmzscore, size=mnumSig, colour=mnumSig))
        + geom_point(alpha = 0.5)
        #adjusting size of bubbles to make them bigger
-       + scale_size(range = c(0, 10))
+       + scale_size(range = c(0, 18))
        #+geom_smooth(method = 'loess',formula ='y ~ x')
        + scale_color_hp(discrete = FALSE, option = "ronweasley2", guide="legend")
        #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
