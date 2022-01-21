@@ -204,9 +204,9 @@ if (dim(highinter)[1] == 0) {
 #save bed file to table
 write.table(fbed_df, file = as.character(paste0("highly_interacting_regions_chrPairs_",perc,"_percentile.bed")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
-##################
-# highly interacting regions for one chrom vs all other chroms
-##################
+print("##################")
+print("# highly interacting regions for one chrom vs all other chroms")
+print("##################")
 #count each interaction as two rows, one for each chrom
 datA <- dat %>% select(chrA, st1, cell, zscore, chrPair)
 colnames(datA) <- c("chr", "st", "cell", "zscore", "chrPair")
@@ -220,7 +220,7 @@ fbed_df <- data.frame()
 for (p in uchrom){
   #  p = "chr12chr17"
   print(p)
-  tdat <- dat %>% filter(chr == p)
+  tdat <- ddat %>% filter(chr == p)
   #######
   mZdat <- tdat %>% group_by(chr,st) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
   tmNdat <- tdat %>% group_by(chr,st, cell) %>% dplyr::summarize(nSig=n())
