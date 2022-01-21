@@ -71,8 +71,8 @@ library(dplyr)
 ##zscore <- c(1.2,1.5,2,-0.2,-1,0,1.6,1.4,1,2,1.5)
 ##numInters <- c(17,13,20,4,5,2,19,20,5,17,18)
 ##tpp <- as.data.frame(cbind(bin_start,zscore,numInters))
-## reading in chr 12 bubble data from valid inters 1vsAll run
-##dat_file <- "chrom12_bubble_data.txt"
+## reading in chr 12 chr 17 sig zscore data from 3Dflow run
+#dat_file <- "chr12chr17_zscores.txt"
 
 
 print("#read in files")
@@ -91,6 +91,8 @@ dat$chrPair <- paste0(dat$chrA,dat$chrB)
 dat$st1 <- as.numeric(dat$st1)
 dat$st2 <- as.numeric(dat$st2)
 dat$zscore <- as.numeric(dat$zscore)
+# remove NA values (missing or non-sig) so the num sig inters calculation does not mess up
+dat <- dat %>% drop_na(zscore)
 head(dat)
 summary(dat)
 uchrPair <- unique(dat$chrPair)
@@ -106,6 +108,7 @@ print(p)
   #######
   mZdat <- tdat %>% group_by(chrA,st1) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
   tmNdat <- tdat %>% group_by(chrA,st1, cell) %>% dplyr::summarize(nSig=n())
+  head(tmNdat)
   mNdat <- tmNdat %>% group_by(chrA,st1) %>% dplyr::summarize(mnSig=mean(nSig, na.rm = TRUE))
   #merge the two dfs
   mdat <- merge(mZdat,mNdat, c("chrA","st1"))
