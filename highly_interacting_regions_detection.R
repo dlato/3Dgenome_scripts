@@ -85,6 +85,7 @@ print(toppercZ)
 print("top perc num inters")
 print(toppercN)
   #find regions that are above percent cutoff
+  #order by bin start, ascending
   highinter <- mdat %>% arrange(st1) %>%
     filter(mzscore >= toppercZ) %>%
     filter(mnSig >= toppercN)
@@ -150,6 +151,7 @@ print(toppercZ)
 print("top perc num inters")
 print(toppercN)
   #find regions that are above percent cutoff
+  #order by bin start, ascending
   highinter <- mdat %>% arrange(st2) %>%
     filter(mzscore >= toppercZ) %>%
     filter(mnSig >= toppercN)
@@ -237,6 +239,7 @@ for (p in uchrom){
   print("top perc num inters")
   print(toppercN)
   #find regions that are above percent cutoff
+  #order by bin start, ascending
   highinter <- mdat %>% arrange(st) %>%
     filter(mzscore >= toppercZ) %>%
     filter(mnSig >= toppercN)
