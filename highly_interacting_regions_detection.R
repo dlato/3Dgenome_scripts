@@ -237,7 +237,7 @@ for (p in uchrom){
   print("top perc num inters")
   print(toppercN)
   #find regions that are above percent cutoff
-  highinter <- mdat %>% arrange(st1) %>%
+  highinter <- mdat %>% arrange(st) %>%
     filter(mzscore >= toppercZ) %>%
     filter(mnSig >= toppercN)
   # if there are no interactions that meet the cutoff
@@ -246,26 +246,26 @@ for (p in uchrom){
   }
   print(highinter)
   # go through df and create bed file with the regions
-  highinter$tdiff <- c(NA,diff(highinter$st1))
+  highinter$tdiff <- c(NA,diff(highinter$st))
   bedstart <- c()
   bedend <- c()
   tmps <- NA
   tmps <- NA
   if (nrow(highinter) <=2){
     for (z in 1:nrow(highinter)){
-      tmpe <- as.numeric(highinter$st1[z]) + as.numeric(bin_size)
-      tmps <- highinter$st1[z]
+      tmpe <- as.numeric(highinter$st[z]) + as.numeric(bin_size)
+      tmps <- highinter$st[z]
       bedstart <- c(bedstart,tmps)
       bedend <- c(bedend,tmpe)
     }#for
   } else {
     for (i in 1:nrow(highinter)) {
       if (is.na(highinter$tdiff[i])){
-        tmps <- highinter$st1[i]
+        tmps <- highinter$st[i]
       } else {
         # end of the df
         if (i == nrow(highinter)){
-          tmpe <- highinter$st1[i] + as.numeric(bin_size)
+          tmpe <- highinter$st[i] + as.numeric(bin_size)
           bedstart <- c(bedstart,tmps)
           bedend <- c(bedend,tmpe)
         }#if
@@ -274,15 +274,15 @@ for (p in uchrom){
           next
           # difference is more than 2 bins
         } else {
-          tmpe <- highinter$st1[i-1] + as.numeric(bin_size)
+          tmpe <- highinter$st[i-1] + as.numeric(bin_size)
           bedstart <- c(bedstart,tmps)
           bedend <- c(bedend,tmpe)
-          tmps <- highinter$st1[i]
+          tmps <- highinter$st[i]
         }# if else
       }#if else
     }#for
   }# if else df length
-  chrom <- rep(tdat$chrA[1],length(bedstart))
+  chrom <- rep(tdat$chr[1],length(bedstart))
   chrompair <- rep(tdat$chrPair[1],length(bedstart))
   bed_df <- as.data.frame(cbind(chrom,bedstart,bedend,chrompair))
   fbed_df <- rbind(fbed_df,bed_df)
