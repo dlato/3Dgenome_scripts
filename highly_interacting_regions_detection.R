@@ -154,7 +154,7 @@ if (nrow(highinter) <=2){
         bedend <- c(bedend,tmpe)
       }#if
       # if difference is less than 2 bins, keep going until we get a diff that is >2 bins
-      if (highinter$tdiff[i] <= as.numeric(bin_size) *2) {
+      if (highinter$tdiff[i] <= as.numeric(bin_size) *3) {
         next
         # difference is more than 2 bins
       } else {
@@ -240,92 +240,245 @@ if (dim(highinter)[1] == 0) {
 #save bed file to table
 write.table(fbed_df, file = as.character(paste0("highly_interacting_regions_",perc,"_percentile.bed")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
-
-
-##mean of all cells per interaction
-#dat <- mutate(dat, mzscore = rowMeans(select(dat,c(2:ncol(dat))), na.rm = TRUE)) %>%
-#  select(ID,mzscore)
-#
-#
-##tpp <- read.table(dat_file, header = TRUE)
-#
-#
-#head(tpp)
-#bg <- (ggplot(tpp, aes(bin_start, y= zscore, size=numInters, colour=numInters))
-#       + geom_point(alpha = 0.5)
-#       #+geom_smooth(method = 'loess',formula ='y ~ x')
-#       + scale_color_hp(discrete = FALSE, option = "ronweasley2", guide="legend")
-#       #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
-#       #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
-#       + labs(x = paste0("Chromosome 12 position [Mb]"),
-#              y = "Mean z-score per bin across cells",
-#              title = "Trans-chromosomal significant interactions (all cells)",
-#              size = "Mean number of significant interactions per bin",
-#              color = "Mean number of significant interactions per bin")
-#       #+ facet_grid(cell ~ .)
-#       #+ geom_vline(xintercept = interpos, colour = "red")
-#       #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
-#       #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
-#       #       + theme(axis.text.x = element_text(angle = 90))
-#       #+ expand_limits(x = c(0,xmax))
-#       + scale_y_continuous(expand = c(0, 0))
-#       + scale_x_continuous(expand = c(0, 0))
-#       #+ scale_size("Mean number of significant interactions")
-#       + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
-#               strip.background = element_rect(fill = "white"),
-#               panel.spacing = unit(0, "lines"))
-#       #axis.text.y = element_blank(),
-#       #axis.ticks.y = element_blank())
-#       #+ theme(panel.background = element_rect(fill = "grey85", colour = NA))
-#)
-#bg
-#
-##get userspecified nth percentile
-#toppercZ <- quantile(tpp$zscore, probs = perc)
-#toppercZ
-#toppercN <- quantile(tpp$numInters, probs = perc)
-#toppercN
-##find regions that are above percent cutoff
-#highinter <- tpp %>% arrange(bin_start) %>%
-#  filter(zscore >= toppercZ) %>%
-#  filter(numInters >= toppercN)
-#highinter
-## go through df and create bed file with the regions
-## skipping up to 2 consecutive regions is ok
-#highinter$tdiff <- c(NA,diff(highinter$bin_start))
-#highinter
-#bedstart <- c()
-#bedend <- c()
-#tmps <- NA
-#tmps <- NA
-#for (i in 1:nrow(highinter)) {
-#  if (is.na(highinter$tdiff[i])){
-#    tmps <- highinter$bin_start[i]
+###################
+## highly interacting regions for one chrom vs all other chroms
+###################
+##count each interaction as two rows, one for each chrom
+#datA <- dat %>% select(chrA, st1, cell, zscore, chrPair)
+#colnames(datA) <- c("chr", "st", "cell", "zscore", "chrPair")
+#datB <- dat %>% select(chrB, st2, cell, zscore, chrPair)
+#colnames(datB) <- c("chr", "st", "cell", "zscore", "chrPair")
+#ddat <- rbind(datA,datB)
+#uchrom <- unique(ddat$chr)
+#uchrom
+##loop through each chrom and determine highly interacting regions
+#fbed_df <- data.frame()
+#for (p in uchrom){
+#  #  p = "chr12chr17"
+#  print(p)
+#  tdat <- dat %>% filter(chr == p)
+#  #######
+#  mZdat <- tdat %>% group_by(chrA,st1) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+#  tmNdat <- tdat %>% group_by(chrA,st1, cell) %>% dplyr::summarize(nSig=n())
+#  head(tmNdat)
+#  mNdat <- tmNdat %>% group_by(chrA,st1) %>% dplyr::summarize(mnSig=mean(nSig, na.rm = TRUE))
+#  #merge the two dfs
+#  mdat <- merge(mZdat,mNdat, c("chrA","st1"))
+#  print(mdat)
+#  #get userc specified nth percentile
+#  toppercZ <- quantile(mdat$mzscore, probs = as.numeric(perc))
+#  toppercN <- quantile(mdat$mnSig, probs = as.numeric(perc))
+#  print("top perc z-score")
+#  print(toppercZ)
+#  print("top perc num inters")
+#  print(toppercN)
+#  #find regions that are above percent cutoff
+#  highinter <- mdat %>% arrange(st1) %>%
+#    filter(mzscore >= toppercZ) %>%
+#    filter(mnSig >= toppercN)
+#  # if there are no interactions that meet the cutoff
+#  if (dim(highinter)[1] == 0) {
+#    next
+#  }
+#  print(highinter)
+#  # go through df and create bed file with the regions
+#  highinter$tdiff <- c(NA,diff(highinter$st1))
+#  bedstart <- c()
+#  bedend <- c()
+#  tmps <- NA
+#  tmps <- NA
+#  if (nrow(highinter) <=2){
+#    for (z in 1:nrow(highinter)){
+#      tmpe <- as.numeric(highinter$st1[z]) + as.numeric(bin_size)
+#      tmps <- highinter$st1[z]
+#      bedstart <- c(bedstart,tmps)
+#      bedend <- c(bedend,tmpe)
+#    }#for
 #  } else {
-#  # end of the df
-#  if (i == nrow(highinter)){
-#      tmpe <- highinter$bin_start[i] + bin_size
+#    for (i in 1:nrow(highinter)) {
+#      if (is.na(highinter$tdiff[i])){
+#        tmps <- highinter$st1[i]
+#      } else {
+#        # end of the df
+#        if (i == nrow(highinter)){
+#          tmpe <- highinter$st1[i] + as.numeric(bin_size)
+#          bedstart <- c(bedstart,tmps)
+#          bedend <- c(bedend,tmpe)
+#        }#if
+#        # if difference is less than 2 bins, keep going until we get a diff that is >2 bins
+#        if (highinter$tdiff[i] <= as.numeric(bin_size) *2) {
+#          next
+#          # difference is more than 2 bins
+#        } else {
+#          tmpe <- highinter$st1[i-1] + as.numeric(bin_size)
+#          bedstart <- c(bedstart,tmps)
+#          bedend <- c(bedend,tmpe)
+#          tmps <- highinter$st1[i]
+#        }# if else
+#      }#if else
+#    }#for
+#  }# if else df length
+#  chrom <- rep(tdat$chrA[1],length(bedstart))
+#  chrompair <- rep(tdat$chrPair[1],length(bedstart))
+#  bed_df <- as.data.frame(cbind(chrom,bedstart,bedend,chrompair))
+#  fbed_df <- rbind(fbed_df,bed_df)
+#  #######
+#  #for chrB
+#  #######
+#  mZdat <- tdat %>% group_by(chrB,st2) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+#  tmNdat <- tdat %>% group_by(chrB,st2, cell) %>% dplyr::summarize(nSig=n())
+#  mNdat <- tmNdat %>% group_by(chrB,st2) %>% dplyr::summarize(mnSig=mean(nSig, na.rm = TRUE))
+#  #merge the two dfs
+#  mdat <- merge(mZdat,mNdat, c("chrB","st2"))
+#  #get userc specified nth percentile
+#  toppercZ <- quantile(mdat$mzscore, probs = as.numeric(perc))
+#  toppercN <- quantile(mdat$mnSig, probs = as.numeric(perc))
+#  print("top perc z-score")
+#  print(toppercZ)
+#  print("top perc num inters")
+#  print(toppercN)
+#  #find regions that are above percent cutoff
+#  highinter <- mdat %>% arrange(st2) %>%
+#    filter(mzscore >= toppercZ) %>%
+#    filter(mnSig >= toppercN)
+#  # if there are no interactions that meet the cutoff
+#  if (dim(highinter)[1] == 0) {
+#    next
+#  }
+#  print(highinter)
+#  # go through df and create bed file with the regions
+#  highinter$tdiff <- c(NA,diff(highinter$st2))
+#  bedstart <- c()
+#  bedend <- c()
+#  tmps <- NA
+#  tmps <- NA
+#  if (nrow(highinter) <=2){
+#    for (z in 1:nrow(highinter)){
+#      tmpe <- as.numeric(highinter$st2[z]) + as.numeric(bin_size)
+#      tmps <- highinter$st2[z]
 #      bedstart <- c(bedstart,tmps)
 #      bedend <- c(bedend,tmpe)
-#  }#if
-#    # if difference is less than 2 bins, keep going until we get a diff that is >2 bins
-#    if (highinter$tdiff[i] <= bin_size *2) {
-#      next
-#    # difference is more than 2 bins
-#    } else {
-#      tmpe <- highinter$bin_start[i-1] + bin_size
-#      bedstart <- c(bedstart,tmps)
-#      bedend <- c(bedend,tmpe)
-#      tmps <- highinter$bin_start[i]
-#    }# if else
-#  }#if else
-#}#for
-#bedstart
-#bedend
-#chrom <- rep(paste0("chr",chrom_in),length(bedstart))
-#bed_df <- as.data.frame(cbind(chrom,bedstart,bedend))
-#bed_df
+#    }#for
+#  } else {
+#    for (i in 1:nrow(highinter)) {
+#      if (is.na(highinter$tdiff[i])){
+#        tmps <- highinter$st2[i]
+#      } else {
+#        # end of the df
+#        if (i == nrow(highinter)){
+#          tmpe <- as.numeric(highinter$st2[i]) + as.numeric(bin_size)
+#          bedstart <- c(bedstart,tmps)
+#          bedend <- c(bedend,tmpe)
+#        }#if
+#        # if difference is less than 2 bins, keep going until we get a diff that is >2 bins
+#        if (highinter$tdiff[i] <= as.numeric(bin_size) *2) {
+#          next
+#          # difference is more than 2 bins
+#        } else {
+#          tmpe <- as.numeric(highinter$st2[i-1]) + as.numeric(bin_size)
+#          bedstart <- c(bedstart,tmps)
+#          bedend <- c(bedend,tmpe)
+#          tmps <- highinter$st2[i]
+#        }# if else
+#      }#if else
+#    }#for
+#  }# if else df length
+#  chrom <- rep(tdat$chrB[1],length(bedstart))
+#  chrompair <- rep(tdat$chrPair[1],length(bedstart))
+#  bed_df <- as.data.frame(cbind(chrom,bedstart,bedend,chrompair))
+#  fbed_df <- rbind(fbed_df,bed_df)
+#} #for each chrom pair
+#
 ##save bed file to table
-#write.table(bed_df, file = as.character(paste0("highly_interacting_regions_",perc,"_percentile.bed")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-#highinter
+#write.table(fbed_df, file = as.character(paste0("highly_interacting_regions_",perc,"_percentile.bed")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+#
+#
+#
+#
+###mean of all cells per interaction
+##dat <- mutate(dat, mzscore = rowMeans(select(dat,c(2:ncol(dat))), na.rm = TRUE)) %>%
+##  select(ID,mzscore)
+##
+##
+###tpp <- read.table(dat_file, header = TRUE)
+##
+##
+##head(tpp)
+##bg <- (ggplot(tpp, aes(bin_start, y= zscore, size=numInters, colour=numInters))
+##       + geom_point(alpha = 0.5)
+##       #+geom_smooth(method = 'loess',formula ='y ~ x')
+##       + scale_color_hp(discrete = FALSE, option = "ronweasley2", guide="legend")
+##       #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+##       #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+##       + labs(x = paste0("Chromosome 12 position [Mb]"),
+##              y = "Mean z-score per bin across cells",
+##              title = "Trans-chromosomal significant interactions (all cells)",
+##              size = "Mean number of significant interactions per bin",
+##              color = "Mean number of significant interactions per bin")
+##       #+ facet_grid(cell ~ .)
+##       #+ geom_vline(xintercept = interpos, colour = "red")
+##       #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+##       #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+##       #       + theme(axis.text.x = element_text(angle = 90))
+##       #+ expand_limits(x = c(0,xmax))
+##       + scale_y_continuous(expand = c(0, 0))
+##       + scale_x_continuous(expand = c(0, 0))
+##       #+ scale_size("Mean number of significant interactions")
+##       + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+##               strip.background = element_rect(fill = "white"),
+##               panel.spacing = unit(0, "lines"))
+##       #axis.text.y = element_blank(),
+##       #axis.ticks.y = element_blank())
+##       #+ theme(panel.background = element_rect(fill = "grey85", colour = NA))
+##)
+##bg
+##
+###get userspecified nth percentile
+##toppercZ <- quantile(tpp$zscore, probs = perc)
+##toppercZ
+##toppercN <- quantile(tpp$numInters, probs = perc)
+##toppercN
+###find regions that are above percent cutoff
+##highinter <- tpp %>% arrange(bin_start) %>%
+##  filter(zscore >= toppercZ) %>%
+##  filter(numInters >= toppercN)
+##highinter
+### go through df and create bed file with the regions
+### skipping up to 2 consecutive regions is ok
+##highinter$tdiff <- c(NA,diff(highinter$bin_start))
+##highinter
+##bedstart <- c()
+##bedend <- c()
+##tmps <- NA
+##tmps <- NA
+##for (i in 1:nrow(highinter)) {
+##  if (is.na(highinter$tdiff[i])){
+##    tmps <- highinter$bin_start[i]
+##  } else {
+##  # end of the df
+##  if (i == nrow(highinter)){
+##      tmpe <- highinter$bin_start[i] + bin_size
+##      bedstart <- c(bedstart,tmps)
+##      bedend <- c(bedend,tmpe)
+##  }#if
+##    # if difference is less than 2 bins, keep going until we get a diff that is >2 bins
+##    if (highinter$tdiff[i] <= bin_size *2) {
+##      next
+##    # difference is more than 2 bins
+##    } else {
+##      tmpe <- highinter$bin_start[i-1] + bin_size
+##      bedstart <- c(bedstart,tmps)
+##      bedend <- c(bedend,tmpe)
+##      tmps <- highinter$bin_start[i]
+##    }# if else
+##  }#if else
+##}#for
+##bedstart
+##bedend
+##chrom <- rep(paste0("chr",chrom_in),length(bedstart))
+##bed_df <- as.data.frame(cbind(chrom,bedstart,bedend))
+##bed_df
+###save bed file to table
+##write.table(bed_df, file = as.character(paste0("highly_interacting_regions_",perc,"_percentile.bed")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+##highinter
 print("DONE")
