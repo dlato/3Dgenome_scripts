@@ -44,7 +44,7 @@ with open(mat, 'r') as f:
         if (sub_row[7] != "\n"):
             A = sub_row[0] 
             B = sub_row[3] 
-            out_id = "anchor_" + A + "/" + sub_row[1] + "/" + sub_row[2] + "__target_" + B + "/" + sub_row[4] + "/" + sub_row[5] + "\t" + f'{float(sub_row[7]):.8f}'
+            out_id = "anchor_" + A + "/" + sub_row[1] + "/" + sub_row[2] + "__target_" + B + "/" + sub_row[4] + "/" + sub_row[5] + "\t" + f'{float(sub_row[7]):.8f}' + "\n"
 #        print(out_id)
 #print cis to cis and trans to trans
             A_spl = re.split("/",A)
