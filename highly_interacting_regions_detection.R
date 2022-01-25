@@ -24,17 +24,17 @@ library(dplyr)
 ##########
 ##########################################################################
 
-# for testing only!
-#library(harrypotter)
-#dat_file <- "test_1vsAll_dat.txt"
-#perc <- 0.4
+## for testing only!
+##library(harrypotter)
+##dat_file <- "test_1vsAll_dat.txt"
+#perc <- 0.8
 #bin_size <- 1000000
-#chrom_in <- "12"
-### create fake df for now
-##bin_start <- seq(0,10000000,1000000)
-##zscore <- c(1.2,1.5,2,-0.2,-1,0,1.6,1.4,1,2,1.5)
-##numInters <- c(17,13,20,4,5,2,19,20,5,17,18)
-##tpp <- as.data.frame(cbind(bin_start,zscore,numInters))
+##chrom_in <- "12"
+#### create fake df for now
+###bin_start <- seq(0,10000000,1000000)
+###zscore <- c(1.2,1.5,2,-0.2,-1,0,1.6,1.4,1,2,1.5)
+###numInters <- c(17,13,20,4,5,2,19,20,5,17,18)
+###tpp <- as.data.frame(cbind(bin_start,zscore,numInters))
 ## reading in chr 12 chr 17 sig zscore data from 3Dflow run
 #dat_file <- "chr12chr17_zscores.txt"
 
@@ -269,7 +269,7 @@ uchrom
 #loop through each chrom and determine highly interacting regions
 fbed_df <- data.frame()
 for (p in uchrom){
-  #  p = "chr12chr17"
+#    p = "chr12"
   print(p)
   tdat <- ddat %>% filter(chr == p)
   #######
@@ -305,8 +305,8 @@ for (p in uchrom){
   tmps <- NA
   if (nrow(highinter) <=2){
     for (z in 1:nrow(highinter)){
-      tmpe <- as.numeric(highinter$st[z]) + as.numeric(bin_size)
-      tmps <- highinter$st[z]
+      tmpe <- as.numeric(highinter$st1[z]) + as.numeric(bin_size)
+      tmps <- highinter$st1[z]
       bedstart <- c(bedstart,tmps)
       bedend <- c(bedend,tmpe)
     }#for
@@ -317,12 +317,26 @@ for (p in uchrom){
       } else {
         # end of the df
         if (i == nrow(highinter)){
-          tmpe <- highinter$st[i] + as.numeric(bin_size)
-          bedstart <- c(bedstart,tmps)
-          bedend <- c(bedend,tmpe)
+          # end of the df and the last row is a highly interacting region of length 1bin
+          if (highinter$tdiff[i] >=as.numeric(bin_size)*3){
+            next 
+          }#if
         }#if
         # if difference is less than 2 bins, keep going until we get a diff that is >2 bins
-        if (highinter$tdiff[i] <= as.numeric(bin_size) *2) {
+        if (highinter$tdiff[i] <= as.numeric(bin_size) *3) {
+          # if next row is end of df, end this high inter section
+          if (i+1 == nrow(highinter)){
+            #if next row has a diff bigger than 2 bins, and therefore not part of high region
+            if (highinter$tdiff[i+1] > as.numeric(bin_size)*3){
+              tmpe <- highinter$st[i] + as.numeric(bin_size)
+              bedstart <- c(bedstart,tmps)
+              bedend <- c(bedend,tmpe)
+            } else {
+              tmpe <- highinter$st[i+1] + as.numeric(bin_size)
+              bedend <- c(bedend,tmpe)
+              bedstart <- c(bedstart,tmps)
+            } #ifelse  
+          }#if
           next
           # difference is more than 2 bins
         } else {
@@ -338,9 +352,15 @@ for (p in uchrom){
   chrompair <- rep(tdat$chrPair[1],length(bedstart))
   bed_df <- as.data.frame(cbind(chrom,bedstart,bedend,chrompair))
   fbed_df <- rbind(fbed_df,bed_df)
-} #for each chrom pair
+} #for each chrom
 
+print("#filter out regions that are only two bins in length")
+fbed_df$bedend <- as.numeric(as.character(fbed_df$bedend))
+fbed_df$bedstart <- as.numeric(as.character(fbed_df$bedstart))
+fbed_df$diff <- fbed_df$bedend - fbed_df$bedstart
+head(fbed_df)
+sbed <- fbed_df %>% filter(diff > as.numeric(bin_size)) %>% select(chrom,bedstart,bedend,chrompair)
 #save bed file to table
-write.table(fbed_df, file = as.character(paste0("highly_interacting_regions_all_chroms_",perc,"_percentile.bed")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(sbed, file = as.character(paste0("highly_interacting_regions_all_chroms_",perc,"_percentile.bed")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
 print("DONE")
