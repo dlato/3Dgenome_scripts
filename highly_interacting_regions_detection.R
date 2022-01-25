@@ -296,13 +296,13 @@ for (p in uchrom){
   if (dim(highinter)[1] == 0) {
     next
   }
-  print(highinter)
   # go through df and create bed file with the regions
   highinter$tdiff <- c(NA,diff(highinter$st))
   bedstart <- c()
   bedend <- c()
   tmps <- NA
   tmps <- NA
+  print(highinter)
   if (nrow(highinter) <=2){
     for (z in 1:nrow(highinter)){
       tmpe <- as.numeric(highinter$st1[z]) + as.numeric(bin_size)
@@ -315,8 +315,11 @@ for (p in uchrom){
       if (is.na(highinter$tdiff[i])){
         tmps <- highinter$st[i]
       } else {
+print("----")
+print(highinter[i,])
         # end of the df
         if (i == nrow(highinter)){
+print("end of df")
           # end of the df and the last row is a highly interacting region of length 1bin
           if (highinter$tdiff[i] >=as.numeric(bin_size)*3){
             next 
@@ -326,12 +329,14 @@ for (p in uchrom){
         if (highinter$tdiff[i] <= as.numeric(bin_size) *3) {
           # if next row is end of df, end this high inter section
           if (i+1 == nrow(highinter)){
+print("next row is end of df")
             #if next row has a diff bigger than 2 bins, and therefore not part of high region
             if (highinter$tdiff[i+1] > as.numeric(bin_size)*3){
               tmpe <- highinter$st[i] + as.numeric(bin_size)
               bedstart <- c(bedstart,tmps)
               bedend <- c(bedend,tmpe)
             } else {
+print("diff is <2bins")
               tmpe <- highinter$st[i+1] + as.numeric(bin_size)
               bedend <- c(bedend,tmpe)
               bedstart <- c(bedstart,tmps)
@@ -340,12 +345,15 @@ for (p in uchrom){
           next
           # difference is more than 2 bins
         } else {
+print("diff is <2bins, not end of df")
           tmpe <- highinter$st[i-1] + as.numeric(bin_size)
           bedstart <- c(bedstart,tmps)
           bedend <- c(bedend,tmpe)
           tmps <- highinter$st[i]
         }# if else
       }#if else
+    print(bedstart)
+    print(bedend)
     }#for
   }# if else df length
   chrom <- rep(tdat$chr[1],length(bedstart))
