@@ -69,6 +69,7 @@ print(p)
   tdat <- dat %>% filter(chrPair == p)
   uchrs <- c(tdat$chrA[1],tdat$chrB[1])
   #######
+  # for chrA
   #######
   mZdat <- tdat %>% group_by(chrA,st1) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
   tmNdat <- tdat %>% group_by(chrA,st1, cell) %>% dplyr::summarize(nSig=n())
@@ -114,12 +115,26 @@ if (nrow(highinter) <=2){
     } else {
       # end of the df
       if (i == nrow(highinter)){
-        tmpe <- highinter$st1[i] + as.numeric(bin_size)
-        bedstart <- c(bedstart,tmps)
-        bedend <- c(bedend,tmpe)
+          # end of the df and the last row is a highly interacting region of length 1bin
+          if (highinter$tdiff[i] >=as.numeric(bin_size)*3){
+           next 
+          }#if
       }#if
       # if difference is less than 2 bins, keep going until we get a diff that is >2 bins
       if (highinter$tdiff[i] <= as.numeric(bin_size) *3) {
+        # if next row is end of df, end this high inter section
+        if (i+1 == nrow(highinter)){
+          #if next row has a diff bigger than 2 bins, and therefore not part of high region
+          if (highinter$tdiff[i+1] > as.numeric(bin_size)*3){
+            tmpe <- highinter$st1[i] + as.numeric(bin_size)
+            bedstart <- c(bedstart,tmps)
+            bedend <- c(bedend,tmpe)
+          } else {
+            tmpe <- highinter$st1[i+1] + as.numeric(bin_size)
+            bedend <- c(bedend,tmpe)
+            bedstart <- c(bedstart,tmps)
+          } #ifelse  
+        }#if
         next
         # difference is more than 2 bins
       } else {
@@ -133,7 +148,13 @@ if (nrow(highinter) <=2){
 }# if else df length
   chrom <- rep(tdat$chrA[1],length(bedstart))
   chrompair <- rep(tdat$chrPair[1],length(bedstart))
+  print("lengths")
+  print(length(chrom))
+  print(length(bedstart))
+  print(length(bedend))
+  print(length(chrompair))
   bed_df <- as.data.frame(cbind(chrom,bedstart,bedend,chrompair))
+print(head(bed_df))
   fbed_df <- rbind(fbed_df,bed_df)
   #######
   #for chrB
@@ -174,18 +195,33 @@ if (dim(highinter)[1] == 0) {
       bedend <- c(bedend,tmpe)
     }#for
   } else {
+    print(highinter)
     for (i in 1:nrow(highinter)) {
       if (is.na(highinter$tdiff[i])){
         tmps <- highinter$st2[i]
       } else {
         # end of the df
         if (i == nrow(highinter)){
-          tmpe <- as.numeric(highinter$st2[i]) + as.numeric(bin_size)
-          bedstart <- c(bedstart,tmps)
-          bedend <- c(bedend,tmpe)
+          # end of the df and the last row is a highly interacting region of length 1bin
+          if (highinter$tdiff[i] >=as.numeric(bin_size)*3){
+           next 
+          }#if
         }#if
         # if difference is less than 2 bins, keep going until we get a diff that is >2 bins
-        if (highinter$tdiff[i] <= as.numeric(bin_size) *2) {
+        if (highinter$tdiff[i] <= as.numeric(bin_size) *3) {
+          # if next row is end of df, end this high inter section
+          if (i+1 == nrow(highinter)){
+            #if next row has a diff bigger than 2 bins, and therefore not part of high region
+            if (highinter$tdiff[i+1] > as.numeric(bin_size)*3){
+              tmpe <- highinter$st2[i] + as.numeric(bin_size)
+              bedstart <- c(bedstart,tmps)
+              bedend <- c(bedend,tmpe)
+            } else {
+              tmpe <- highinter$st2[i+1] + as.numeric(bin_size)
+              bedstart <- c(bedstart,tmps)
+              bedend <- c(bedend,tmpe)
+            } #ifelse  
+          }#if
           next
           # difference is more than 2 bins
         } else {
@@ -199,12 +235,24 @@ if (dim(highinter)[1] == 0) {
   }# if else df length
   chrom <- rep(tdat$chrB[1],length(bedstart))
   chrompair <- rep(tdat$chrPair[1],length(bedstart))
+  print("lengths")
+  print(length(chrom))
+  print(length(bedstart))
+  print(length(bedend))
+  print(length(chrompair))
   bed_df <- as.data.frame(cbind(chrom,bedstart,bedend,chrompair))
+print(head(bed_df))
   fbed_df <- rbind(fbed_df,bed_df)
 } #for each chrom pair
 
+print("#filter out regions that are only two bins in length")
+fbed_df$bedend <- as.numeric(as.character(fbed_df$bedend))
+fbed_df$bedstart <- as.numeric(as.character(fbed_df$bedstart))
+fbed_df$diff <- fbed_df$bedend - fbed_df$bedstart
+head(fbed_df)
+sbed <- fbed_df %>% filter(diff > as.numeric(bin_size)) %>% select(chrom,bedstart,bedend,chrompair)
 #save bed file to table
-write.table(fbed_df, file = as.character(paste0("highly_interacting_regions_chrPairs_",perc,"_percentile.bed")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(sbed, file = as.character(paste0("highly_interacting_regions_chrPairs_",perc,"_percentile.bed")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
 print("##################")
 print("# highly interacting regions for one chrom vs all other chroms")
