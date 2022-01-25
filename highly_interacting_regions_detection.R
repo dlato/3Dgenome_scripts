@@ -164,6 +164,7 @@ print(head(bed_df))
   mNdat <- tmNdat %>% group_by(chrB,st2) %>% dplyr::summarize(mnSig=mean(nSig, na.rm = TRUE))
   #merge the two dfs
   mdat <- merge(mZdat,mNdat, c("chrB","st2"))
+print(mdat)
   #get userc specified nth percentile
   toppercZ <- quantile(mdat$mzscore, probs = as.numeric(perc))
   toppercN <- quantile(mdat$mnSig, probs = as.numeric(perc))
