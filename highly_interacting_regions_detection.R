@@ -119,6 +119,12 @@ if (nrow(highinter) <=2){
           if (highinter$tdiff[i] >=as.numeric(bin_size)*3){
            next 
           }#if
+          #if the last tmp start is not in our bedstart list (i.e. last region has not been counted yet)
+          if (!(tmps %in% bedstart)) {
+            tmpe <- highinter$st1[i] + as.numeric(bin_size)
+            bedstart <- c(bedstart,tmps)
+            bedend <- c(bedend,tmpe)
+          }#if
       }#if
       # if difference is less than 2 bins, keep going until we get a diff that is >2 bins
       if (highinter$tdiff[i] <= as.numeric(bin_size) *3) {
@@ -206,6 +212,12 @@ if (dim(highinter)[1] == 0) {
           # end of the df and the last row is a highly interacting region of length 1bin
           if (highinter$tdiff[i] >=as.numeric(bin_size)*3){
            next 
+          }#if
+          #if the last tmp start is not in our bedstart list (i.e. last region has not been counted yet)
+          if (!(tmps %in% bedstart)) {
+            tmpe <- highinter$st2[i] + as.numeric(bin_size)
+            bedstart <- c(bedstart,tmps)
+            bedend <- c(bedend,tmpe)
           }#if
         }#if
         # if difference is less than 2 bins, keep going until we get a diff that is >2 bins
@@ -315,28 +327,29 @@ for (p in uchrom){
       if (is.na(highinter$tdiff[i])){
         tmps <- highinter$st[i]
       } else {
-print("----")
-print(highinter[i,])
         # end of the df
         if (i == nrow(highinter)){
-print("end of df")
           # end of the df and the last row is a highly interacting region of length 1bin
           if (highinter$tdiff[i] >=as.numeric(bin_size)*3){
             next 
+          }#if
+          #if the last tmp start is not in our bedstart list (i.e. last region has not been counted yet)
+          if (!(tmps %in% bedstart)) {
+            tmpe <- highinter$st[i] + as.numeric(bin_size)
+            bedstart <- c(bedstart,tmps)
+            bedend <- c(bedend,tmpe)
           }#if
         }#if
         # if difference is less than 2 bins, keep going until we get a diff that is >2 bins
         if (highinter$tdiff[i] <= as.numeric(bin_size) *3) {
           # if next row is end of df, end this high inter section
           if (i+1 == nrow(highinter)){
-print("next row is end of df")
             #if next row has a diff bigger than 2 bins, and therefore not part of high region
             if (highinter$tdiff[i+1] > as.numeric(bin_size)*3){
               tmpe <- highinter$st[i] + as.numeric(bin_size)
               bedstart <- c(bedstart,tmps)
               bedend <- c(bedend,tmpe)
             } else {
-print("diff is <2bins")
               tmpe <- highinter$st[i+1] + as.numeric(bin_size)
               bedend <- c(bedend,tmpe)
               bedstart <- c(bedstart,tmps)
@@ -345,7 +358,6 @@ print("diff is <2bins")
           next
           # difference is more than 2 bins
         } else {
-print("diff is <2bins, not end of df")
           tmpe <- highinter$st[i-1] + as.numeric(bin_size)
           bedstart <- c(bedstart,tmps)
           bedend <- c(bedend,tmpe)
