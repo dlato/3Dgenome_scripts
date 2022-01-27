@@ -14,6 +14,7 @@
 ########################################
 
 options(echo=F)
+options(scipen = 1000000)
 args <- commandArgs(trailingOnly = TRUE)
 dat_file <- args[1]
 germlayer_file <- args[2]
@@ -38,6 +39,8 @@ library(regioneR,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/")#for p
 library(factoextra, lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3/")#for PCA
 library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3") #for colours
 library(regioneR)
+library(karyoploteR)#for karyotype plot
+library(BRGenomics)#for karyotype plot
 #install_github("vqv/ggbiplot")
 ##remotes::install_github("R-CoderDotCom/ridgeline@main")
 #library(ridgeline)
@@ -77,16 +80,16 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-##interaction data
-#Atype <- "1_vs_All"
-#tissue_file <- "tissue_system_info.txt"
-#dat_file <- "test_pairwise_dat.txt"
-#allinters_file <- "all_trans_interactions_1Mb.txt"
-#germlayer_file <- "germlayer_info.txt"
-#bin_size <- 1000000
-#outfile <- "test_common_inters_df.txt"
-#library(factoextra)#for PCA
-#library(harrypotter) #for colours
+#interaction data
+Atype <- "1_vs_All"
+tissue_file <- "tissue_system_info.txt"
+dat_file <- "test_pairwise_dat.txt"
+allinters_file <- "all_trans_interactions_1Mb.txt"
+germlayer_file <- "germlayer_info.txt"
+bin_size <- 1000000
+outfile <- "test_common_inters_df.txt"
+library(factoextra)#for PCA
+library(harrypotter) #for colours
 
 allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
@@ -628,12 +631,21 @@ head(hm_dat)
 chrs_ord <- gsub("chr", "", chrs_len_ord)
 hm_dat$AllChr <- factor(hm_dat$AllChr, levels=chrs_len_ord)
 hm_dat$AllChr <- gsub("chr", "", hm_dat$AllChr)
+#centromere info
+centdf <- chrInf %>% select(chrom,centromere)
+centdf
+centdf$chrom <- gsub("chr","",centdf$chrom)
+centdf$centromere <- as.numeric(as.character(centdf$centromere))
+centdf <- centdf %>% filter(chrom %in% unique(hm_dat$AllChr))
+centdf
 hm <- (ggplot(hm_dat, aes(x=AllSt,ordered(AllChr, levels=rev(chrs_ord)), fill = mzscore))
        #hm <- (ggplot(hm_dat, aes(AllChr, cell, fill = zscore))
        #       + geom_tile(aes(fill = mzscore), colour = "white")
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score", na.value = "grey")
        + geom_tile(aes(fill = mzscore), width = 1, height = 1)
 #       + scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+      #vertical line for centromere position
+#      + geom_vline(data=centdf, aes(xintercept = centromere), colour = "white")
       + scale_y_discrete(expand = c(0, 0))
       + scale_x_continuous(expand = c(0, 0))
        + labs(x = "Genomic Postion [Mbp]",
@@ -647,7 +659,47 @@ pdf("zscore_mean_heatmap_common_interactions_chroms_all_cells.pdf", width = 14, 
 hm
 dev.off()
 
+###############
+# karyotype of common interactions
+##############
+#need to change the common inter data to have bed file ending
+CIdat <- hm_dat
+#convert back to bp coords
+CIdat$AllSt <- CIdat$AllSt * 10000000
+CIdat$end <- CIdat$AllSt + bin_size
+CIdat <- CIdat %>% select(AllChr,AllSt,end)
+colnames(CIdat) <- c("chrom","start","end")
+CIdat$chrom <- sub("^", "chr", CIdat$chrom)
+CIdat <- as.data.frame(CIdat)
+CIdat$score <- rep(1,length(CIdat$chrom))
+CIdat
+testdat <- GRanges(CIdat)
+testdat
+testdat2 <- testdat
+#find overlapping regions
+inner_join(CIdat, CIdat, by="chrom") %>% 
+  filter(start.y < start.x | end.y > end.x)
 
+
+
+ov <- findOverlaps(testdat,testdat, type="any")
+ov <- ov[queryHits(ov) != subjectHits(ov)]
+between <- pintersect(testdat[subjectHits(ov)], testdat[queryHits(ov)])
+between
+
+
+
+hits <- findOverlaps(testdat, testdat2, minoverlap = 0)
+hits <- hits[queryHits(hits) != subjectHits(hits)]
+hits
+ranges(testdat)[queryHits(hits)] = ranges(testdat2)[subjectHits(hits)]
+testdat
+mergedat <- mergeGRangesData(testdat, testdat2)
+mergedat
+
+kp <- plotKaryotype(genome = "hg38")
+kpAddBaseNumbers(kp)
+kpPlotRegions(kp, data=CIdat, col="purple")
 
 print("#ridgeline of all zscores (in all chroms) across cell types")
 #adding germlayer info
