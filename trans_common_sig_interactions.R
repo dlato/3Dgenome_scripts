@@ -20,7 +20,7 @@ dat_file <- args[1]
 germlayer_file <- args[2]
 allinters_file <- args[3]
 tissue_file <- args[4]
-bin_size <- args[5]
+bin_size <- as.numeric(as.character(args[5]))
 outfile <- args[6]
 #Atype <- args[4]
 
@@ -660,12 +660,11 @@ hm
 dev.off()
 
 ###############
-# karyotype of common interactions
+print("# karyotype of common interactions data")
 ##############
 #need to change the common inter data to have bed file ending
 CIdat <- hm_dat
 CIdat$AllSt <- as.numeric(as.character(CIdat$AllSt))
-CIdat$end <- as.numeric(as.character(CIdat$end))
 #convert back to bp coords
 CIdat$AllSt <- CIdat$AllSt * 10000000
 CIdat$end <- CIdat$AllSt + bin_size
