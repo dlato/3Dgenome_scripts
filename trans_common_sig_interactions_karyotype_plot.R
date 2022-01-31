@@ -21,12 +21,12 @@ dat_file <- args[1]
 ##########
 library(tidyr)
 library(dplyr)
-library(GenomicRanges)
-.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2")
-library(circlize,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/") # for circos
-library(regioneR,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/")#for permutation
-library(factoextra, lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3/")#for PCA
-library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3") #for colours
+#library(GenomicRanges)
+.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
+#library(circlize,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/") # for circos
+#library(regioneR,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/")#for permutation
+#library(factoextra, lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3/")#for PCA
+#library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3") #for colours
 library(karyoploteR)#for karyotype plot
 #install_github("vqv/ggbiplot")
 ##remotes::install_github("R-CoderDotCom/ridgeline@main")
