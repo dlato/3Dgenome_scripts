@@ -80,16 +80,16 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-#interaction data
-Atype <- "1_vs_All"
-tissue_file <- "tissue_system_info.txt"
-dat_file <- "test_pairwise_dat.txt"
-allinters_file <- "all_trans_interactions_1Mb.txt"
-germlayer_file <- "germlayer_info.txt"
-bin_size <- 1000000
-outfile <- "test_common_inters_df.txt"
-library(factoextra)#for PCA
-library(harrypotter) #for colours
+##interaction data
+#Atype <- "1_vs_All"
+#tissue_file <- "tissue_system_info.txt"
+#dat_file <- "test_pairwise_dat.txt"
+#allinters_file <- "all_trans_interactions_1Mb.txt"
+#germlayer_file <- "germlayer_info.txt"
+#bin_size <- 1000000
+#outfile <- "test_common_inters_df.txt"
+#library(factoextra)#for PCA
+#library(harrypotter) #for colours
 
 allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
@@ -667,39 +667,104 @@ CIdat <- hm_dat
 #convert back to bp coords
 CIdat$AllSt <- CIdat$AllSt * 10000000
 CIdat$end <- CIdat$AllSt + bin_size
-CIdat <- CIdat %>% select(AllChr,AllSt,end)
-colnames(CIdat) <- c("chrom","start","end")
+CIdat
+CIdat <- CIdat %>% select(AllChr,AllSt,end, mzscore)
+colnames(CIdat) <- c("chrom","start","end","mzscore")
 CIdat$chrom <- sub("^", "chr", CIdat$chrom)
 CIdat <- as.data.frame(CIdat)
-CIdat$score <- rep(1,length(CIdat$chrom))
+CIdat$start <- as.numeric(as.character(CIdat$start))
+CIdat$end <- as.numeric(as.character(CIdat$end))
 CIdat
-testdat <- GRanges(CIdat)
-testdat
-testdat2 <- testdat
-#find overlapping regions
-inner_join(CIdat, CIdat, by="chrom") %>% 
-  filter(start.y < start.x | end.y > end.x)
-
-
-
-ov <- findOverlaps(testdat,testdat, type="any")
-ov <- ov[queryHits(ov) != subjectHits(ov)]
-between <- pintersect(testdat[subjectHits(ov)], testdat[queryHits(ov)])
-between
-
-
-
-hits <- findOverlaps(testdat, testdat2, minoverlap = 0)
-hits <- hits[queryHits(hits) != subjectHits(hits)]
-hits
-ranges(testdat)[queryHits(hits)] = ranges(testdat2)[subjectHits(hits)]
-testdat
-mergedat <- mergeGRangesData(testdat, testdat2)
-mergedat
-
-kp <- plotKaryotype(genome = "hg38")
-kpAddBaseNumbers(kp)
-kpPlotRegions(kp, data=CIdat, col="purple")
+#save df
+write.table(CIdat, file = "karyotype_data.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+##adding fake data for testing
+#A <- as.data.frame(t(c("chrX",as.numeric(0),as.numeric(1000000))))
+#B <- as.data.frame(t(c("chrX",as.numeric(90000000),as.numeric(10000000))))
+#colnames(A) <- c("chrom","start","end")
+#colnames(B) <- c("chrom","start","end")
+#CIdat <- rbind(CIdat, A, B)
+#######
+#CIdat
+##combine rows that have regions that are back to back (i.e. row1 0 10, row2 10 20)
+#fbed_df <- data.frame()
+#uchrs <- unique(CIdat$chrom)
+#for (p in uchrs){
+#  p = "chrX"
+#  tmpd <- CIdat %>% filter(chrom == p) %>% arrange(start)
+#  tmpd
+#  if (nrow(tmpd) == 1){
+#    fbed_df <- rbind(fbed_df,tmpd)
+#  } else {
+#    #create col with diff btwn starts and ends
+#    tdiff <- c()
+#    for (i in 1:nrow(tmpd)){
+#      tdiff <- c(tdiff,tmpd$start[i+1] -tmpd$end[i])
+#    }#for each row in df
+#    tmpd$tdiff <- tdiff
+#    tmpd$ct <- tmpd$tdiff
+#    #count and mark longest consecutive stretch
+#    for (a in 1:nrow(tmpd)) {
+#      print(a)
+#      if (a == 1){
+#        tmpd$ct[a] <- 1 
+#      } else {
+#        #if at end of df
+#        if (a == nrow(tmpd)){
+#            #if previous row diff is zero
+#            if (tmpd$tdiff[a-1] == 0){
+#              tmpd$ct[a] <- 1
+#            } else {
+#              tmpd$ct[a] <- 0
+#            }#if else end of df
+#            next
+#          }#end of df
+#          if(tmpd$tdiff[a] != tmpd$tdiff[a-1]){
+#          tmpd$ct[a] <- 1 
+#         } else {
+#           tmpd$ct[a] <- 0
+#         }#if else diff is different from previous row
+#      }#ifelse at end of df
+#    }#for each row  
+#    tmpd
+#  }#if df is larger than one row
+#}#for each chrom
+##order by chrom and start
+#CIdat <- CIdat %>% arrange(chrom,start)
+#CIdat
+#
+#
+#CIdat <- as.data.frame(CIdat)
+#
+#
+#CIdat$score <- rep(1,length(CIdat$chrom))
+#CIdat
+#testdat <- GRanges(CIdat)
+#testdat
+#testdat2 <- testdat
+##find overlapping regions
+#inner_join(CIdat, CIdat, by="chrom") %>% 
+#  filter(start.y < start.x | end.y > end.x)
+#
+#
+#
+#ov <- findOverlaps(testdat,testdat, type="any")
+#ov <- ov[queryHits(ov) != subjectHits(ov)]
+#between <- pintersect(testdat[subjectHits(ov)], testdat[queryHits(ov)])
+#between
+#
+#
+#
+#hits <- findOverlaps(testdat, testdat2, minoverlap = 0)
+#hits <- hits[queryHits(hits) != subjectHits(hits)]
+#hits
+#ranges(testdat)[queryHits(hits)] = ranges(testdat2)[subjectHits(hits)]
+#testdat
+#mergedat <- mergeGRangesData(testdat, testdat2)
+#mergedat
+#
+#kp <- plotKaryotype(genome = "hg38")
+#kpAddBaseNumbers(kp)
+#kpPlotRegions(kp, data=CIdat, col="purple")
 
 print("#ridgeline of all zscores (in all chroms) across cell types")
 #adding germlayer info
