@@ -158,15 +158,12 @@ p_chr_ord <- c("chr1","chr2",
 p_chr_ord_gsub <- gsub("chr","",p_chr_ord)
 #read in cells to filter
 cells_sub <- read.table(cells_file)
-cells_sub
 #read in SNP info
 SNP <- read.table(SNP_file, header = TRUE,sep = "\t")
 SNP_df <- SNP %>% select(chr_b38, start_b38,end_b38)
-SNP_df
 dat <- read.table(dat_file, header = TRUE)
 print("summary of ALL sig zscores per cell type")
 summary(dat)
-dat
 #split ID col
 colnm <- c("chrA", "st1", "end1","chrB","st2","end2")
 dat$ID <- sub("B", "\\.B", as.character(dat$ID))
@@ -174,7 +171,6 @@ dat2 <- dat %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
 #remove A and B from chrom names
 dat2$chrA <- gsub("A", "", dat2$chrA)
 dat2$chrB <- gsub("B", "", dat2$chrB)
-dat2
 #wide to long format
 ldat <- dat2 %>% gather(cell, zscore, 8:ncol(dat2))
 head(ldat)
@@ -219,7 +215,7 @@ for(i in 1:nrow(u_inters)) {
   common_genes_metascape <- append(common_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
 } #for
 common_genes <- unique(common_genes)
-common_genes
+#common_genes
 print("#### number of genes in common interactions")
 length(common_genes)
 write.table(common_genes, file = as.character(paste0(outfile,"_common_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
@@ -428,5 +424,5 @@ write.table(common_genes_metascape, file = as.character(paste0(outfile,"_common_
 #pdf(f_name, width = 14, height = 8)
 #p
 #dev.off()
-#print("DONE")
+print("DONE")
 #
