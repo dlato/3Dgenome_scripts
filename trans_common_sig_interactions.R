@@ -39,8 +39,8 @@ library(regioneR,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/")#for p
 library(factoextra, lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3/")#for PCA
 library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3") #for colours
 library(regioneR)
-library(karyoploteR)#for karyotype plot
-library(BRGenomics)#for karyotype plot
+#library(karyoploteR)#for karyotype plot
+#library(BRGenomics)#for karyotype plot
 #install_github("vqv/ggbiplot")
 ##remotes::install_github("R-CoderDotCom/ridgeline@main")
 #library(ridgeline)
@@ -664,6 +664,8 @@ dev.off()
 ##############
 #need to change the common inter data to have bed file ending
 CIdat <- hm_dat
+CIdat$AllSt <- as.numeric(as.character(CIdat$AllSt))
+CIdat$end <- as.numeric(as.character(CIdat$end))
 #convert back to bp coords
 CIdat$AllSt <- CIdat$AllSt * 10000000
 CIdat$end <- CIdat$AllSt + bin_size
