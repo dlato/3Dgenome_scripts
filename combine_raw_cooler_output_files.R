@@ -10,6 +10,7 @@
 #######################################
 
 options(echo=F)
+options(scipen = 999)
 args <- commandArgs(trailingOnly = TRUE)
 cells_file <- args[1]
 outfile <- args[2]
@@ -62,7 +63,10 @@ for (c in 1:nrow(cellp)) {
   dat$V1 <- sub("_target_","B", as.character(dat$V1))
   dat$V1 <- sub("_","", as.character(dat$V1))
   dat$V1 <- gsub("\\/","\\.", as.character(dat$V1))
+  head(dat)
   colnames(dat) <- c("ID",cn)
+  dat[,2] <- as.numeric(format(dat[,2],scientific = F))
+  head(dat)
   #if the final df (fdf) is empty
   if (c == 1){
     fdf <- rbind(fdf,dat)
@@ -74,6 +78,6 @@ head(fdf)
 summary(fdf)
 
 #write data to table
-write.table(fdf, file = outfile, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(fdf, file = outfile, sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
 
 print("DONE")
