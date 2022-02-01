@@ -14,6 +14,7 @@
 ########################################
 
 options(echo=F)
+options(scipen = 999)
 args <- commandArgs(trailingOnly = TRUE)
 dat_file <- args[1]
 cells_file <- args[2]
@@ -25,6 +26,7 @@ bin_size <- args[6]
 ##########
 library(tidyr)
 library(dplyr)
+library(stringr)
 library(GenomicRanges)
 library(ggplot2)
 library(ggforce)#for ridgeline
@@ -77,6 +79,7 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 ####interaction data
+##options(scipen = 999)
 #Atype <- "1_vs_All"
 ##tissue_file <- "tissue_system_info.txt"
 #dat_file <- "test_1vsAll_dat.txt"
@@ -173,7 +176,33 @@ dat2$chrA <- gsub("A", "", dat2$chrA)
 dat2$chrB <- gsub("B", "", dat2$chrB)
 #wide to long format
 ldat <- dat2 %>% gather(cell, zscore, 8:ncol(dat2))
-head(ldat)
+#filter interactions for ones that contain SNPs (for circos plot)
+#bins that SNPs are in
+SNP_df$bin <- plyr::round_any(SNP_df$start_b38, as.numeric(as.character(bin_size)), f = floor)
+colnames(SNP_df) <- c("AllChr","SNPstart","SNPend","AllSt")
+SNP_ID_df <- SNP_df
+SNP_ID_df$ID <- format(SNP_ID_df$ID, scientific = FALSE)
+SNP_ID_df$ID <- paste0(SNP_ID_df$AllChr,".",format(SNP_ID_df$AllSt, scientific = FALSE),".",format(SNP_ID_df$AllSt+as.numeric(as.character(bin_size)),scientific = FALSE))
+SNP_ID_df$ID <- gsub(" ","", SNP_ID_df$ID)
+selection <- as.logical( # 7
+  rowSums( # 6
+    matrix( # 5
+      unlist( # 4
+        lapply(SNP_ID_df$ID, function(x) { #3
+          as.numeric( # 2
+            str_detect(ldat$ID,x) # 1
+          )
+        })
+      ), 
+      ncol = length(SNP_ID_df$ID), byrow = F)
+  )
+)
+
+odat <- unique(ldat[selection,] %>% select(-ID,-cell, -zscore))
+head(odat)
+#write to df
+write.table(odat, file = as.character(paste0(outfile,"_overlapping_intearctions_for_circos.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+
 #counting each interaction twice (once for each chrom in interaction)
 anchD <- ldat
 anchD$AllChr <- anchD$chrA
@@ -188,9 +217,6 @@ r_dat2 <- rbind(anchD,tarD)
 noNAdat <- r_dat2 %>% select(cell, zscore, AllChr, AllSt, AllEnd) %>% na.omit() %>% filter(cell %in% cells_sub$V1)
 
 #filter interactions for ones that contain SNPs
-#bins that SNPs are in
-SNP_df$bin <- plyr::round_any(SNP_df$start_b38, as.numeric(as.character(bin_size)), f = floor)
-colnames(SNP_df) <- c("AllChr","SNPstart","SNPend","AllSt")
 SNP_df <- as.data.frame(SNP_df)
 noNAdat <- as.data.frame(noNAdat)
 noNAdat$AllSt <- as.numeric(as.character(noNAdat$AllSt))
