@@ -33,35 +33,6 @@ library(karyoploteR)#for karyotype plot
 ##########
 
 #########################################################################
-#set graph theme
-theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
-            #change size of facet header text
-            theme(strip.text = element_text(size =10.49)) +
-            theme(plot.title = element_text(hjust = 0.5, size = 18),
-                  panel.background = element_rect(fill = "white", colour = NA),
-                  panel.grid.major = element_blank(),
-                  panel.grid.minor = element_blank(),
-                  panel.spacing = unit(0.25, "lines"),
-                  axis.text=element_text(size=18),
-                  axis.title = element_text(size = 18),
-                  #plot margins
-                  #plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm"),
-                  #for second legend on y-axis
-                  axis.text.y.right = element_text(size=18),
-                  #legend.title = element_blank(),
-                  legend.title = element_text(size = 16),
-                  legend.text = element_text(size = 18),
-                  #change the colour of facet label background
-                  strip.background = element_rect(fill = "#E6E1EA"),
-                  #remove space between facet
-                  panel.spacing.x=unit(0, "lines"),
-                  #                  legend.key = element_blank(),
-                  legend.background=element_blank(),
-                  #legend background
-                  legend.key = element_rect(fill = NA),
-                  #                  legend.position="none")
-                  legend.position="top")
-)
 #########################################################################
 
 
