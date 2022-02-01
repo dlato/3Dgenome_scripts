@@ -88,24 +88,20 @@ for (c in 1:nrow(cellp)) {
   cn <- cell[,ncol(cell)-1]
   dat <- read.table(cellp[c,], header = FALSE, sep = "\t")
   #dat <- read.table(dat_file, header = FALSE, sep = "\t")
-  dat$V1 <- sub("anchor_","", as.character(dat$V1))
-  dat$V1 <- sub("_target_","", as.character(dat$V1))
-  dat$V1 <- sub("_","\\/", as.character(dat$V1))
-  #split ID col
-  colnm <- c("chrA", "st1", "end1","chrB","st2","end2")
-  dat2 <- dat %>% separate(V1, sep = "\\/", into = colnm, remove = FALSE)
-  #remove ID col
-  dat2 <- dat2 %>% select(-V1)
-  #change inter freq col to cell name
-  names(dat2)[names(dat2) == 'V2'] <- cn
+  dat$V1 <- sub("anchor_","A", as.character(dat$V1))
+  dat$V1 <- sub("_target_","B", as.character(dat$V1))
+  dat$V1 <- sub("_","", as.character(dat$V1))
+  dat$V1 <- gsub("\\/","\\.", as.character(dat$V1))
+  colnames(dat) <- c("ID",cn)
   #if the final df (fdf) is empty
   if (c == 1){
-    fdf <- rbind(fdf,dat2)
+    fdf <- rbind(fdf,dat)
   } else {
-    fdf <- merge(fdf, dat2, by = c("chrA", "st1", "end1","chrB","st2","end2"), all=TRUE)
+    fdf <- merge(fdf, dat, by ="ID", all=TRUE)
   }#ifelse
 }#for
 head(fdf)
+summary(fdf)
 
 #write data to table
 write.table(fdf, file = outfile, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
