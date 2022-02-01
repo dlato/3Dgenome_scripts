@@ -22,7 +22,7 @@ dat_file <- args[1]
 library(tidyr)
 library(dplyr)
 #library(GenomicRanges)
-.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
+.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.1.2")
 #library(circlize,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/") # for circos
 #library(regioneR,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/")#for permutation
 #library(factoextra, lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3/")#for PCA
