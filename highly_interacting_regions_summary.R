@@ -18,10 +18,10 @@ onevall_file <- args[2]
 perc <- args[3]
 
 ##########
+.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.1.2")
 library(tidyr)
 library(dplyr)
 library(ggplot2)
-.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.1.2")
 library(karyoploteR)#for karyotype plot
 #library(karyoploteR)#for karyotype plot
 #library(BRGenomics)#for karyotype plot
@@ -127,7 +127,7 @@ bp <- (ggplot(dat, aes(x=len,fill=class))
        + scale_x_continuous(expand = c(0,0))
        + theme(strip.text.y.right = element_text(angle = 0))
 )
-pdf(paste0("hightly_interacting_regions_",perc,"perc_histogram_length.pdf", width = 14, height = 8)
+pdf(paste0("hightly_interacting_regions_",perc,"perc_histogram_length.pdf"), width = 14, height = 8)
 bp
 dev.off()
 
