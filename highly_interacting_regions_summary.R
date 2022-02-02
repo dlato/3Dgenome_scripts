@@ -20,7 +20,7 @@ library(tidyr)
 library(dplyr)
 library(ggplot2)
 .libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2")
-library(circlize,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/") # for circos
+library(karyoploteR)#for karyotype plot
 #library(karyoploteR)#for karyotype plot
 #library(BRGenomics)#for karyotype plot
 #install_github("vqv/ggbiplot")
@@ -62,11 +62,11 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 #########################################################################
 print("#read in files")
-###interaction data
-#library(circlize) # for circos
-options(scipen = 999)
-pairs_file <- "highly_interacting_regions_chrPairs_0.90_percentile.bed"
-onevall_file <- "highly_interacting_regions_all_chroms_0.90_percentile.bed"
+####interaction data
+##library(circlize) # for circos
+#options(scipen = 999)
+#pairs_file <- "highly_interacting_regions_chrPairs_0.90_percentile.bed"
+#onevall_file <- "highly_interacting_regions_all_chroms_0.90_percentile.bed"
 
 pairs_df <- read.table(pairs_file, header = FALSE)
 colnames(pairs_df) <- c("chr","start","end","chrPair")
@@ -89,6 +89,23 @@ print("# number of highly interacting regions for each analysis (pairs and 1vsAl
 dat %>% group_by(class) %>% dplyr::summarize(nSig=n())
 dat$len <- dat$len / 1000000
 dat$chr <- sub("chr","", dat$chr)
+
+
+print("#############")
+print("#check if means are different between pairwise and chrA vs ALL groups")
+print("#Test each group for normality")
+print("sig = reject normality null")
+#chrClass_dat$chrClass <- as.factor(chrClass_dat$chrClass)
+dat %>%
+  group_by(class) %>%
+  summarise(W = shapiro.test(len)$statistic,
+            p.value = shapiro.test(len)$p.value)
+print("#Perform the Mann-Whitney (non-parametric) test because not normal")
+print("sig = mean is diff btwn groups")
+wilcox.test(len ~ class, data=dat)
+
+
+
 #change order of class levels
 dat <- dat %>%
   mutate(class = factor(class, levels=c("pairs", "onevall")))  # This trick update the factor levels
@@ -145,6 +162,19 @@ p <- (ggplot(dat, aes(y=len,x=chr, fill = class, color = class))
 )
 pdf("hightly_interacting_regions_boxplot_per_chromosome_length.pdf", width = 14, height = 8)
 p
+dev.off()
+
+###############
+# karyotype of regions
+##############
+dat$chr <- sub("^","chr", dat$chr)
+head(dat)
+kdat <- toGRanges(dat %>% select(chr,start,end, len))
+head(kdat)
+pdf("highly_interacting_regions_karyotype.pdf", width = 14, height = 8)
+kp <- plotKaryotype(genome = "hg38")
+kpAddBaseNumbers(kp)
+kpHeatmap(kp, data=kdat,y=kdat$len, colors = c("#FFAA00","#5F0B32"),r0=0.05, r1=0.5)
 dev.off()
 
 print("DONE")
