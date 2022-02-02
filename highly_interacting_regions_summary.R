@@ -7,6 +7,7 @@
 ######
 # arguments: bed-like file for highly interacing regions on CHROM PAIRS (tsv, (chr, start, end, chrpair)))
 #            bed-like file for highly interacting regions on CHROM VS ALL OTHER INTERACTIONS (tsv, (chr, start, end, chrpair)))
+#            top percentage used for identifying highly interacting regions
 ########################################
 
 options(echo=F)
@@ -14,12 +15,13 @@ options(scipen = 999)
 args <- commandArgs(trailingOnly = TRUE)
 pairs_file <- args[1]
 onevall_file <- args[2]
+perc <- args[3]
 
 ##########
 library(tidyr)
 library(dplyr)
 library(ggplot2)
-.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2")
+.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.1.2")
 library(karyoploteR)#for karyotype plot
 #library(karyoploteR)#for karyotype plot
 #library(BRGenomics)#for karyotype plot
@@ -125,7 +127,7 @@ bp <- (ggplot(dat, aes(x=len,fill=class))
        + scale_x_continuous(expand = c(0,0))
        + theme(strip.text.y.right = element_text(angle = 0))
 )
-pdf("hightly_interacting_regions_histogram_length.pdf", width = 14, height = 8)
+pdf(paste0("hightly_interacting_regions_",perc,"perc_histogram_length.pdf", width = 14, height = 8)
 bp
 dev.off()
 
@@ -145,7 +147,7 @@ p <- (ggplot(dat, aes(y=len,x=class, fill = class, color = class))
              title = "",
              fill = "Type of Analysis")
 )
-pdf("hightly_interacting_regions_box_violin_length.pdf", width = 14, height = 8)
+pdf(paste0("hightly_interacting_regions_", perc,"perc_box_violin_length.pdf"), width = 14, height = 8)
 p
 dev.off()
 
@@ -160,7 +162,7 @@ p <- (ggplot(dat, aes(y=len,x=chr, fill = class, color = class))
              title = "",
              fill = "Chromosome")
 )
-pdf("hightly_interacting_regions_boxplot_per_chromosome_length.pdf", width = 14, height = 8)
+pdf(paste0("hightly_interacting_regions_",perc,"perc_boxplot_per_chromosome_length.pdf"), width = 14, height = 8)
 p
 dev.off()
 
@@ -171,7 +173,7 @@ dat$chr <- sub("^","chr", dat$chr)
 head(dat)
 kdat <- toGRanges(dat %>% select(chr,start,end, len))
 head(kdat)
-pdf("highly_interacting_regions_karyotype.pdf", width = 14, height = 8)
+pdf(paste0("highly_interacting_regions_",perc,"perc_karyotype.pdf"), width = 14, height = 8)
 kp <- plotKaryotype(genome = "hg38")
 kpAddBaseNumbers(kp)
 kpHeatmap(kp, data=kdat,y=kdat$len, colors = c("#FFAA00","#5F0B32"),r0=0.05, r1=0.5)
