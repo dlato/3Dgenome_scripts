@@ -167,17 +167,18 @@ SNP_df <- SNP %>% select(chr_b38, start_b38,end_b38)
 dat <- read.table(dat_file, header = TRUE)
 print("summary of ALL sig zscores per cell type")
 summary(dat)
-#split ID col
+print("#split ID col")
 colnm <- c("chrA", "st1", "end1","chrB","st2","end2")
 dat$ID <- sub("B", "\\.B", as.character(dat$ID))
-dat2 <- dat %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
-#remove A and B from chrom names
-dat2$chrA <- gsub("A", "", dat2$chrA)
-dat2$chrB <- gsub("B", "", dat2$chrB)
-#wide to long format
-ldat <- dat2 %>% gather(cell, zscore, 8:ncol(dat2))
-#filter interactions for ones that contain SNPs (for circos plot)
-#bins that SNPs are in
+dat <- dat %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
+print("#remove A and B from chrom names")
+dat$chrA <- gsub("A", "", dat$chrA)
+dat$chrB <- gsub("B", "", dat$chrB)
+print("#wide to long format")
+ldat <- dat %>% gather(cell, zscore, 8:ncol(dat))
+dat <- data.frame()
+print("#filter interactions for ones that contain SNPs (for circos plot)")
+print("#bins that SNPs are in")
 SNP_df$bin <- plyr::round_any(SNP_df$start_b38, as.numeric(as.character(bin_size)), f = floor)
 colnames(SNP_df) <- c("AllChr","SNPstart","SNPend","AllSt")
 SNP_ID_df <- SNP_df
@@ -200,10 +201,11 @@ selection <- as.logical( # 7
 
 odat <- unique(ldat[selection,] %>% select(-ID,-cell, -zscore))
 head(odat)
-#write to df
+print("#write to df")
 write.table(odat, file = as.character(paste0(outfile,"_overlapping_intearctions_for_circos.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+odat <- data.frame()
 
-#counting each interaction twice (once for each chrom in interaction)
+print("#counting each interaction twice (once for each chrom in interaction)")
 anchD <- ldat
 anchD$AllChr <- anchD$chrA
 anchD$AllSt <- anchD$st1
