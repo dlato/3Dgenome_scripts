@@ -38,7 +38,7 @@ print("#read in files")
 #dat_file <- "circos_in_data.txt"
 
 dat <- read.table(dat_file, header = FALSE)
-colnames(dat) <- c("chrA","st1","end1","chrB","st2","end2")
+colnames(dat) <- c("chrA","st1","end1","chrB","st2","end2","cell","zscore")
 summary(dat)
 
 #separate the df into two dfs
