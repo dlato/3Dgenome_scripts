@@ -184,6 +184,7 @@ colnames(SNP_df) <- c("AllChr","SNPstart","SNPend","AllSt")
 SNP_ID_df <- SNP_df
 SNP_ID_df$ID <- format(SNP_ID_df$ID, scientific = FALSE)
 SNP_ID_df$ID <- paste0(SNP_ID_df$AllChr,".",format(SNP_ID_df$AllSt, scientific = FALSE),".",format(SNP_ID_df$AllSt+as.numeric(as.character(bin_size)),scientific = FALSE))
+print("done formatting ID and bin col")
 SNP_ID_df$ID <- gsub(" ","", SNP_ID_df$ID)
 selection <- as.logical( # 7
   rowSums( # 6
