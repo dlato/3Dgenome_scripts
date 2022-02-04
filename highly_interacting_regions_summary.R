@@ -171,6 +171,8 @@ dev.off()
 ##############
 dat$chr <- sub("^","chr", dat$chr)
 head(dat)
+print("chr1 karyo info")
+dat %>% filter(chr == "chr1")
 kdat <- toGRanges(dat %>% select(chr,start,end, len))
 head(kdat)
 pdf(paste0("highly_interacting_regions_",perc,"perc_karyotype.pdf"), width = 14, height = 8)
