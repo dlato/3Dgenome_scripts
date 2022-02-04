@@ -70,6 +70,23 @@ print("#read in files")
 #pairs_file <- "highly_interacting_regions_chrPairs_0.90_percentile.bed"
 #onevall_file <- "highly_interacting_regions_all_chroms_0.90_percentile.bed"
 
+#chrom info
+#re-order chroms based on chrom len
+p_chr_ord <- c("chr1","chr2",
+               "chr3","chr4",
+               "chr5","chr6",
+               "chr7",
+               "chr8","chr9",
+               "chr11","chr10",
+               "chr12","chr13",
+               "chr14","chr15",
+               "chr16","chr17",
+               "chr18","chr20",
+               "chr19","chr22",
+               "chr21","chrX","chrY")
+p_chr_ord_num <- gsub("chr","",p_chr_ord)
+
+
 pairs_df <- read.table(pairs_file, header = FALSE)
 colnames(pairs_df) <- c("chr","start","end","chrPair")
 head(pairs_df)
@@ -111,10 +128,14 @@ wilcox.test(len ~ class, data=dat)
 #change order of class levels
 dat <- dat %>%
   mutate(class = factor(class, levels=c("pairs", "onevall")))  # This trick update the factor levels
+print("min len of region")
+min(dat$len)
+print("max len of region")
+max(dat$len)
 
 #histogram of highly interacting region sizes
 bp <- (ggplot(dat, aes(x=len,fill=class))
-       +geom_histogram(position = "dodge", color = "black")
+       +geom_histogram(position = "dodge", color = "black", binwidth = 1)
        + scale_fill_manual(values = c("#FAC9A1", "#013040"), labels= c("Pairwise", "ChrA vs All"))
        #  + scale_fill_hp(discrete = FALSE, option = "Always", name = "Mean z-score per chromosomal pair", na.value = "grey")
        #  #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
@@ -152,17 +173,52 @@ p
 dev.off()
 
 #boxplot of region sizes per chrom
+#re-order chroms
+dat$chr <- factor(dat$chr, levels=p_chr_ord_num)
 p <- (ggplot(dat, aes(y=len,x=chr, fill = class, color = class))
       + geom_boxplot(alpha = 0.9, color = "black", outlier.colour = NA)
 #      + geom_jitter(width = 0.1, alpha = 0.4, color = "black")
       + scale_fill_manual(values = c("#FAC9A1", "#013040"), labels= c("Pairwise", "ChrA vs All"))
       + scale_color_manual(values = c("#FAC9A1", "#013040"), labels= c("Pairwise", "ChrA vs All"))
       + labs(y="Length of Highly Interacting Region [Mb]",
-             x="Type of Analysis",
+             x="Chromosome",
              title = "",
-             fill = "Chromosome")
+             fill = "Type of Analysis")
 )
 pdf(paste0("hightly_interacting_regions_",perc,"perc_boxplot_per_chromosome_length.pdf"), width = 14, height = 8)
+p
+dev.off()
+
+bpdat <- dat
+#log base 10 of length
+bpdat$len <- log(bpdat$len,10)
+p <- (ggplot(bpdat, aes(y=len,x=class, fill = class, color = class))
+      +geom_violin(alpha = 0.7, color = "black")
+      + geom_boxplot(width = 0.25, alpha = 0.7, color = "black", outlier.colour = NA)
+      + geom_jitter(alpha = 0.3, color = "black")
+       + scale_fill_manual(values = c("#FAC9A1", "#013040"), labels= c("Pairwise", "ChrA vs All"))
+       + scale_color_manual(values = c("#FAC9A1", "#013040"), labels= c("Pairwise", "ChrA vs All"))
+      + labs(y="Length of Highly Interacting Region log10[Mb]",
+             x="Type of Analysis",
+             title = "",
+             fill = "Type of Analysis")
+)
+pdf(paste0("hightly_interacting_regions_", perc,"perc_box_violin_log10_length.pdf"), width = 14, height = 8)
+p
+dev.off()
+
+#boxplot of region sizes per chrom
+p <- (ggplot(bpdat, aes(y=len,x=chr, fill = class, color = class))
+      + geom_boxplot(alpha = 0.9, color = "black", outlier.colour = NA)
+#      + geom_jitter(width = 0.1, alpha = 0.4, color = "black")
+      + scale_fill_manual(values = c("#FAC9A1", "#013040"), labels= c("Pairwise", "ChrA vs All"))
+      + scale_color_manual(values = c("#FAC9A1", "#013040"), labels= c("Pairwise", "ChrA vs All"))
+      + labs(y="Length of Highly Interacting Region log10[Mb]",
+             x="Chromosome",
+             title = "",
+             fill = "Type of Analysis")
+)
+pdf(paste0("hightly_interacting_regions_",perc,"perc_boxplot_per_chromosome_log10_length.pdf"), width = 14, height = 8)
 p
 dev.off()
 
