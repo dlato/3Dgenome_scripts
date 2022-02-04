@@ -6,24 +6,20 @@
 #            github: https://github.com/dlato
 ######
 # arguments: bed-like file for interaction data (tsv, first three columns are for the anchor region (chr, start, end) second three columns are for the target region (chr,start,end), last two columns are cell and zscore information)
-#            germlayer df (tsv)
-#            all interactions file (tsv)
-#            tissue/system df (tsv)
-#            bin size (bp)
-#            full path and name of output file
+#            chromosome to plot (character, i.e. chr1)
 ########################################
 
 options(echo=F)
 options(scipen = 999)
 args <- commandArgs(trailingOnly = TRUE)
 dat_file <- args[1]
+chrom <- args[2]
 
 ##########
+.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2")
 library(Sushi)
-
 library(tidyr)
 library(dplyr)
-.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2")
 library(circlize,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/") # for circos
 #library(karyoploteR)#for karyotype plot
 #library(BRGenomics)#for karyotype plot
@@ -34,46 +30,154 @@ library(circlize,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/") # for
 
 #########################################################################
 print("#read in files")
-###interaction data
-library(circlize) # for circos
-options(scipen = 999)
-dat_file <- "cis_arch_plot_test_dat.txt"
+####interaction data
+#library(circlize) # for circos
+#options(scipen = 999)
+#dat_file <- "cis_arch_plot_test_dat.txt"
+#chrom = "chr10"
 
-
+#chrom info
+#re-order chroms based on chrom len
+chrs_len_ord <- c("chr1","chr2",
+                  "chr3","chr4",
+                  "chr5","chr6",
+                  "chr7","chrX",
+                  "chr8","chr9",
+                  "chr11","chr10",
+                  "chr12","chr13",
+                  "chr14","chr15",
+                  "chr16","chr17",
+                  "chr18","chr20",
+                  "chr19","chrY",
+                  "chr22","chr21")
+rev_chrs_len_ord <- rev(chrs_len_ord)
+#chrom info: centromere (midpoint calculated from UCSC, aprox), chrom class
+chrInf <- data.frame( chrom = chrs_len_ord,
+                      centromere = c(123252373.5,93787431.5,
+                                     90856062,50074452.5,
+                                     48585285.5,60557102.5,
+                                     60058972.5,61016889,
+                                     45249872,43893383.5,
+                                     53454152,39800499.5,
+                                     35764400,17692000.5,
+                                     17117352,19037747.5,
+                                     36878628.5,25067566.5,
+                                     18464134,28099979.5,
+                                     26161912,10470308,
+                                     15520235.5,11917946),
+                      chrClass = c("Metacentric","Metacentric",
+                                   "Metacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Submetacentric",
+                                   "Submetacentric","Acrocentric",
+                                   "Acrocentric","Acrocentric",
+                                   "Metacentric","Submetacentric",
+                                   "Submetacentric","Metacentric",
+                                   "Metacentric","Acrocentric",
+                                   "Acrocentric","Acrocentric"),
+                      size = c(248956422,242193529,
+                               198295559,190214555,
+                               181538259,170805979,
+                               159345973,156040895,145138636,
+                               138394717,135086622,
+                               133797422,133275309,
+                               114364328,107043718,
+                               101991189,90338345,
+                               83257441,80373285,
+                               64444167,58617616,57227415,
+                               50818468,46709983)
+                      
+)
+#re-order chrInf df based on order Phil wants
+p_chr_ord <- c("chr1","chr2",
+               "chr3","chr4",
+               "chr5","chr6",
+               "chr7",
+               "chr8","chr9",
+               "chr11","chr10",
+               "chr12","chr13",
+               "chr14","chr15",
+               "chr16","chr17",
+               "chr18","chr20",
+               "chr19","chr22",
+               "chr21","chrX","chrY")
+chrInf$chrom <- factor(chrInf$chrom, levels=p_chr_ord)
 
 dat <- read.table(dat_file, header = FALSE)
 head(dat)
 colnames(dat) <- c("chr1","st1","end1","chr2","st2","end2","cell","zscore")
 dat$cell <- as.factor(dat$cell)
 summary(dat)
-subdat <- dat %>% filter(cell %in% c("Liver","Lung","IMR90"))
-subdat$cellnum <- subdat$cell
+head(dat)
+
 #change cells to numbers for plotting
-subdat <- subdat %>%
-  mutate(cellnum = factor(cellnum, labels = c("1","2", "3")))
-subdat$cellnum <- as.numeric(as.character(subdat$cellnum))
-subdat
+cdf <- data.frame(unique(dat$cell),seq(1,length(unique(dat$cell)),by=1))
+colnames(cdf) <- c("c","cn")
+cdf
+dat$cellnum <- as.factor(cdf$cn[match(dat$cell,cdf$c)])
+dat$cellnum <- as.numeric(as.character(dat$cellnum))
+head(dat)
+summary(dat)
+#dat <- dat %>% filter(cell %in% c("Liver","Lung","IMR90","Adrenal.gland","Bladder_rep1","Bladder_rep2"))
+
+
+#subdat <- dat %>% filter(cell %in% c("Liver","Lung","IMR90"))
+#subdat$cellnum <- subdat$cell
+#colnames(cdf) <- c("c","cn")
+#subdat <- subdat %>%
+#  mutate(cellnum = factor(cellnum, labels = c("1","2", "3")))
+#subdat$cellnum <- as.numeric(as.character(subdat$cellnum))
+#subdat
+#plot arch plot for cis interactions
+#pbpe = plotBedpe(subdat,chrom,chromstart,chromend,
+#                   heights = subdat$zscore,plottype="loops",
+#                   colorby=subdat$cellnum,
+#                   colorbycol=SushiColors(length(unique(subdat$cellnum)))
+#)
 
 #plot arch plot for cis interactions
-chrom = "chr10"
-#chromstart = min(c(min(dat$st1),min(dat$st2))) - 10000
-#chromend = max(c(max(dat$st1),max(dat$st2))) + 10000
 chromstart = 0
-chromend = 133000000
-pbpe = plotBedpe(subdat,chrom,chromstart,chromend,
-                   heights = subdat$zscore,plottype="loops",
-                   colorby=subdat$cellnum,
-                   colorbycol=SushiColors(length(unique(subdat$cellnum)))
+#chromend = 133000000
+chromend = chrInf$size[which(chrInf$chrom == chrom)]
+pdf(paste0("cis_archplot_",chrom,".pdf"), width = 14, height = 8)
+pbpe = plotBedpe(dat,chrom,chromstart,chromend,
+                   heights = dat$zscore,plottype="loops",
+                   colorby=dat$cellnum,
+                   colorbycol=SushiColors(length(unique(dat$cellnum)))
 )
 #x-axis
-labelgenome(chrom, chromstart,chromend,n=3,scale="Mb")
+labelgenome(chrom, chromstart,chromend,n=6,scale="Mb")
 #y-axis
 axis(side=2,las=2,tcl=.2)
 #y-axis title
 mtext("Z-score",side=2,line=3,cex=1,font=2)
 #legend
-legend("topright",inset =0.01,legend=c("K562","HeLa","GM12878"),
+legend("topright",inset =0.01,legend=cdf$c,
        col=SushiColors(3)(3),pch=19,bty='n',text.font=2)
+dev.off()
 
+# plot each cell separately
+for (i in cdf$c){
+  print(i)
+#  i = "Lung"
+  tdf <- dat %>% filter(cell == i)
+  pdf(paste0("cis_archplot_",chrom,"_",i,".pdf"), width = 14, height = 8)
+  pbpe = plotBedpe(tdf,chrom,chromstart,chromend,
+                   heights = tdf$zscore,plottype="loops"
+  #                 colorby=tdf$cellnum,
+  #                 colorbycol=SushiColors(length(unique(tdf$cellnum)))
+  )
+  #x-axis
+  labelgenome(chrom, chromstart,chromend,n=6,scale="Mb")
+  #y-axis
+  axis(side=2,las=2,tcl=.2)
+  #y-axis title
+  mtext("Z-score",side=2,line=3,cex=1,font=2)
+  #title
+  mtext(i,side=3,line=1,cex=2,font=2)
+  dev.off()
+}
 
 print("DONE")
