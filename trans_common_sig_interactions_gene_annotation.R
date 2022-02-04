@@ -336,13 +336,15 @@ lnc_df[which(lnc_df$len == min(lnc_df$len)),]
 
 #boxplot of all chroms together
 lnc_df$len <- lnc_df$len / 1000000
-p <- (ggplot(lnc_df, aes(x=inter, y=len,fill=factor(strand) ))
+bpdf_log <- lnc_df
+bpdf_log$len <- log(bpdf_log$len,10)
+p <- (ggplot(bpdf_log, aes(x=inter, y=len,fill=factor(strand) ))
       + geom_boxplot()
       + labs(title = paste(gsub("_","",Atype), "All Interactions"),
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
              x = paste0("Interaction Category"),
-             y = "lncRNA length [Mb]",
+             y = "lncRNA length log10[Mb]",
              fill = "Strand")
       + scale_x_discrete(expand = c(0, 0))
       + scale_y_continuous(expand = c(0, 0))
