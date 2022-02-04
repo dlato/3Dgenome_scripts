@@ -16,11 +16,10 @@ dat_file <- args[1]
 chrom <- args[2]
 
 ##########
-.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2")
-library(Sushi)
+.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.1.2")
 library(tidyr)
 library(dplyr)
-library(circlize,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/") # for circos
+library(Sushi)
 #library(karyoploteR)#for karyotype plot
 #library(BRGenomics)#for karyotype plot
 #install_github("vqv/ggbiplot")
