@@ -32,12 +32,17 @@ print("#read in files")
 ###interaction data
 #library(circlize) # for circos
 #options(scipen = 999)
-#dat_file <- "circos_in_data.txt"
+#dat_file <- "circos.test.data.txt"
+#dat_file <- "VSMC_trans1Mb_SNPs_MERGED_overlapping_intearctions_for_circos.txt"
+#outprefix <- "test_circo"
 
 dat <- read.table(dat_file, header = FALSE)
 colnames(dat) <- c("chrA","st1","end1","chrB","st2","end2","cell","zscore")
 summary(dat)
 
+#remove chr M because it somehow made it into the df
+dat <- dat %>% filter(chrA != "chrM")
+dat <- dat %>% filter(chrB != "chrM")
 #separate the df into two dfs
 dfA <- dat %>% select(chrA,st1,end1)
 dfB <- dat %>% select(chrB,st2,end2)
