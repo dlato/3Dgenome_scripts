@@ -111,11 +111,19 @@ p_chr_ord <- c("chr1","chr2",
                "chr21","chrX","chrY")
 chrInf$chrom <- factor(chrInf$chrom, levels=p_chr_ord)
 
-
+chrInf
 
 print("#circos plot of common interactions")
 dfA$chrA <- gsub("chr","",dfA$chrA)
 dfB$chrB <- gsub("chr","",dfB$chrB)
+colnames(dfA) <- c("chr","start","end")
+colnames(dfB) <- c("chr","start","end")
+head(dfA)
+head(dfB)
+unique(dfA$chr)
+unique(dfB$chr)
+nrow(dfA)
+nrow(dfB)
 pdf(paste0(outprefix,"_circos_trans_inters.pdf"), width = 14, height = 8)
 circos.clear()
 col_text <- "grey40"
@@ -123,7 +131,7 @@ circos.par("track.height"=0.8,gap.degree=5,cell.padding=c(0,0,0,0))
 circos.initialize(factors=gsub("chr","",chrInf$chrom),
                   xlim=matrix(c(rep(0,length(chrInf$chrom)),chrInf$size),ncol=2))
 
-# genomes
+print("# genomes")
 circos.track(ylim=c(0,1),panel.fun=function(x,y) {
   chr=CELL_META$sector.index
   xlim=CELL_META$xlim
@@ -131,13 +139,13 @@ circos.track(ylim=c(0,1),panel.fun=function(x,y) {
   circos.text(mean(xlim),mean(ylim),chr,cex=0.5,col=col_text,
               facing="bending.inside",niceFacing=TRUE)
 },bg.col="grey90",bg.border=F,track.height=0.06)
-# genomes x axis
+print("# genomes x axis")
 brk <- seq(0,250, 50)*10^6
 circos.track(track.index = get.current.track.index(), panel.fun = function(x, y) {
   circos.axis(h="top",major.at=brk,labels=round(brk/10^6,1),labels.cex=0.4,
               col=col_text,labels.col=col_text,lwd=0.7,labels.facing="clockwise")
 },bg.border=F)
-# add interactions to plot
+print("# add interactions to plot")
 #rcols <- scales::alpha(ifelse(sign(nuc1$st1-nuc1$end1)!=sign(nuc2$st2-nuc2$end2),"#f46d43","#66c2a5"),alpha=0.4)
 #rcols <- scales::alpha(ifelse(sign(nuc1$st1-nuc1$end1)!=sign(nuc2$st2-nuc2$end2),"black","red"))
 #circos.genomicLink(nuc1,nuc2,col=rcols,border=NA)
