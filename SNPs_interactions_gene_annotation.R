@@ -164,7 +164,7 @@ cells_sub <- read.table(cells_file)
 cells_sub
 #read in SNP info
 SNP <- read.table(SNP_file, header = TRUE,sep = "\t")
-SNP_df <- SNP %>% select(chr_b38, start_b38,end_b38)
+SNP_df <- SNP %>% select(chr_b38, start_b38,end_b38, logFC_comp)
 dat <- read.table(dat_file, header = TRUE)
 print("summary of ALL sig zscores per cell type")
 summary(dat)
@@ -181,7 +181,7 @@ dat <- data.frame()
 print("#filter interactions for ones that contain SNPs (for circos plot)")
 print("#bins that SNPs are in")
 SNP_df$bin <- plyr::round_any(SNP_df$start_b38, as.numeric(as.character(bin_size)), f = floor)
-colnames(SNP_df) <- c("AllChr","SNPstart","SNPend","AllSt")
+colnames(SNP_df) <- c("AllChr","SNPstart","SNPend","logFC","AllSt")
 SNP_ID_df <- SNP_df
 SNP_ID_df$ID <- format(SNP_ID_df$ID, scientific = FALSE)
 SNP_ID_df$ID <- paste0(SNP_ID_df$AllChr,".",format(SNP_ID_df$AllSt, scientific = FALSE),".",format(SNP_ID_df$AllSt + as.numeric(as.character(bin_size)),scientific = FALSE))
@@ -205,7 +205,36 @@ odat <- unique(ldat[selection,] %>% select(-ID)) %>% na.omit()
 head(odat)
 print("#write to df")
 write.table(odat, file = as.character(paste0(outfile,"_overlapping_intearctions_for_circos.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-odat <- data.frame()
+
+print("# Pearson Correlation with zscore and mean(|logFC|) per bin (MPRA activity)")
+# absolute value of mean logFC per bin
+lfc <- SNP_ID_df
+lfc$logFC <- abs(lfc$logFC)
+lfc <- lfc %>%
+  group_by(ID) %>%
+  dplyr::summarise(mlogFC = mean(logFC))
+pc_dat <- odat %>%
+  # new cols for ID searching
+  mutate(IDa = paste0(chrA,".",st1,".",end1)) %>%
+  mutate(IDb = paste0(chrB,".",st2,".",end2))
+#add in the logFC info to the df with interactions
+pc_dat$mlogFC_A <- lfc$mlogFC[match(pc_dat$IDa, lfc$ID)]
+pc_dat$mlogFC_B <- lfc$mlogFC[match(pc_dat$IDb, lfc$ID)]
+print("# Pearson Correlation for zscore and logFC for anchor interaction")
+for (i in unique(pc_dat$cell)){
+  #i = "Lung"
+  print(i)
+  tdf <- pc_dat %>% filter(cell == i)
+  print(cor.test(tdf$zscore, tdf$mlogFC_A))
+}
+print("# Pearson Correlation for zscore and logFC for target interaction")
+for (i in unique(pc_dat$cell)){
+  #i = "Lung"
+  print(i)
+  tdf <- pc_dat %>% filter(cell == i)
+  print(cor.test(tdf$zscore, tdf$mlogFC_A))
+}
+
 
 print("#counting each interaction twice (once for each chrom in interaction)")
 anchD <- ldat
