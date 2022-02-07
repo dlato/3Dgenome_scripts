@@ -6,17 +6,14 @@
 #            github: https://github.com/dlato
 ######
 # arguments: bed-like file for interaction data (tsv, first three columns are for the anchor region (chr, start, end) second three columns are for the target region (chr,start,end))
-#            germlayer df (tsv)
-#            all interactions file (tsv)
-#            tissue/system df (tsv)
-#            bin size (bp)
-#            full path and name of output file
+#            outfile prefix (character)
 ########################################
 
 options(echo=F)
 options(scipen = 999)
 args <- commandArgs(trailingOnly = TRUE)
 dat_file <- args[1]
+outprefix <- args[2]
 
 ##########
 library(tidyr)
@@ -119,7 +116,7 @@ chrInf$chrom <- factor(chrInf$chrom, levels=p_chr_ord)
 print("#circos plot of common interactions")
 dfA$chrA <- gsub("chr","",dfA$chrA)
 dfB$chrB <- gsub("chr","",dfB$chrB)
-pdf("circos_trans_inters.pdf", width = 14, height = 8)
+pdf(paste0(outprefix,"_circos_trans_inters.pdf"), width = 14, height = 8)
 circos.clear()
 col_text <- "grey40"
 circos.par("track.height"=0.8,gap.degree=5,cell.padding=c(0,0,0,0))
