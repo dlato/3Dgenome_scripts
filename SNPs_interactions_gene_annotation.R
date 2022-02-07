@@ -161,6 +161,7 @@ p_chr_ord <- c("chr1","chr2",
 p_chr_ord_gsub <- gsub("chr","",p_chr_ord)
 #read in cells to filter
 cells_sub <- read.table(cells_file)
+cells_sub
 #read in SNP info
 SNP <- read.table(SNP_file, header = TRUE,sep = "\t")
 SNP_df <- SNP %>% select(chr_b38, start_b38,end_b38)
@@ -218,6 +219,9 @@ tarD$AllEnd <- tarD$end2
 r_dat2 <- rbind(anchD,tarD)
 #remove NA interactions
 noNAdat <- r_dat2 %>% select(cell, zscore, AllChr, AllSt, AllEnd) %>% na.omit() %>% filter(cell %in% cells_sub$V1)
+
+print("check filtering by cell type")
+unique(noNAdat$cell)
 
 #filter interactions for ones that contain SNPs
 SNP_df <- as.data.frame(SNP_df)
