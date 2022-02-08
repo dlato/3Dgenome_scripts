@@ -164,7 +164,13 @@ cells_sub <- read.table(cells_file)
 cells_sub
 #read in SNP info
 SNP <- read.table(SNP_file, header = TRUE,sep = "\t")
-SNP_df <- SNP %>% select(chr_b38, start_b38,end_b38, logFC_comp)
+#accounting for merged SNP files
+SNP_df <- SNP
+if ("logFC_comp" %in% colnames(SNP)){
+  SNP_df <- SNP %>% select(chr_b38, start_b38,end_b38, logFC_comp)
+} else {
+  SNP_df$logFC_comp <- mean(abs(SNP_df$logFC_comp.x),abs(SNP_df$logFC_comp.y))
+}#if else
 dat <- read.table(dat_file, header = TRUE)
 print("summary of ALL sig zscores per cell type")
 summary(dat)
