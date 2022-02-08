@@ -74,17 +74,17 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-####interaction data
-#Atype <- "1_vs_All"
-##tissue_file <- "tissue_system_info.txt"
-#dat_file <- "test_common_inters_df.txt"
-##allinters_file <- "all_trans_interactions_1Mb.txt"
-##germlayer_file <- "germlayer_info.txt"
-#bin_size <- 1000000
-#anno_file <- "hg38_p13_v32_annotation.txt"
-#outfile <- "GO_analysis_common_inters_gene_list.txt"
-#library(factoextra)#for PCA
-#library(harrypotter) #for colours
+###interaction data
+Atype <- "1_vs_All"
+#tissue_file <- "tissue_system_info.txt"
+dat_file <- "test_common_inters_df.txt"
+#allinters_file <- "all_trans_interactions_1Mb.txt"
+#germlayer_file <- "germlayer_info.txt"
+bin_size <- 1000000
+anno_file <- "hg38_p13_v32_annotation.txt"
+outfile <- "GO_analysis_common_inters_gene_list.txt"
+library(factoextra)#for PCA
+library(harrypotter) #for colours
 
 #re-order chroms based on chrom len
 chrs_len_ord <- c("chr1","chr2",
@@ -333,6 +333,10 @@ lnc_df <- comb_anno %>% filter(broad_class == "lncRNA")
 head(lnc_df)
 summary(lnc_df)
 lnc_df[which(lnc_df$len == min(lnc_df$len)),]
+
+print("#perform the Mann Whitney U test to determine diff betwen lncRNA len for common and non-common inters")
+print("sig = diff in lncRNA len between common and non-common inters")
+wilcox.test(len~inter, data = lnc_df)
 
 #boxplot of all chroms together
 lnc_df$len <- lnc_df$len / 1000000
