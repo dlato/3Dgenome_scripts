@@ -10,6 +10,7 @@
 #            annotation file (from python script) (tsv)
 #            full path and name of output file
 #            type of analysis with underscore between words (i.e. 1_vs_All)
+#            file with all possible interactions (tsv)
 ########################################
 
 options(echo=F)
@@ -19,6 +20,7 @@ bin_size <- args[2]
 anno_file <- args[3]
 outfile <- args[4]
 Atype <- args[5]
+allinters_file <- args[5]
 
 ##########
 library(tidyr)
@@ -78,7 +80,7 @@ print("#read in files")
 Atype <- "1_vs_All"
 #tissue_file <- "tissue_system_info.txt"
 dat_file <- "test_common_inters_df.txt"
-#allinters_file <- "all_trans_interactions_1Mb.txt"
+allinters_file <- "all_trans_interactions_1Mb.txt"
 #germlayer_file <- "germlayer_info.txt"
 bin_size <- 1000000
 anno_file <- "hg38_p13_v32_annotation.txt"
@@ -153,9 +155,12 @@ p_chr_ord <- c("chr1","chr2",
                "chr19","chr22",
                "chr21","chrX","chrY")
 p_chr_ord_gsub <- gsub("chr","",p_chr_ord)
-#allinters <- read.table(allinters_file, header = FALSE)
-#colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
-#head(allinters)
+#getting data for all interactions and processing
+allinters <- read.table(allinters_file, header = FALSE)
+colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
+allinters$ID <- paste0(allinters$chrA,".",allinters$startA, ".",allinters$endA,".",allinters$chrB,".",allinters$startB, ".",allinters$endB) 
+head(allinters)
+
 dat <- read.table(dat_file, header = TRUE)
 print("summary of ALL sig zscores per cell type")
 summary(dat)
@@ -220,6 +225,51 @@ write.table(tcommon_genes, file = as.character(paste0(outfile,"_top3000_common_i
 write.table(tcommon_genes_metascape, file = as.character(paste0(outfile,"_top3000_common_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
 
+##############
+# common and non-common per chrom
+##############
+#add col to all possible inters identifying common/non-common ones
+dat$interType <- rep("common",nrow(dat))
+dat$ID <- paste0(dat$chrA,".",dat$st1, ".",dat$end1,".",dat$chrB,".",dat$st2, ".",dat$end2) 
+head(dat)
+allinters$interType <- dat$interType[match(allinters$ID, dat$ID)]
+allinters$interType[is.na(allinters$interType)] <- "nonCommon"
+head(allinters)
+summary(allinters)
+unique(allinters$interType)
+#mark each interaction twice
+chrA_df <- allinters %>% select(chrA, startA, endA, interType)
+colnames(chrA_df) <- c("chrom","start","end", "interType")
+chrB_df <- allinters %>% select(chrB, startB, endB, interType)
+colnames(chrB_df) <- c("chrom","start","end", "interType")
+allprop <- rbind(chrA_df, chrB_df)
+expInter <- allprop %>%
+  select(chrom, start, interType) %>%
+  group_by(chrom, interType) %>%
+  dplyr::summarise(n = n())
+totInter <- allprop %>%
+  select(chrom, start) %>%
+  group_by(chrom) %>%
+  dplyr::summarise(n = n())
+totInter
+#combine above dfs
+expInter$totInter <- totInter$n[match(expInter$chrom, totInter$chrom)]
+expInter$prop <- expInter$n / expInter$totInter
+expInter
+
+#plot common inter proportion per chrom
+expInter$chrom <- gsub("chr","",expInter$chrom)
+bp <- (ggplot(expInter %>% filter(interType == "common"), aes(x=chrom, y=prop))
+       +geom_bar(position = "dodge", stat="identity", fill = "black")
+         + labs(x = "Chromosome",
+                y = "Proportion of Common Interactions [%]",
+                title = "Proportion of Common Interactions Per Chromosome")
+      + scale_x_discrete(expand = c(0, 0))
+      + scale_y_continuous(expand = c(0, 0))
+)
+pdf("proportion_common_inters_per_chrom.pdf", width = 14, height = 8)
+bp
+dev.off()
 
 # dealing with genes that are found in two bins: counting twice
 tdup_anno <- anno_df %>% filter(bin_start != bin_end)
@@ -269,23 +319,24 @@ p
 dev.off()
 
 bdat$bin_start <- bdat$bin_start / 1000000
-p <- (ggplot(bdat, aes(x=bin_start, y=n,colour=factor(broad_class)) )
-      + geom_point()
-      + geom_smooth(method = "loess", formula = y~x)
-      + labs(title = paste(gsub("_","",Atype), "Common Interactions: Number of Genes per Chromosome"),
-             #         subtitle = "Plot of length by dose",
-             #         caption = "Data source: ToothGrowth",
-             x = paste0("Genomic Position [Mb]"),
-             y = "Number of Genes per 1Mb Bin",
-             fill = "Gene Category")
-      + scale_x_continuous(expand = c(0, 0))
-      + scale_y_continuous(expand = c(0, 0))
-      + facet_grid(seqname ~ .)
-)
-f_name <- gsub(" ","",paste("common_interactions_gene_density_per_chrom_pts_line",Atype,".pdf"))
-pdf(f_name, width = 14, height = 8)
-p
-dev.off()
+#facet line plot
+#p <- (ggplot(bdat, aes(x=bin_start, y=n,colour=factor(broad_class)) )
+#      + geom_point()
+#      + geom_smooth(method = "loess", formula = y~x)
+#      + labs(title = paste(gsub("_","",Atype), "Common Interactions: Number of Genes per Chromosome"),
+#             #         subtitle = "Plot of length by dose",
+#             #         caption = "Data source: ToothGrowth",
+#             x = paste0("Genomic Position [Mb]"),
+#             y = "Number of Genes per 1Mb Bin",
+#             fill = "Gene Category")
+#      + scale_x_continuous(expand = c(0, 0))
+#      + scale_y_continuous(expand = c(0, 0))
+#      + facet_grid(seqname ~ .)
+#)
+#f_name <- gsub(" ","",paste("common_interactions_gene_density_per_chrom_pts_line",Atype,".pdf"))
+#pdf(f_name, width = 14, height = 8)
+#p
+#dev.off()
 
 #boxplot of all chroms together
 p <- (ggplot(bdat, aes(x=broad_class, y=n,fill=factor(broad_class)) )
@@ -329,6 +380,7 @@ c_dup_anno$inter <- rep("common",nrow(c_dup_anno))
 comb_anno <- rbind(c_dup_anno,nc_dup_anno)
 #add col for gene length
 comb_anno$len <- comb_anno$end - comb_anno$start
+head(comb_anno)
 lnc_df <- comb_anno %>% filter(broad_class == "lncRNA")
 head(lnc_df)
 summary(lnc_df)
