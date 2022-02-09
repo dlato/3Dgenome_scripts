@@ -76,17 +76,17 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-###interaction data
-Atype <- "1_vs_All"
-#tissue_file <- "tissue_system_info.txt"
-dat_file <- "test_common_inters_df.txt"
-allinters_file <- "all_trans_interactions_1Mb.txt"
-#germlayer_file <- "germlayer_info.txt"
-bin_size <- 1000000
-anno_file <- "hg38_p13_v32_annotation.txt"
-outfile <- "GO_analysis_common_inters_gene_list.txt"
-library(factoextra)#for PCA
-library(harrypotter) #for colours
+####interaction data
+#Atype <- "1_vs_All"
+##tissue_file <- "tissue_system_info.txt"
+#dat_file <- "test_common_inters_df.txt"
+#allinters_file <- "all_trans_interactions_1Mb.txt"
+##germlayer_file <- "germlayer_info.txt"
+#bin_size <- 1000000
+#anno_file <- "hg38_p13_v32_annotation.txt"
+#outfile <- "GO_analysis_common_inters_gene_list.txt"
+#library(factoextra)#for PCA
+#library(harrypotter) #for colours
 
 #re-order chroms based on chrom len
 chrs_len_ord <- c("chr1","chr2",
@@ -371,7 +371,6 @@ print("# perform pairwise wilcoxon test with FDR (Benjamini-Hochberg) correction
 pairwise.wilcox.test(bdat$n, bdat$broad_class,
                  p.adjust.method = "BH")
 
-print("lncRNA summary")
 #df for non-common inters
 nc_dup_anno <- dup_anno %>% filter(!ID %in% u_inters$ID)
 nc_dup_anno$inter <- rep("nonCommon",nrow(nc_dup_anno))
@@ -381,6 +380,57 @@ comb_anno <- rbind(c_dup_anno,nc_dup_anno)
 #add col for gene length
 comb_anno$len <- comb_anno$end - comb_anno$start
 head(comb_anno)
+
+############
+# number of gene category per interaction
+############
+cat_num_interType <- comb_anno %>%
+  select(ID, broad_class, inter) %>%
+  group_by(ID, broad_class, inter) %>%
+  dplyr::summarise(n = n())
+  #dplyr::summarise(n = n(), .groups = "keep", .data = cat_num_interType)
+tail(cat_num_interType)
+summary(cat_num_interType)
+
+
+print("#test between means of common and non-common inters in each gene class")
+cat_num_interType$broad_class <- as.factor(cat_num_interType$broad_class)
+for (i in unique(cat_num_interType$broad_class)){
+  print("########")
+  print(i)
+  #i="lncRNA"
+  print("########")
+  print("#Test each group for normality")
+  print("sig = reject normality null")
+  cat_num_interType %>%
+    filter(broad_class == i) %>%
+    summarise(W = shapiro.test(n)$statistic,
+              p.value = shapiro.test(n)$p.value)
+  print("#Perform Mann-Whitney test (non-normal)")
+  print("sig = mean is diff btwn common and non-common are diff")
+  cat_num_interType %>%
+    filter(broad_class == i) %>%
+    wilcox.test(n ~ inter, data = .)
+}
+#plot box plot
+p <- (ggplot(cat_num_interType, aes(x=broad_class, y=n,fill=factor(inter)) )
+      + geom_boxplot()
+      + labs(title = paste(gsub("_","",Atype), "Common Interactions"),
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = paste0("Gene Category"),
+             y = "Number of Genes per 1Mb Bin",
+             fill = "Interaction Type")
+      + scale_x_discrete(expand = c(0, 0))
+      + scale_y_continuous(expand = c(0, 0))
+      #      + facet_grid(seqname ~ .)
+)
+f_name <- gsub(" ","",paste("common_interactions_gene_density_per_gene_boxplot",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
+
+print("lncRNA summary")
 lnc_df <- comb_anno %>% filter(broad_class == "lncRNA")
 head(lnc_df)
 summary(lnc_df)
