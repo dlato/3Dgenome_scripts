@@ -169,7 +169,9 @@ SNP_df <- SNP
 if ("logFC_comp" %in% colnames(SNP)){
   SNP_df <- SNP %>% select(chr_b38, start_b38,end_b38, logFC_comp)
 } else {
-  SNP_df$logFC_comp <- mean(abs(SNP_df$logFC_comp.x),abs(SNP_df$logFC_comp.y))
+  SNP_df$logFC_comp.x <- as.numeric(as.character(SNP_df$logFC_comp.x))
+  SNP_df$logFC_comp.y <- as.numeric(as.character(SNP_df$logFC_comp.y))
+  SNP_df$logFC_comp <- mean(c(abs(SNP_df$logFC_comp.x),abs(SNP_df$logFC_comp.y)))
 }#if else
 dat <- read.table(dat_file, header = TRUE)
 print("summary of ALL sig zscores per cell type")
