@@ -20,7 +20,7 @@ bin_size <- args[2]
 anno_file <- args[3]
 outfile <- args[4]
 Atype <- args[5]
-allinters_file <- args[5]
+allinters_file <- args[6]
 
 ##########
 library(tidyr)
