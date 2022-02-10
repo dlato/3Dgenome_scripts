@@ -259,6 +259,7 @@ expInter
 
 #plot common inter proportion per chrom
 expInter$chrom <- gsub("chr","",expInter$chrom)
+expInter$chrom <- factor(expInter$chrom, levels=p_chr_ord_gsub)
 bp <- (ggplot(expInter %>% filter(interType == "common"), aes(x=chrom, y=prop))
        +geom_bar(position = "dodge", stat="identity", fill = "black")
          + labs(x = "Chromosome",
@@ -404,8 +405,8 @@ for (i in unique(cat_num_interType$broad_class)){
   print("sig = reject normality null")
   cat_num_interType %>%
     filter(broad_class == i) %>%
-    summarise(W = shapiro.test(n)$statistic,
-              p.value = shapiro.test(n)$p.value)
+    print(summarise(W = shapiro.test(n)$statistic,
+              p.value = shapiro.test(n)$p.value))
   print("#Perform Mann-Whitney test (non-normal)")
   print("sig = mean is diff btwn common and non-common are diff")
   cat_num_interType %>%
@@ -425,7 +426,7 @@ p <- (ggplot(cat_num_interType, aes(x=broad_class, y=n,fill=factor(inter)) )
       + scale_y_continuous(expand = c(0, 0))
       #      + facet_grid(seqname ~ .)
 )
-f_name <- gsub(" ","",paste("common_interactions_gene_density_per_gene_boxplot",Atype,".pdf"))
+f_name <- gsub(" ","",paste("common_nonCommon_interactions_gene_density_per_gene_class_boxplot",Atype,".pdf"))
 pdf(f_name, width = 14, height = 8)
 p
 dev.off()
