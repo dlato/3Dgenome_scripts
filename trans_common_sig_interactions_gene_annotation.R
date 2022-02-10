@@ -492,8 +492,8 @@ print("#perform the Mann Whitney U test to determine diff betwen lncRNA len and 
 print("sig = diff in lncRNA len between strand in common inters")
 c_lnc_df <- lnc_df %>% filter(inter == "common")
 wilcox.test(len~strand, data = c_lnc_df)
-print("#perform the Mann Whitney U test to determine diff betwen lncRNA len and strand within common inters")
-print("sig = diff in lncRNA len between strand in common inters")
+print("#perform the Mann Whitney U test to determine diff betwen lncRNA len and strand within non-common inters")
+print("sig = diff in lncRNA len between strand in non-common inters")
 nc_lnc_df <- lnc_df %>% filter(inter == "nonCommon")
 wilcox.test(len~strand, data = nc_lnc_df)
 #boxplot of all chroms together
