@@ -187,7 +187,6 @@ for(i in 1:nrow(u_inters)) {
   common_genes_metascape <- append(common_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
 } #for
 common_genes <- unique(common_genes)
-common_genes
 print("#### number of genes in common interactions")
 length(common_genes)
 write.table(common_genes, file = as.character(paste0(outfile,"_common_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
@@ -218,7 +217,6 @@ for(i in 1:nrow(tu_inters)) {
   tcommon_genes_metascape <- append(tcommon_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
 } #for
 tcommon_genes <- unique(tcommon_genes)
-tcommon_genes
 print("#### number of genes in common interactions")
 length(tcommon_genes)
 write.table(tcommon_genes, file = as.character(paste0(outfile,"_top3000_common_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
@@ -452,16 +450,16 @@ for (i in unique(cat_num_interType$broad_class)){
   print("########")
   print("#Test each group for normality")
   print("sig = reject normality null")
-  cat_num_interType %>%
+  print(cat_num_interType %>%
     filter(broad_class == i) %>%
-    print(summarise(W = shapiro.test(n)$statistic,
+    summarise(W = shapiro.test(n)$statistic,
               p.value = shapiro.test(n)$p.value))
   print("#Perform Mann-Whitney test (non-normal)")
   print("sig = mean is diff btwn common and non-common are diff")
-  cat_num_interType %>%
+  print(cat_num_interType %>%
     filter(broad_class == i) %>%
-    print(wilcox.test(n ~ inter, data = .))
-}
+    wilcox.test(n ~ inter, data = .))
+}#for
 #plot box plot
 p <- (ggplot(cat_num_interType, aes(x=broad_class, y=n,fill=factor(inter)) )
       + geom_boxplot()
@@ -490,6 +488,14 @@ print("#perform the Mann Whitney U test to determine diff betwen lncRNA len for 
 print("sig = diff in lncRNA len between common and non-common inters")
 wilcox.test(len~inter, data = lnc_df)
 
+print("#perform the Mann Whitney U test to determine diff betwen lncRNA len and strand within common inters")
+print("sig = diff in lncRNA len between strand in common inters")
+c_lnc_df <- lnc_df %>% filter(inter == "common")
+wilcox.test(len~strand, data = c_lnc_df)
+print("#perform the Mann Whitney U test to determine diff betwen lncRNA len and strand within common inters")
+print("sig = diff in lncRNA len between strand in common inters")
+nc_lnc_df <- lnc_df %>% filter(inter == "nonCommon")
+wilcox.test(len~strand, data = nc_lnc_df)
 #boxplot of all chroms together
 lnc_df$len <- lnc_df$len / 1000000
 bpdf_log <- lnc_df
