@@ -76,7 +76,7 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-####interaction data
+###interaction data
 #Atype <- "1_vs_All"
 ##tissue_file <- "tissue_system_info.txt"
 #dat_file <- "test_common_inters_df.txt"
@@ -226,7 +226,7 @@ write.table(tcommon_genes_metascape, file = as.character(paste0(outfile,"_top300
 
 
 ##############
-# common and non-common per chrom
+# common per chrom
 ##############
 #add col to all possible inters identifying common/non-common ones
 dat$interType <- rep("common",nrow(dat))
@@ -271,6 +271,55 @@ bp <- (ggplot(expInter %>% filter(interType == "common"), aes(x=chrom, y=prop))
 pdf("proportion_common_inters_per_chrom.pdf", width = 14, height = 8)
 bp
 dev.off()
+
+print("########")
+print("# test to see if proportion of common inters is higher on gene dense chroms")
+print("# gene dense chroms = top 5 highest #genes/bp")
+print("########")
+#df with number of genes (proportional) per chrom
+gene_dense_df <- anno_df %>% filter(broad_class == "prot") %>%
+                 group_by(seqname, broad_class) %>%
+                 dplyr::summarise(num_genes = n(), .groups = "keep")
+gene_dense_df$chrlen <- chrInf$size[match(gene_dense_df$seqname, chrInf$chrom)]
+gene_dense_df <- gene_dense_df %>% mutate(gene_prop = num_genes / chrlen) %>%
+                 #remove chrM
+                 filter(seqname != "chrM") %>%
+                 #descending order for proportion
+                 arrange(desc(gene_prop))
+#top 5 gene dense chroms listed as "dense", others listed as non-dense
+topgd <- gene_dense_df$seqname[1:5]
+topgd
+gene_dense_df <- gene_dense_df %>% mutate(class = ifelse(seqname %in% topgd, 'dense', 'nonDense'))
+head(gene_dense_df)
+summary(gene_dense_df)
+#boxplot of proportion of common inters in gene dense and non-dense chroms
+p <- (ggplot(gene_dense_df, aes(x=class, y=gene_prop,fill=factor(class)) )
+      + geom_boxplot()
+      + labs(title = paste(gsub("_","",Atype), "Common Interactions Among Gene-dense and non-dense Chromosomes"),
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = paste0("Chromosome Class"),
+             y = "Proportion of Common Interactions [%]",
+             fill = "Gene Category")
+      + scale_x_discrete(expand = c(0, 0))
+      + scale_y_continuous(expand = c(0, 0))
+)
+f_name <- gsub(" ","",paste("common_interactions_dense_nonDense_chroms_boxplot",Atype,".pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
+print("#Test each group for normality")
+print("sig = reject normality null")
+gene_dense_df %>%
+  summarise(W = shapiro.test(gene_prop)$statistic,
+                  p.value = shapiro.test(gene_prop)$p.value)
+print("#Perform Mann-Whitney test (non-normal)")
+print("sig = mean of prop of common inters is diff btwn dense and non-dense chroms")
+gene_dense_df %>%
+  wilcox.test(gene_prop ~ class, data = .)
+
+
+
 
 # dealing with genes that are found in two bins: counting twice
 tdup_anno <- anno_df %>% filter(bin_start != bin_end)
@@ -411,7 +460,7 @@ for (i in unique(cat_num_interType$broad_class)){
   print("sig = mean is diff btwn common and non-common are diff")
   cat_num_interType %>%
     filter(broad_class == i) %>%
-    wilcox.test(n ~ inter, data = .)
+    print(wilcox.test(n ~ inter, data = .))
 }
 #plot box plot
 p <- (ggplot(cat_num_interType, aes(x=broad_class, y=n,fill=factor(inter)) )
