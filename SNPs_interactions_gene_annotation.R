@@ -173,6 +173,7 @@ if ("logFC_comp" %in% colnames(SNP)){
   SNP_df$logFC_comp.y <- as.numeric(as.character(SNP_df$logFC_comp.y))
   SNP_df$logFC_comp <- mean(c(abs(SNP_df$logFC_comp.x),abs(SNP_df$logFC_comp.y)))
 }#if else
+head(SNP_df)
 dat <- read.table(dat_file, header = TRUE)
 print("summary of ALL sig zscores per cell type")
 summary(dat)
@@ -185,6 +186,7 @@ dat$chrA <- gsub("A", "", dat$chrA)
 dat$chrB <- gsub("B", "", dat$chrB)
 print("#wide to long format")
 ldat <- dat %>% gather(cell, zscore, 8:ncol(dat))
+
 dat <- data.frame()
 print("#filter interactions for ones that contain SNPs (for circos plot)")
 print("#bins that SNPs are in")
@@ -193,19 +195,30 @@ colnames(SNP_df) <- c("AllChr","SNPstart","SNPend","logFC","AllSt")
 SNP_ID_df <- SNP_df
 SNP_ID_df$ID <- format(SNP_ID_df$ID, scientific = FALSE)
 SNP_ID_df$ID <- paste0(SNP_ID_df$AllChr,".",format(SNP_ID_df$AllSt, scientific = FALSE),".",format(SNP_ID_df$AllSt + as.numeric(as.character(bin_size)),scientific = FALSE))
-print("done formatting ID and bin col")
+#unique chroms containing SNPs
+uSNP_chrs<- unique(SNP_ID_df$AllChr)
+#filter interactions for just unique chroms in SNPs (to decrease mem)
+ldat <- ldat %>% filter(chrA %in% uSNP_chrs | chrB %in% uSNP_chrs)
+head(ldat)
 SNP_ID_df$ID <- gsub(" ","", SNP_ID_df$ID)
+#decrease SNP list to just unique IDs, find mean of |logFC|
+SNP_uniq <- SNP_ID_df %>%
+  group_by(ID) %>%
+  dplyr::summarise(mlogFC = mean(abs(logFC)))
+head(SNP_uniq)
+print("done formatting ID and bin col")
+print("finding SNPs that overlap with inters for circos plot")
 selection <- as.logical( # 7
   rowSums( # 6
     matrix( # 5
       unlist( # 4
-        lapply(SNP_ID_df$ID, function(x) { #3
+        lapply(SNP_uniq$ID, function(x) { #3
           as.numeric( # 2
             str_detect(ldat$ID,x) # 1
           )
         })
       ), 
-      ncol = length(SNP_ID_df$ID), byrow = F)
+      ncol = length(SNP_uniq$ID), byrow = F)
   )
 )
 
