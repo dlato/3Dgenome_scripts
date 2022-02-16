@@ -36,6 +36,7 @@ print("#read in files")
 #options(scipen = 999)
 #dat_file <- "cis_arch_plot_test_dat.txt"
 #chrom = "chr10"
+#outprefix = "test_cis_archplot"
 
 #chrom info
 #re-order chroms based on chrom len
@@ -138,26 +139,25 @@ summary(dat)
 #                   colorbycol=SushiColors(length(unique(subdat$cellnum)))
 #)
 
-#plot arch plot for cis interactions
-chromstart = 0
-#chromend = 133000000
-chromend = chrInf$size[which(chrInf$chrom == chrom)]
-pdf(paste0(outprefix,"_cis_archplot_",chrom,".pdf"), width = 14, height = 8)
-pbpe = plotBedpe(dat,chrom,chromstart,chromend,
-                   heights = dat$zscore,plottype="loops",
-                   colorby=dat$cellnum,
-                   colorbycol=SushiColors(length(unique(dat$cellnum)))
-)
-#x-axis
-labelgenome(chrom, chromstart,chromend,n=6,scale="Mb")
-#y-axis
-axis(side=2,las=2,tcl=.2)
-#y-axis title
-mtext("Z-score",side=2,line=3,cex=1,font=2)
-#legend
-legend("topright",inset =0.01,legend=cdf$c,
-       col=SushiColors(3)(3),pch=19,bty='n',text.font=2)
-dev.off()
+##plot arch plot for cis interactions
+#chromstart = 0
+#chromend = chrInf$size[which(chrInf$chrom == chrom)]
+#pdf(paste0(outprefix,"_cis_archplot_",chrom,".pdf"), width = 14, height = 8)
+#pbpe = plotBedpe(dat,chrom,chromstart,chromend,
+#                   heights = dat$zscore,plottype="loops",
+#                   colorby=dat$cellnum,
+#                   colorbycol=SushiColors(length(unique(dat$cellnum)))
+#)
+##x-axis
+#labelgenome(chrom, chromstart,chromend,n=6,scale="Mb")
+##y-axis
+#axis(side=2,las=2,tcl=.2)
+##y-axis title
+#mtext("Z-score",side=2,line=3,cex=1,font=2)
+##legend
+#legend("topright",inset =0.01,legend=cdf$c,
+#       col=SushiColors(3)(3),pch=19,bty='n',text.font=2)
+#dev.off()
 
 # plot each cell separately
 for (i in cdf$c){
