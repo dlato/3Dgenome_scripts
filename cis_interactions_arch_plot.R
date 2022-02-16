@@ -181,4 +181,10 @@ for (i in cdf$c){
   dev.off()
 }
 
+print("number of interactions with SNP per cell")
+dat %>%
+  dplyr::select(cell, zscore) %>%
+  group_by(cell) %>%
+  dplyr::summarise(numInters = n())
+
 print("DONE")
