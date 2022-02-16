@@ -139,9 +139,9 @@ summary(dat)
 #                   colorbycol=SushiColors(length(unique(subdat$cellnum)))
 #)
 
-##plot arch plot for cis interactions
-#chromstart = 0
-#chromend = chrInf$size[which(chrInf$chrom == chrom)]
+#plot arch plot for cis interactions
+chromstart = 0
+chromend = chrInf$size[which(chrInf$chrom == chrom)]
 #pdf(paste0(outprefix,"_cis_archplot_",chrom,".pdf"), width = 14, height = 8)
 #pbpe = plotBedpe(dat,chrom,chromstart,chromend,
 #                   heights = dat$zscore,plottype="loops",
