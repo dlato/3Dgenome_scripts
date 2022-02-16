@@ -7,6 +7,7 @@
 ######
 # arguments: bed-like file for interaction data (tsv, first three columns are for the anchor region (chr, start, end) second three columns are for the target region (chr,start,end), last two columns are cell and zscore information)
 #            chromosome to plot (character, i.e. chr1)
+#            outfile prefix (character)
 ########################################
 
 options(echo=F)
@@ -14,6 +15,7 @@ options(scipen = 999)
 args <- commandArgs(trailingOnly = TRUE)
 dat_file <- args[1]
 chrom <- args[2]
+outprefix <- args[3]
 
 ##########
 .libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.1.2")
@@ -140,7 +142,7 @@ summary(dat)
 chromstart = 0
 #chromend = 133000000
 chromend = chrInf$size[which(chrInf$chrom == chrom)]
-pdf(paste0("cis_archplot_",chrom,".pdf"), width = 14, height = 8)
+pdf(paste0(outprefix,"_cis_archplot_",chrom,".pdf"), width = 14, height = 8)
 pbpe = plotBedpe(dat,chrom,chromstart,chromend,
                    heights = dat$zscore,plottype="loops",
                    colorby=dat$cellnum,
@@ -162,7 +164,7 @@ for (i in cdf$c){
   print(i)
 #  i = "Lung"
   tdf <- dat %>% filter(cell == i)
-  pdf(paste0("cis_archplot_",chrom,"_",i,".pdf"), width = 14, height = 8)
+  pdf(paste0(outprefix,"_cis_archplot_",chrom,"_",i,".pdf"), width = 14, height = 8)
   pbpe = plotBedpe(tdf,chrom,chromstart,chromend,
                    heights = tdf$zscore,plottype="loops"
   #                 colorby=tdf$cellnum,
