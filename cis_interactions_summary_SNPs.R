@@ -6,21 +6,13 @@
 #            github: https://github.com/dlato
 ######
 # arguments: filtered interactions file (tab separated, first 6 columns are a bed-like format, last few columns are other info)
-#            first interacting region bed file (tab separated)
-#            second interacting region bed file (tab separated)
-#            type of analysis/plot title. (words must be separated by underscore "_")
-#            3Dflow pvalue output data (ALL INTERACTIONS)
-# NOTE: at the moment only ONE interacting region can be searched at a time
-#       i.e. chrA:1-10 interacting with chrB:40-50
+#            output file prefix (character)
 ########################################
 
 options(echo=F)
 args <- commandArgs(trailingOnly = TRUE)
 zdat_file <- args[1]
-roi1_file <- args[2]
-roi2_file <- args[3]
-Atype <- args[4]
-pdat_file <- args[5]
+outprefix <- args[2]
 
 ##########
 library(tidyr)
@@ -66,15 +58,16 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 #interaction data
-Atype <- "1_vs_All"
+#Atype <- "1_vs_All"
 zdat_file <- "cis_arch_plot_test_dat.txt"
-pdat_file <- "test_1vsAll_pvalues.txt"
-roi1_file <- "FIRRE.bed"
-roi2_file <- "ATF4.bed"
-xchr <- "X"
-ychr <- "22"
-xstart <- 131688779 /1000000
-ystart <- 39519695 /1000000
+outprefix <- "test_cis_SNP_blood_pressure"
+#pdat_file <- "test_1vsAll_pvalues.txt"
+#roi1_file <- "FIRRE.bed"
+#roi2_file <- "ATF4.bed"
+#xchr <- "X"
+#ychr <- "22"
+#xstart <- 131688779 /1000000
+#ystart <- 39519695 /1000000
 library(harrypotter)
 library(factoextra)
 library(hexbin)
@@ -197,7 +190,7 @@ for(i in unique(tp_dat_sum$chr)) {
                  axis.ticks.y = element_blank())
          + theme(panel.background = element_rect(fill = "grey85", colour = NA))
   )
-  filename <- paste0("numSig_inters_chrom",i,"_tickplot_sig_Interactions.pdf")
+  filename <- paste0(outprefix,"_numSig_inters_chrom",i,"_tickplot_sig_Interactions.pdf")
   pdf(filename, width = 14, height = 8)
   print(tp)
   dev.off()
@@ -235,7 +228,63 @@ for(i in unique(tp_dat_sum$chr)) {
 #  dev.off()
 }#for
 
+###############
+# how far apart are interacting regions
+##############
+#new column with distance between starts
+zdat$dist <- abs(zdat$st1 - zdat$st2)
+head(zdat)
 
+print("# histogram of how far apart interacting regions are")
+p <- (ggplot(zdat, aes(x=dist/1000000, fill = cell))
+      #  + geom_split_violin()
+      #      + stat_density(alpha=.6,position="identity")#identity = based on counts of data, height proportional to total
+      #      + geom_density(alpha=.6,position="stack")#stack = based on counts of data, height proportional to total
+      + geom_histogram(position="dodge",alpha=.6)#stack = based on counts of data, height proportional to total
+      #  + coord_flip()
+      + labs(title = "Distance between interacting regions",
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = "Distance [Mb]", y = "Number of Interactions")
+      #         tag = "A")
+      #   + scale_fill_manual(values =c("plum4", "cadetblue"))
+     # + scale_fill_manual(values =c("grey", "cadetblue"),labels=c('All interactions', interLab))
+      #+ facet_grid(.~cell )
+      + facet_grid(cell~. )
+      #+ theme(legend.title = element_blank())
+      #+ 
+      #+
+     + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+             strip.background = element_rect(fill = "white"),
+             panel.spacing = unit(0, "lines"),
+             axis.text.y = element_blank(),
+             axis.ticks.y = element_blank()) 
+     + scale_y_continuous(expand = c(0, 0))
+     + scale_x_continuous(expand = c(0, 0))
+)
+f_name <- gsub(" ","",paste(outprefix,"_histogram_facet_distance_between_interactions.pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
+
+print("# boxplot/violin of distance between interactions per cell")
+p <- (ggplot(zdat, aes(x=cell, y=dist /1000000,fill=factor(cell)) )
+      + geom_violin(alpha = 0.6)
+      + geom_boxplot(alpha =0.6)
+      + coord_flip()
+      + labs(title = "Distance between interacting regions",
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = "",
+             y = "Distance [Mb]",
+             fill = "Cell")
+      + scale_x_discrete(expand = c(0, 0))
+      + scale_y_continuous(expand = c(0, 0))
+)
+f_name <- gsub(" ","",paste(outprefix,"_boxplot_violin_distance_between_interactions.pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
 
 
 
