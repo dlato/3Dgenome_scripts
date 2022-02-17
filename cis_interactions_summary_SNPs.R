@@ -61,24 +61,13 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-#interaction data
-#Atype <- "1_vs_All"
-zdat_file <- "cis_arch_plot_test_dat.txt"
-outprefix <- "test_cis_SNP_blood_pressure"
-cellsfile <- "cell_subset.txt"
-#pdat_file <- "test_1vsAll_pvalues.txt"
-#roi1_file <- "FIRRE.bed"
-#roi2_file <- "ATF4.bed"
-#xchr <- "X"
-#ychr <- "22"
-#xstart <- 131688779 /1000000
-#ystart <- 39519695 /1000000
-library(harrypotter)
-library(factoextra)
-library(hexbin)
-#dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
-#dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
-#dat <- read.table(dat_file, header = TRUE)
+##interaction data
+#zdat_file <- "cis_arch_plot_test_dat.txt"
+#outprefix <- "test_cis_SNP_blood_pressure"
+#cellsfile <- "cell_subset.txt"
+#library(harrypotter)
+#library(factoextra)
+#library(hexbin)
 
 #chrom info
 #re-order chroms based on chrom len
@@ -304,6 +293,24 @@ p <- (ggplot(zdat, aes(x = dist/1000000, y = cell))
 pdf(paste0(outprefix,"_ridgeline_distance_between_interactions.pdf"), width = 14, height = 8)
 p
 dev.off()
+
+print("#test between means of distance between cis interactions between cell types")
+print("#Test each group for normality")
+print("sig = reject normality null")
+for (i in unique(zdat$cell)){
+  print(i)
+  subdf <- zdat %>% filter(cell == i)
+  # apply the rest of your analysis there using subdf, for instance 
+  print(shapiro.test(subdf$dist))
+}
+print("#Perform the Kruskal-Wallis rank sum test (when dists are not normal)")
+print("sig = mean is diff btwn groups")
+kruskal.test(dist ~ cell, data = zdat)
+print("#Perform multiple pairwise tests to see which groups are different (when dists are not normal)")
+print("sig = mean is diff btwn groups")
+pairwise.wilcox.test(zdat$dist, zdat$cell,
+                     p.adjust.method = "BH")
+
 
 
 print("DONE")
