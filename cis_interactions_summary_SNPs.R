@@ -144,6 +144,11 @@ cells <- read.table(cellsfile, header=FALSE)
 zdat <- read.table(zdat_file, header = FALSE)
 colnames(zdat) <- c("chrA","st1","end1","chrB","st2","end2","cell","zscore")
 head(zdat)
+#new column with distance between starts
+zdat$dist <- abs(zdat$st1 - zdat$st2)
+head(zdat)
+zdat <- zdat %>% filter(cell %in% cells$V1) %>% mutate(cell=factor(cell, levels=cells$V1))
+summary(zdat)
 
 print("# number of sig inters per bin")
 #count  each inter twice
@@ -225,14 +230,31 @@ for(i in unique(tp_dat_sum$chr)) {
 #  dev.off()
 }#for
 
+######
+# number of inters per cells
+######
+ncell_df = zdat %>% group_by(cell) %>% dplyr::summarize(numInters=n(),.groups = "keep")
+ncell_df
+summary(ncell_df)
+# bar plot of num inters per cell
+p <- (ggplot(ncell_df, aes(y=cell, x=numInters))
+      + geom_bar(stat = "identity")#stack = based on counts of data, height proportional to total
+      + labs(title = "",
+             #         subtitle = "Plot of length by dose",
+             #         caption = "Data source: ToothGrowth",
+             x = "Number of Interactions", y = "")
+        #         tag = "A")
+      + scale_x_continuous(expand = c(0, 0))
+      + scale_y_discrete(expand = c(0, 0))
+)
+f_name <- gsub(" ","",paste(outprefix,"_bar_plot_num_inters.pdf"))
+pdf(f_name, width = 14, height = 8)
+p
+dev.off()
 ###############
 # how far apart are interacting regions
 ##############
-#new column with distance between starts
-zdat$dist <- abs(zdat$st1 - zdat$st2)
-head(zdat)
-zdat <- zdat %>% filter(cell %in% cells$V1) %>% mutate(cell=factor(cell, levels=cells$V1))
-summary(zdat)
+
 
 print("# histogram of how far apart interacting regions are")
 p <- (ggplot(zdat, aes(x=dist/1000000))
