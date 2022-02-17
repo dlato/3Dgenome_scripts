@@ -7,6 +7,7 @@
 ######
 # arguments: filtered interactions file (tab separated, first 6 columns are a bed-like format, last few columns are other info)
 #            output file prefix (character)
+#            cell order for graphs (file with name of cells as it matches the data frame, one cell per line)
 ########################################
 
 options(echo=F)
@@ -14,6 +15,7 @@ options(scipen = 999)
 args <- commandArgs(trailingOnly = TRUE)
 zdat_file <- args[1]
 outprefix <- args[2]
+cellsfile <- args[3]
 
 ##########
 library(tidyr)
@@ -63,6 +65,7 @@ print("#read in files")
 #Atype <- "1_vs_All"
 zdat_file <- "cis_arch_plot_test_dat.txt"
 outprefix <- "test_cis_SNP_blood_pressure"
+cellsfile <- "cell_subset.txt"
 #pdat_file <- "test_1vsAll_pvalues.txt"
 #roi1_file <- "FIRRE.bed"
 #roi2_file <- "ATF4.bed"
@@ -145,6 +148,9 @@ p_chr_ord <- c("chr1","chr2",
                "chr19","chr22",
                "chr21","chrX","chrY")
 chrInf$chrom <- factor(chrInf$chrom, levels=p_chr_ord)
+
+#read in cells order
+cells <- read.table(cellsfile, header=FALSE)
 
 zdat <- read.table(zdat_file, header = FALSE)
 colnames(zdat) <- c("chrA","st1","end1","chrB","st2","end2","cell","zscore")
@@ -236,6 +242,8 @@ for(i in unique(tp_dat_sum$chr)) {
 #new column with distance between starts
 zdat$dist <- abs(zdat$st1 - zdat$st2)
 head(zdat)
+zdat <- zdat %>% filter(cell %in% cells$V1) %>% mutate(cell=factor(cell, levels=cells$V1))
+summary(zdat)
 
 print("# histogram of how far apart interacting regions are")
 p <- (ggplot(zdat, aes(x=dist/1000000))
