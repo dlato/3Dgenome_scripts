@@ -295,14 +295,14 @@ p
 dev.off()
 
 print("#test between means of distance between cis interactions between cell types")
-print("#Test each group for normality")
-print("sig = reject normality null")
-for (i in unique(zdat$cell)){
-  print(i)
-  subdf <- zdat %>% filter(cell == i)
-  # apply the rest of your analysis there using subdf, for instance 
-  print(shapiro.test(subdf$dist))
-}
+#print("#Test each group for normality")
+#print("sig = reject normality null")
+#for (i in unique(zdat$cell)){
+#  print(i)
+#  subdf <- zdat %>% filter(cell == i)
+#  # apply the rest of your analysis there using subdf, for instance 
+#  print(shapiro.test(subdf$dist))
+#}
 print("#Perform the Kruskal-Wallis rank sum test (when dists are not normal)")
 print("sig = mean is diff btwn groups")
 kruskal.test(dist ~ cell, data = zdat)
