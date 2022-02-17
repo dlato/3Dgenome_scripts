@@ -17,11 +17,10 @@ outprefix <- args[2]
 ##########
 library(tidyr)
 library(dplyr)
-library(GenomicRanges)
 library(ggplot2)
 library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
-library(nortest, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1") #for normality test with large sample size
-library(hexbin)
+#library(nortest, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1") #for normality test with large sample size
+#library(hexbin)
 library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 ##########
