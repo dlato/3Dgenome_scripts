@@ -10,6 +10,7 @@
 ########################################
 
 options(echo=F)
+options(scipen = 999)
 args <- commandArgs(trailingOnly = TRUE)
 zdat_file <- args[1]
 outprefix <- args[2]
@@ -58,23 +59,23 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-##interaction data
-##Atype <- "1_vs_All"
-#zdat_file <- "cis_arch_plot_test_dat.txt"
-#outprefix <- "test_cis_SNP_blood_pressure"
-##pdat_file <- "test_1vsAll_pvalues.txt"
-##roi1_file <- "FIRRE.bed"
-##roi2_file <- "ATF4.bed"
-##xchr <- "X"
-##ychr <- "22"
-##xstart <- 131688779 /1000000
-##ystart <- 39519695 /1000000
-#library(harrypotter)
-#library(factoextra)
-#library(hexbin)
-##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
-##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
-##dat <- read.table(dat_file, header = TRUE)
+#interaction data
+#Atype <- "1_vs_All"
+zdat_file <- "cis_arch_plot_test_dat.txt"
+outprefix <- "test_cis_SNP_blood_pressure"
+#pdat_file <- "test_1vsAll_pvalues.txt"
+#roi1_file <- "FIRRE.bed"
+#roi2_file <- "ATF4.bed"
+#xchr <- "X"
+#ychr <- "22"
+#xstart <- 131688779 /1000000
+#ystart <- 39519695 /1000000
+library(harrypotter)
+library(factoextra)
+library(hexbin)
+#dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
+#dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
+#dat <- read.table(dat_file, header = TRUE)
 
 #chrom info
 #re-order chroms based on chrom len
@@ -237,7 +238,7 @@ zdat$dist <- abs(zdat$st1 - zdat$st2)
 head(zdat)
 
 print("# histogram of how far apart interacting regions are")
-p <- (ggplot(zdat, aes(x=dist/1000000, fill = cell))
+p <- (ggplot(zdat, aes(x=dist/1000000))
       + geom_histogram(position="dodge",alpha=.6)#stack = based on counts of data, height proportional to total
       + labs(title = "Distance between interacting regions",
              #         subtitle = "Plot of length by dose",
@@ -259,9 +260,9 @@ p
 dev.off()
 
 print("# boxplot/violin of distance between interactions per cell")
-p <- (ggplot(zdat, aes(x=cell, y=dist /1000000,fill=factor(cell)) )
-      + geom_violin(alpha = 0.6)
-      + geom_boxplot(alpha =0.6)
+p <- (ggplot(zdat, aes(x=cell, y=dist /1000000) )
+      + geom_violin(alpha = 0.6, fill = "grey")
+      + geom_boxplot(alpha =0.6, fill = "grey")
       + coord_flip()
       + labs(title = "Distance between interacting regions",
              #         subtitle = "Plot of length by dose",
@@ -278,7 +279,7 @@ p
 dev.off()
 
 print("# ridgeline plot for distance between interactions")
-p <- (ggplot(zdat, aes(x = dist, y = cell))
+p <- (ggplot(zdat, aes(x = dist/1000000, y = cell))
       + stat_density_ridges(quantile_lines = TRUE, alpha = 0.3, scale=2, quantiles = 2, rel_min_height = 0.001)
       #+ geom_density_ridges(scale = 4, alpha = 0.3) 
       + labs(x="Distance [Mb]",
