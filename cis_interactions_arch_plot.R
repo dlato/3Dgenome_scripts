@@ -8,6 +8,8 @@
 # arguments: bed-like file for interaction data (tsv, first three columns are for the anchor region (chr, start, end) second three columns are for the target region (chr,start,end), last two columns are cell and zscore information)
 #            chromosome to plot (character, i.e. chr1)
 #            outfile prefix (character)
+#            window for zoomed in archplots (numeric, bp) (i.e. value of 3000000 would create a 3Mb window around the SNP example)
+#            bed file with SNP bin information (one large region for whole SNP example) (made from previous R script that filters interactions for specific SNP example)
 ########################################
 
 options(echo=F)
@@ -16,6 +18,8 @@ args <- commandArgs(trailingOnly = TRUE)
 dat_file <- args[1]
 chrom <- args[2]
 outprefix <- args[3]
+window_size <- as.numeric(as.character(args[4]))
+SNP_bed <- args[5]
 
 ##########
 .libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.1.2")
@@ -37,6 +41,12 @@ options(scipen = 999)
 dat_file <- "cis_arch_plot_test_dat.txt"
 chrom = "chr10"
 outprefix = "test_cis_archplot"
+window_size <- 3000000
+SNP_bed = "ATF4.bed"
+
+#SNP info (longest region for SNP example)
+SNP_df <- read.table(SNP_bed, sep = "\t")
+colnames(SNP_df) <- c("chrom","start","end")
 
 #chrom info
 #re-order chroms based on chrom len
@@ -225,4 +235,53 @@ numInters_df <- numInters_df %>%
 
 write.table(numInters_df, file = paste0(outprefix,"_number_of_interactions_per_cell_cis_archplot.txt"),
             sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+
+print("#########")
+print("# zoomed in archplot around SNP example")
+print("#########")
+#adjust chrom start and end to be window sized
+chromstart = SNP_df$start[1] - window_size
+chromend = SNP_df$end[1] + window_size
+# plot each cell separately
+for (i in cdf$c){
+  print(i)
+  i = "Adrenal.gland"
+  #positive z-scores
+  tdf <- dat %>% filter(cell == i) %>% filter(zscore > 0)
+  pdf(paste0(outprefix,"_cis_archplot_zoomed_",window_size,"_window_",chrom,"_",i,"_positive_zscore.pdf"), width = 14, height = 8)
+  pbpe = plotBedpe(tdf,chrom,chromstart,chromend,
+                   #  ylim=c(-1,2),
+                   heights = tdf$zscore,plottype="loops"
+                   #                 colorby=tdf$cellnum,
+                   #                 colorbycol=SushiColors(length(unique(tdf$cellnum)))
+  )
+  #x-axis
+  labelgenome(chrom, chromstart,chromend,n=6,scale="Mb")
+  #y-axis
+  axis(side=2,las=2,tcl=.2)
+  #y-axis title
+  mtext("Z-score (+)",side=2,line=3,cex=1,font=2)
+  #title
+  mtext(i,side=3,line=1,cex=2,font=2)
+  dev.off()
+  # negative z-scores
+  tdf <- dat %>% filter(cell == i) %>% filter(zscore < 0)
+  pdf(paste0(outprefix,"_cis_archplot_zoomed_",window_size,"_window_",chrom,"_",i,"_negative_zscore.pdf"), width = 14, height = 8)
+  pbpe = plotBedpe(tdf,chrom,chromstart,chromend,
+                   flip = TRUE,
+                   heights = tdf$zscore,plottype="loops"
+                   #                 colorby=tdf$cellnum,
+                   #                 colorbycol=SushiColors(length(unique(tdf$cellnum)))
+  )
+  #x-axis
+  labelgenome(chrom, chromstart,chromend,n=6,scale="Mb",side=3)
+  #y-axis
+  axis(side=2,las=2,tcl=.2)
+  #y-axis title
+  mtext("Z-score (-)",side=2,line=3,cex=1,font=2)
+  #title
+  mtext(i,side=1,line=1,cex=2,font=2)
+  dev.off()
+}
+
 print("DONE")
