@@ -65,7 +65,7 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-interaction data
+#interaction data
 Atype <- "1_vs_All"
 zdat_file <- "test_1vsAll_dat.txt"
 pdat_file <- "test_1vsAll_pvalues.txt"
@@ -91,7 +91,8 @@ summary(pdat)
 zdatL <- gather(zdat, key = "cell", value = "zscore", 2:length(colnames(zdat)))
 pdatL <- gather(pdat, key = "cell", value = "pvalue", 2:length(colnames(pdat)))
 dat <- merge(zdatL, pdatL, by=c("ID","cell"))
-
+max_zscore <- dat %>% filter(pvalue <= 0.05) %>% select(zscore) %>% max()
+min_zscore <- dat %>% filter(pvalue <= 0.05) %>% select(zscore) %>% min()
 
 datsigW <- dat %>% filter(pvalue <=0.05) %>% select(-pvalue) %>% spread(key = cell, value = zscore)
 print("summary of ALL sig zscores per cell type")
@@ -1479,9 +1480,10 @@ for(i in unique(tp_dat_sum$chr)) {
   tpp <- tp_dat_sum %>% filter(chr == i)
   tp <- (ggplot(tpp, aes(st, y=1, fill = mzscore))
          + geom_tile(aes(fill = mzscore), width = 1, height = 1)
-         + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per bin", na.value = "grey")
-         #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
-         #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+         #+ scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per bin", na.value = "grey")
+         + scale_fill_gradientn(colors = c("#03045e","#00b4d8","#e8a113", "#ff7b2f"),
+                                name = "Mean z-score",
+                                limits = c(min_zscore, max_zscore))
          + labs(x = paste0("Chromosome ", i, " position [Mb]"),
                 y = "",
                 title = "Trans-chromosomal interactions (significant) z-scores")
@@ -1495,6 +1497,7 @@ for(i in unique(tp_dat_sum$chr)) {
       + scale_x_continuous(expand = c(0, 0))
          + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
                  strip.background = element_rect(fill = "white"),
+                 legend.text=element_text(size=9),
                  panel.spacing = unit(0, "lines"),
                  axis.text.y = element_blank(),
                  axis.ticks.y = element_blank())
