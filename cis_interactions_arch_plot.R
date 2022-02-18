@@ -162,15 +162,17 @@ chromend = chrInf$size[which(chrInf$chrom == chrom)]
 # plot each cell separately
 for (i in cdf$c){
   print(i)
-  i = "Adrenal.gland"
+  #i = "Adrenal.gland"
   #positive z-scores
   tdf <- dat %>% filter(cell == i) %>% filter(zscore > 0)
   pdf(paste0(outprefix,"_cis_archplot_",chrom,"_",i,"_positive_zscore.pdf"), width = 14, height = 8)
   pbpe = plotBedpe(tdf,chrom,chromstart,chromend,
+                 #  ylim=c(-1,2),
                    heights = tdf$zscore,plottype="loops"
   #                 colorby=tdf$cellnum,
   #                 colorbycol=SushiColors(length(unique(tdf$cellnum)))
   )
+  plot(ylim = c(0,5))
   #x-axis
   labelgenome(chrom, chromstart,chromend,n=6,scale="Mb")
   #y-axis
