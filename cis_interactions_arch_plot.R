@@ -31,12 +31,12 @@ library(Sushi)
 
 #########################################################################
 print("#read in files")
-####interaction data
-#library(circlize) # for circos
-#options(scipen = 999)
-#dat_file <- "cis_arch_plot_test_dat.txt"
-#chrom = "chr10"
-#outprefix = "test_cis_archplot"
+###interaction data
+library(circlize) # for circos
+options(scipen = 999)
+dat_file <- "cis_arch_plot_test_dat.txt"
+chrom = "chr10"
+outprefix = "test_cis_archplot"
 
 #chrom info
 #re-order chroms based on chrom len
@@ -162,9 +162,10 @@ chromend = chrInf$size[which(chrInf$chrom == chrom)]
 # plot each cell separately
 for (i in cdf$c){
   print(i)
-#  i = "Lung"
-  tdf <- dat %>% filter(cell == i)
-  pdf(paste0(outprefix,"_cis_archplot_",chrom,"_",i,".pdf"), width = 14, height = 8)
+  #i = "Adrenal.gland"
+  #positive z-scores
+  tdf <- dat %>% filter(cell == i) %>% filter(zscore > 0)
+  pdf(paste0(outprefix,"_cis_archplot_",chrom,"_",i,"_positive_zscore.pdf"), width = 14, height = 8)
   pbpe = plotBedpe(tdf,chrom,chromstart,chromend,
                    heights = tdf$zscore,plottype="loops"
   #                 colorby=tdf$cellnum,
@@ -175,16 +176,50 @@ for (i in cdf$c){
   #y-axis
   axis(side=2,las=2,tcl=.2)
   #y-axis title
-  mtext("Z-score",side=2,line=3,cex=1,font=2)
+  mtext("Z-score (+)",side=2,line=3,cex=1,font=2)
+  #title
+  mtext(i,side=3,line=1,cex=2,font=2)
+  dev.off()
+  # negative z-scores
+  tdf <- dat %>% filter(cell == i) %>% filter(zscore < 0)
+  pdf(paste0(outprefix,"_cis_archplot_",chrom,"_",i,"_negative_zscore.pdf"), width = 14, height = 8)
+  pbpe = plotBedpe(tdf,chrom,chromstart,chromend,
+                   heights = tdf$zscore,plottype="loops"
+                   #                 colorby=tdf$cellnum,
+                   #                 colorbycol=SushiColors(length(unique(tdf$cellnum)))
+  )
+  #x-axis
+  labelgenome(chrom, chromstart,chromend,n=6,scale="Mb")
+  #y-axis
+  axis(side=2,las=2,tcl=.2)
+  #y-axis title
+  mtext("Z-score (-)",side=2,line=3,cex=1,font=2)
   #title
   mtext(i,side=3,line=1,cex=2,font=2)
   dev.off()
 }
 
-print("number of interactions with SNP per cell")
+print("number of interactions with SNP per cell, positive and negative z-scores")
 dat %>%
   dplyr::select(cell, zscore) %>%
   group_by(cell) %>%
   dplyr::summarise(numInters = n())
 
+pz <- dat %>%
+  filter(zscore > 0) %>%
+  dplyr::select(cell, zscore) %>%
+  group_by(cell) %>%
+  dplyr::summarise(posZscore = n())
+nz <- dat %>%
+  filter(zscore < 0) %>%
+  dplyr::select(cell, zscore) %>%
+  group_by(cell) %>%
+  dplyr::summarise(negZscore = n())
+numInters_df <- merge(pz,nz, by = "cell", all = TRUE)
+numInters_df <- numInters_df %>%
+  replace(is.na(.), 0) %>%
+  mutate(totalInters = rowSums(across(where(is.numeric))))
+
+write.table(numInters_df, file = paste0(outprefix,"_number_of_interactions_per_cell_cis_archplot.txt"),
+            sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 print("DONE")
