@@ -65,22 +65,22 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-#interaction data
-#Atype <- "1_vs_All"
-#zdat_file <- "test_1vsAll_dat.txt"
-#pdat_file <- "test_1vsAll_pvalues.txt"
-#roi1_file <- "FIRRE.bed"
-#roi2_file <- "ATF4.bed"
-#xchr <- "X"
-#ychr <- "22"
-#xstart <- 131688779 /1000000
-#ystart <- 39519695 /1000000
-#library(harrypotter)
-#library(factoextra)
-#library(hexbin)
-##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
-##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
-##dat <- read.table(dat_file, header = TRUE)
+interaction data
+Atype <- "1_vs_All"
+zdat_file <- "test_1vsAll_dat.txt"
+pdat_file <- "test_1vsAll_pvalues.txt"
+roi1_file <- "FIRRE.bed"
+roi2_file <- "ATF4.bed"
+xchr <- "X"
+ychr <- "22"
+xstart <- 131688779 /1000000
+ystart <- 39519695 /1000000
+library(harrypotter)
+library(factoextra)
+library(hexbin)
+#dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
+#dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
+#dat <- read.table(dat_file, header = TRUE)
 zdat <- read.table(zdat_file, header = TRUE)
 pdat <- read.table(pdat_file, header = TRUE)
 print("summary of ALL zscores per cell type")
@@ -741,7 +741,7 @@ hm <- (ggplot(hm_df, aes(x=st1, y=st2, fill= zscore))
       + expand_limits(y=c(0,ymax), x = c(0,xmax))
 #      + annotation_custom(gtext, xmin=30, xmax=30, ymin=-Inf, ymax=Inf)
 #      + annotation_custom(gline, xmin=30, xmax=30, ymin=-Inf, ymax=Inf)
-      + geom_vline(xintercept = xstart, colour = "black")
+      + geom_vline(xintercept = xstart, colour = "red")
       + scale_y_continuous(expand = c(0, 0))
       + scale_x_continuous(expand = c(0, 0))
       + theme(panel.spacing = unit(0, "lines"),
@@ -773,7 +773,7 @@ hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= zscore))
               x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", ychr, " Genomic Position"))
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-      + geom_vline(xintercept = xstart, colour = "black")
+      + geom_vline(xintercept = xstart, colour = "red")
        + facet_grid(cell ~.)
       # expand axis limits so whole chrom len is accounted for
       + expand_limits(y=c(0,ymax), x = c(0,xmax))
@@ -799,7 +799,7 @@ hm <- (ggplot(hm_dfsig, aes(x=st2, y=st1, fill= zscore))
               #         caption = "Data source: ToothGrowth",
               x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", xchr, " Genomic Position"))
-      + geom_vline(xintercept = ystart, colour = "black")
+      + geom_vline(xintercept = ystart, colour = "red")
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
        + facet_grid(cell ~.)
        # expand axis limits so whole chrom len is accounted for
@@ -1486,7 +1486,7 @@ for(i in unique(tp_dat_sum$chr)) {
                 y = "",
                 title = "Trans-chromosomal interactions (significant) z-scores")
          + facet_grid(cell ~ .)
-         + geom_vline(xintercept = interpos, colour = "black")
+         + geom_vline(xintercept = interpos, colour = "red")
          #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
          #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
          #       + theme(axis.text.x = element_text(angle = 90))
@@ -1505,7 +1505,7 @@ for(i in unique(tp_dat_sum$chr)) {
   print(tp)
   dev.off()
   # line plot of mean zscore of all cell types per bin
-  lp = tpp %>% group_by(chr,st) %>% dplyr::summarize(mmzscore=mean(mzscore, na.rm = TRUE))
+  lp = tpp %>% group_by(chr,st) %>% dplyr::summarize(mmzscore=mean(mzscore, na.rm = TRUE), .groups = "keep")
   tp <- (ggplot(lp, aes(st, y= mmzscore))
          + geom_point(alpha = 0.5, size= 3)
          +geom_smooth(method = 'loess',formula ='y ~ x')
@@ -1536,7 +1536,7 @@ for(i in unique(tp_dat_sum$chr)) {
   dev.off()
 }#for
 #df of mean zscore for bubble graph
-bgz_dat <- tp_dat_sum %>% group_by(chr,st) %>% dplyr::summarize(mmzscore=mean(mzscore, na.rm = TRUE))
+bgz_dat <- tp_dat_sum %>% group_by(chr,st) %>% dplyr::summarize(mmzscore=mean(mzscore, na.rm = TRUE), .groups = "keep")
 print("##########")
 print("##########")
 print("# tickplot per chrom, each bin represented fact with cells")
@@ -1576,7 +1576,7 @@ for(i in unique(tp_dat_sum$chr)) {
                 y = "",
                 title = "Trans-chromosomal interactions (significant)")
          + facet_grid(cell ~ .)
-         + geom_vline(xintercept = interpos, colour = "black")
+         + geom_vline(xintercept = interpos, colour = "red")
          #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
          #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
          #       + theme(axis.text.x = element_text(angle = 90))
@@ -1597,7 +1597,7 @@ for(i in unique(tp_dat_sum$chr)) {
   # save df from bubble graph for quantification test
   write.table(tpp, file = as.character(paste0("chrom",i,"_bubble_data.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
   # line plot of mean zscore of all cell types per bin
-  lp = tpp %>% group_by(chr,st) %>% dplyr::summarize(mnumSig=mean(numSig, na.rm = TRUE))
+  lp = tpp %>% group_by(chr,st) %>% dplyr::summarize(mnumSig=mean(numSig, na.rm = TRUE), .groups = "keep")
   tp <- (ggplot(lp, aes(st, y= mnumSig))
          + geom_point(alpha = 0.5, size= 3)
          +geom_smooth(method = 'loess',formula ='y ~ x')
@@ -1628,7 +1628,7 @@ for(i in unique(tp_dat_sum$chr)) {
   dev.off()
 }#for
 #df of mean number of inters for bubble graph
-bgi_dat <- tp_dat_sum %>% group_by(chr,st) %>% dplyr::summarize(mnumSig=mean(numSig, na.rm = TRUE))
+bgi_dat <- tp_dat_sum %>% group_by(chr,st) %>% dplyr::summarize(mnumSig=mean(numSig, na.rm = TRUE), .groups = "keep")
 head(bgi_dat)
 
 print("########")
@@ -1813,7 +1813,7 @@ hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= zscore))
               x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", ychr, " Genomic Position"))
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
-       + geom_vline(xintercept = xstart, colour = "black")
+       + geom_vline(xintercept = xstart, colour = "red")
        + facet_grid(cell ~.)
        # expand axis limits so whole chrom len is accounted for
        + expand_limits(y=c(0,ymax), x = c(0,xmax))
@@ -1841,7 +1841,7 @@ hm <- (ggplot(hm_dfsig, aes(x=st2, y=st1, fill= zscore))
               #         caption = "Data source: ToothGrowth",
               x = paste0("Chromosome ", ychr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", xchr, " Genomic Position"))
-       + geom_vline(xintercept = ystart, colour = "black")
+       + geom_vline(xintercept = ystart, colour = "red")
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "z-score")
        + facet_grid(cell ~.)
        # expand axis limits so whole chrom len is accounted for
@@ -1877,7 +1877,7 @@ hm <- (ggplot(hm_df, aes(x=st1, y=st2, fill= pvalue))
               y = paste0("Chromosome ", ychr, " Genomic Position"))
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "p-value")
        + facet_grid(cell ~.)
-       + geom_vline(xintercept = xstart, colour = "black")
+       + geom_vline(xintercept = xstart, colour = "red")
       # expand axis limits so whole chrom len is accounted for
       + expand_limits(y=c(0,ymax), x = c(0,xmax))
       + scale_y_continuous(expand = c(0, 0))
@@ -1907,7 +1907,7 @@ hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= pvalue))
               x = paste0("Chromosome ", xchr, " Genomic Position [Mb]"),
               y = paste0("Chromosome ", ychr, " Genomic Position"))
        + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "p-value")
-       + geom_vline(xintercept = xstart, colour = "black")
+       + geom_vline(xintercept = xstart, colour = "red")
        + facet_grid(cell ~.)
       # expand axis limits so whole chrom len is accounted for
       + expand_limits(y=c(0,ymax), x = c(0,xmax))
