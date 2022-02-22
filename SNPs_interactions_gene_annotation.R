@@ -167,7 +167,7 @@ SNP <- read.table(SNP_file, header = TRUE,sep = "\t")
 #accounting for merged SNP files
 SNP_df <- SNP
 if ("logFC_comp" %in% colnames(SNP)){
-  SNP_df <- SNP %>% select(chr_b38, start_b38,end_b38, logFC_comp)
+  SNP_df <- SNP %>% dplyr::select(chr_b38, start_b38,end_b38, logFC_comp)
 } else {
   SNP_df$logFC_comp.x <- as.numeric(as.character(SNP_df$logFC_comp.x))
   SNP_df$logFC_comp.y <- as.numeric(as.character(SNP_df$logFC_comp.y))
@@ -222,7 +222,7 @@ selection <- as.logical( # 7
   )
 )
 
-odat <- unique(ldat[selection,] %>% select(-ID)) %>% na.omit()
+odat <- unique(ldat[selection,] %>% dplyr::select(-ID)) %>% na.omit()
 head(odat)
 print("#write to df")
 write.table(odat, file = as.character(paste0(outfile,"_overlapping_intearctions_for_circos.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
