@@ -181,6 +181,22 @@ pdf(paste0(outprefix,"_vennDiagram_sig_Interactions.pdf"), width = 14, height = 
 p1
 dev.off()
 
+print("# overlapping interactions between select cells")
+#long to wide format
+wdf <- zdat %>% spread(key=cell, value=zscore)
+#if we are dealing with VSMC SNPs
+if ( "OmniC_pooled_M_0d" %in% cells$V1){
+  #remove NAs, therefore only inters that are present between these two cells
+  tdat <- wdf %>% na.omit()
+  write.table(tdat %>% select(-ID, -dist), file = as.character(paste0(outprefix,"_VSMC_SNPs_overlapping_interactions.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+} else { # CM SNPs
+  #find overlap only between day 80 and day 0 cells
+  tdat <- wdf %>% filter(cell == "H9hESC_day00_Zhang" | "Ventricular_cardiomyocyte_day80_Zhang") %>% na.omit()
+  write.table(tdat %>% select(-ID, -dist), file = as.character(paste0(outprefix,"_CM_SNPs_overlapping_interactions.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+}
+
+##############
+
 print("# number of sig inters per bin")
 #count  each inter twice
 tp_A <- zdat %>% dplyr::select(chrA,st1,end1,cell,zscore) 
