@@ -195,6 +195,21 @@ if ( "OmniC_pooled_M_0d" %in% cells$V1){
   write.table(tdat %>% select(-ID, -dist), file = as.character(paste0(outprefix,"_CM_SNPs_overlapping_interactions.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
 }
 
+print("# cell type specific interactions")
+for (i in cells$V1){
+  #remove current cell from cells list
+#  i = "Lung"
+  tcells <- cells$V1[! cells$V1 %in% i]
+  tdat <- wdf
+  tdat
+  # NAs in all other cells
+  for (x in tcells){
+  #  x= "Bladder_rep1"
+    tdat <- tdat %>% filter(is.na(!!sym(x)))
+  }
+  write.table(tdat %>% dplyr::select(-ID, -dist), file = as.character(paste0(outprefix,"_",i,"_cell_specific_interactions.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+}
+
 ##############
 
 print("# number of sig inters per bin")
