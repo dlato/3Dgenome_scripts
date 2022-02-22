@@ -26,6 +26,7 @@ library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
 #library(hexbin)
 library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
+library(ggVennDiagram)#for venn diagram
 ##########
 
 #########################################################################
@@ -61,13 +62,14 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-##interaction data
-#zdat_file <- "cis_arch_plot_test_dat.txt"
-#outprefix <- "test_cis_SNP_blood_pressure"
-#cellsfile <- "cell_subset.txt"
-#library(harrypotter)
-#library(factoextra)
-#library(hexbin)
+#interaction data
+zdat_file <- "cis_arch_plot_test_dat.txt"
+outprefix <- "test_cis_SNP_blood_pressure"
+cellsfile <- "cell_subset.txt"
+library(harrypotter)
+library(factoextra)
+library(hexbin)
+library(ggVennDiagram)
 
 #chrom info
 #re-order chroms based on chrom len
@@ -150,11 +152,40 @@ head(zdat)
 zdat <- zdat %>% filter(cell %in% cells$V1) %>% mutate(cell=factor(cell, levels=cells$V1))
 summary(zdat)
 
+#########
+# overlap of interactions
+#########
+#create ID column
+zdat <- zdat %>% mutate(ID =paste0(chrA,".",st1,".",end1, ".",chrB,".",st2,".","end2"))
+summary(zdat)
+inter_list <- vector("list", length(cells$V1))
+for (i in 1:length(cells$V1)) {
+  tcell <- cells$V1[i]
+  tdat <- zdat %>% filter(cell == tcell) %>% dplyr::select(ID)
+  inter_list[[i]] =  tdat$ID
+}
+inter_list
+#plot venn diagram
+p1 <- (ggVennDiagram(inter_list,
+                    category.names = cells$V1,
+                    label_alpha = 0)
+       + scale_fill_distiller(palette = "Reds", direction = 1)
+       + scale_color_manual(values = rep("black", length(cells$V1)))
+       + labs(title = "Cis-chromosomal interactions overlapping with SNPs (significant)",
+              subtitle = paste("N=",length(unique(zdat$ID))),
+              fill = "# of Interactions")
+       #below so you can read the cell names
+       + scale_x_continuous(expand = expansion(mult = .2))
+)
+pdf(paste0(outprefix,"_vennDiagram_sig_Interactions.pdf"), width = 14, height = 4)
+p1
+dev.off()
+
 print("# number of sig inters per bin")
 #count  each inter twice
-tp_A <- zdat %>% select(chrA,st1,end1,cell,zscore) 
+tp_A <- zdat %>% dplyr::select(chrA,st1,end1,cell,zscore) 
 colnames(tp_A) <- c("chr","st","end","cell","zscore")
-tp_B <- zdat %>% select(chrB,st2,end2,cell,zscore) 
+tp_B <- zdat %>% dplyr::select(chrB,st2,end2,cell,zscore) 
 colnames(tp_B) <- c("chr","st","end","cell","zscore")
 tp_dat <- rbind(tp_A,tp_B)
 tp_dat_sum = tp_dat %>% group_by(chr,st,cell) %>% dplyr::summarize(numInters=n(),.groups = "keep")
