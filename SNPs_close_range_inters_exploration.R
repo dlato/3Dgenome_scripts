@@ -75,20 +75,20 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-###interaction data
-#options(scipen = 999)
-Atype <- "1_vs_All"
-#tissue_file <- "tissue_system_info.txt"
-zdat_file <- "test_1vsAll_dat.txt"
-pdat_file <- "test_1vsAll_pvalues.txt"
-cells_file <- "cell_subset.txt"
-#germlayer_file <- "germlayer_info.txt"
-bin_size <- 1000000
-anno_file <- "hg38_p13_v32_annotation.txt"
-outfile <- "test_cell_list"
-SNP_file <- "VSMC_diff_snps_final.ranking.withinfo.eqtl.Repeat.txt"
-library(factoextra)#for PCA
-library(harrypotter) #for colours
+####interaction data
+##options(scipen = 999)
+#Atype <- "1_vs_All"
+##tissue_file <- "tissue_system_info.txt"
+#zdat_file <- "test_1vsAll_dat.txt"
+#pdat_file <- "test_1vsAll_pvalues.txt"
+#cells_file <- "cell_subset.txt"
+##germlayer_file <- "germlayer_info.txt"
+#bin_size <- 1000000
+#anno_file <- "hg38_p13_v32_annotation.txt"
+#outfile <- "test_cell_list"
+#SNP_file <- "VSMC_diff_snps_final.ranking.withinfo.eqtl.Repeat.txt"
+#library(factoextra)#for PCA
+#library(harrypotter) #for colours
 
 #re-order chroms based on chrom len
 chrs_len_ord <- c("chr1","chr2",

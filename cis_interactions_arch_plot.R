@@ -35,14 +35,14 @@ library(Sushi)
 
 #########################################################################
 print("#read in files")
-###interaction data
-library(circlize) # for circos
-options(scipen = 999)
-dat_file <- "cis_arch_plot_test_dat.txt"
-chrom = "chr10"
-outprefix = "test_cis_archplot"
-window_size <- 3000000
-SNP_bed = "ATF4.bed"
+####interaction data
+#library(circlize) # for circos
+#options(scipen = 999)
+#dat_file <- "cis_arch_plot_test_dat.txt"
+#chrom = "chr10"
+#outprefix = "test_cis_archplot"
+#window_size <- 3000000
+#SNP_bed = "ATF4.bed"
 
 #SNP info (longest region for SNP example)
 SNP_df <- read.table(SNP_bed, sep = "\t")

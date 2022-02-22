@@ -62,14 +62,14 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-#interaction data
-zdat_file <- "cis_arch_plot_test_dat.txt"
-outprefix <- "test_cis_SNP_blood_pressure"
-cellsfile <- "cell_subset.txt"
-library(harrypotter)
-library(factoextra)
-library(hexbin)
-library(ggVennDiagram)
+##interaction data
+#zdat_file <- "cis_arch_plot_test_dat.txt"
+#outprefix <- "test_cis_SNP_blood_pressure"
+#cellsfile <- "cell_subset.txt"
+#library(harrypotter)
+#library(factoextra)
+#library(hexbin)
+#library(ggVennDiagram)
 
 #chrom info
 #re-order chroms based on chrom len
