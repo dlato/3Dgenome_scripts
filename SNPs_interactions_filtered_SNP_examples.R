@@ -134,5 +134,10 @@ odat <- unique(dat[selection,] %>% select(-ID)) %>% na.omit()
 head(odat)
 print("#write to df")
 write.table(odat, file = as.character(paste0(outfile,"_overlapping_intearctions_for_circos.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+
+print("# getting largest region of SNPs for zoomed in archplot")
+beddf <- as.data.frame(t(c(unique(lfc$AllChr),min(lfc$AllSt),max(lfc$AllEnd))))
+print("#write to df")
+write.table(beddf, file = as.character(paste0(outfile,"_largest_SNP_region_for_zoomed_plot.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 print("DONE")
 #
