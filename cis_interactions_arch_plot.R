@@ -35,14 +35,14 @@ library(Sushi)
 
 #########################################################################
 print("#read in files")
-####interaction data
-#library(circlize) # for circos
-#options(scipen = 999)
-#dat_file <- "cis_arch_plot_test_dat.txt"
-#chrom = "chr10"
-#outprefix = "test_cis_archplot"
-#window_size <- 3000000
-#SNP_bed = "ATF4.bed"
+###interaction data
+library(circlize) # for circos
+options(scipen = 999)
+dat_file <- "cis_arch_plot_test_dat.txt"
+chrom = "chr10"
+outprefix = "test_cis_archplot"
+window_size <- 3000000
+SNP_bed = "ATF4.bed"
 
 #SNP info (longest region for SNP example)
 SNP_df <- read.table(SNP_bed, sep = "\t")
@@ -172,7 +172,7 @@ chromend = chrInf$size[which(chrInf$chrom == chrom)]
 # plot each cell separately
 for (i in cdf$c){
   print(i)
-  i = "Adrenal.gland"
+  #i = "Adrenal.gland"
   #positive z-scores
   tdf <- dat %>% filter(cell == i) %>% filter(zscore > 0)
   pdf(paste0(outprefix,"_cis_archplot_",chrom,"_",i,"_positive_zscore.pdf"), width = 14, height = 8)
@@ -233,7 +233,7 @@ nz <- dat %>%
 numInters_df <- merge(pz,nz, by = "cell", all = TRUE)
 numInters_df <- numInters_df %>%
   replace(is.na(.), 0) %>%
-  mutate(totalInters = rowSums(across(where(is.numeric))))
+  mutate(totalInters = rowSums(.[2:3]))
 
 write.table(numInters_df, file = paste0(outprefix,"_number_of_interactions_per_cell_cis_archplot.txt"),
             sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
@@ -247,7 +247,7 @@ chromend = SNP_df$end[1] + window_size
 # plot each cell separately
 for (i in cdf$c){
   print(i)
-  i = "Adrenal.gland"
+  #i = "Adrenal.gland"
   #positive z-scores
   tdf <- dat %>% filter(cell == i) %>% filter(zscore > 0)
   pdf(paste0(outprefix,"_cis_archplot_zoomed_",window_size,"_window_",chrom,"_",i,"_positive_zscore.pdf"), width = 14, height = 8)
