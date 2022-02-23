@@ -35,14 +35,14 @@ library(Sushi)
 
 #########################################################################
 print("#read in files")
-###interaction data
-library(circlize) # for circos
-options(scipen = 999)
-dat_file <- "cis_arch_plot_test_dat.txt"
-chrom = "chr10"
-outprefix = "test_cis_archplot"
-window_size <- 3000000
-SNP_bed = "ATF4.bed"
+####interaction data
+#library(circlize) # for circos
+#options(scipen = 999)
+#dat_file <- "cis_arch_plot_test_dat.txt"
+#chrom = "chr10"
+#outprefix = "test_cis_archplot"
+#window_size <- 3000000
+#SNP_bed = "ATF4.bed"
 
 #SNP info (longest region for SNP example)
 SNP_df <- read.table(SNP_bed, sep = "\t")
@@ -285,5 +285,46 @@ for (i in cdf$c){
   mtext(i,side=1,line=1,cex=2,font=2)
   dev.off()
 }
+
+
+
+print("# number of sig inters per bin")
+#count  each inter twice
+tp_A <- dat %>% dplyr::select(chr1,st1,end1,cell,zscore) 
+colnames(tp_A) <- c("chr","st","end","cell","zscore")
+tp_B <- dat %>% dplyr::select(chr2,st2,end2,cell,zscore) 
+colnames(tp_B) <- c("chr","st","end","cell","zscore")
+tp_dat <- rbind(tp_A,tp_B)
+tp_dat_sum = tp_dat %>% group_by(chr,st,cell) %>% dplyr::summarize(numInters=n(),.groups = "keep")
+tp_dat_sum$chr <- gsub("chr", "", tp_dat_sum$chr)
+summary(tp_dat_sum)
+head(tp_dat_sum)
+tpp <- tp_dat_sum
+tp <- (ggplot(tpp, aes(st/1000000, y=1, fill = numInters))
+       + geom_tile(aes(fill = numInters), width = 1, height = 1)
+       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Total number of significant interactions", na.value = "grey")
+       #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+       #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+       + labs(x = paste0("Chromosome ", unique(tpp$chr), " position [Mb]"),
+              y = "",
+              title = "Cis-chromosomal interactions overlapping with SNPs (significant)")
+       + facet_grid(cell ~ .)
+       #       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+       #         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+       #       + theme(axis.text.x = element_text(angle = 90))
+       + expand_limits(x = c(chromstart/100000,chromend/100000))
+       + scale_y_continuous(expand = c(0, 0))
+       + scale_x_continuous(expand = c(0, 0))
+       + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+               strip.background = element_rect(fill = "white"),
+               panel.spacing = unit(0, "lines"),
+               axis.text.y = element_blank(),
+               axis.ticks.y = element_blank())
+       + theme(panel.background = element_rect(fill = "grey85", colour = NA))
+)
+filename <- paste0(outprefix,"_numSig_inters_chrom",unique(tpp$chr),"_tickplot_zoomed_windos_",window_size,".pdf")
+pdf(filename, width = 14, height = 4)
+print(tp)
+dev.off()
 
 print("DONE")
