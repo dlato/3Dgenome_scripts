@@ -27,6 +27,7 @@ library(tidyr)
 library(dplyr)
 library(Sushi)
 library(ggplot2)
+library(harrypotter)
 #library(karyoploteR)#for karyotype plot
 #library(BRGenomics)#for karyotype plot
 #install_github("vqv/ggbiplot")
