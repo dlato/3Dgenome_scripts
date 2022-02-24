@@ -31,12 +31,11 @@ library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 library(ggbiplot)#for PCA
 library(devtools)#for PCA
-#library(multcomp) # for anova and tukey test
 .libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2")
 library(circlize,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/") # for circos
 library(regioneR,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/")#for permutation
 library(factoextra, lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3/")#for PCA
-library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.3") #for colours
+library(harrypotter) #for colours
 #install_github("vqv/ggbiplot")
 ##remotes::install_github("R-CoderDotCom/ridgeline@main")
 #library(ridgeline)
