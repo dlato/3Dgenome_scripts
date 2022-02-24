@@ -15,10 +15,11 @@
 options(echo=F)
 options(scipen = 999)
 args <- commandArgs(trailingOnly = TRUE)
-dat_file <- args[1]
-cells_file <- args[2]
-outfile <- args[3]
-SNP_file <- args[4]
+zdat_file <- args[1]
+pdat_file <- args[2]
+cells_file <- args[3]
+outfile <- args[4]
+SNP_file <- args[5]
 
 ##########
 library(tidyr)
