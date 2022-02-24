@@ -26,7 +26,7 @@ library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
 #library(hexbin)
 library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
-.libPath("/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
+.libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
 library(ggVennDiagram)#for venn diagram
 ##########
 
