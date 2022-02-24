@@ -238,7 +238,7 @@ numInters_df <- numInters_df %>%
   mutate(totalInters = rowSums(.[2:3]))
 
 write.table(numInters_df, file = paste0(outprefix,"_number_of_interactions_per_cell_cis_archplot.txt"),
-            sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+            sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
 
 print("#########")
 print("# zoomed in archplot around SNP example")
