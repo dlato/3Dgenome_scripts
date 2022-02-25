@@ -16,7 +16,7 @@ options(scipen = 999)
 args <- commandArgs(trailingOnly = TRUE)
 CM_SNP_file <- args[1]
 VSMC_SNP_file <- args[2]
-outfile <- args[3]
+outprefix <- args[3]
 bin_size <- as.numeric(as.character(args[4]))
 
 ##########
@@ -222,7 +222,7 @@ for (c in unique(dat$chrom)){
                axis.ticks.y = element_blank())
        + theme(panel.background = element_rect(fill = "white", colour = NA))
 )
-filename <- paste0(outprefix,"_num_SNPs_per_",bin_size,"bp_bin_",c,"_tickplot.pdf")
+filename <- paste0(outprefix,"_VSMC_num_SNPs_per_",bin_size,"bp_bin_",c,"_tickplot.pdf")
 pdf(filename, width = 14, height = 2)
 print(tp)
 dev.off()
@@ -245,7 +245,7 @@ tp <- (ggplot(dat, aes(start/1000000, y=1, fill = CM_num))
                axis.ticks.y = element_blank())
        + theme(panel.background = element_rect(fill = "white", colour = NA))
 )
-filename <- paste0(outprefix,"_num_SNPs_per_",bin_size,"bp_bin_",c,"_tickplot.pdf")
+filename <- paste0(outprefix,"_CM_num_SNPs_per_",bin_size,"bp_bin_",c,"_tickplot.pdf")
 pdf(filename, width = 14, height = 2)
 print(tp)
 dev.off()
