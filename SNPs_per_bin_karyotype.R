@@ -23,6 +23,7 @@ bin_size <- args[4]
 .libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.1.2")
 library(tidyr)
 library(dplyr)
+library(plyr)
 library(ggplot2)
 library(karyoploteR)#for karyotype plot
 library(GenomicRanges)
