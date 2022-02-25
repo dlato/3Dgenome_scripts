@@ -28,6 +28,7 @@ library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 .libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
 library(ggVennDiagram)#for venn diagram
+library(UpSetR)
 ##########
 
 #########################################################################
@@ -63,14 +64,15 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-##interaction data
-#zdat_file <- "cis_arch_plot_test_dat.txt"
-#outprefix <- "test_cis_SNP_blood_pressure"
-#cellsfile <- "cell_subset.txt"
-#library(harrypotter)
-#library(factoextra)
-#library(hexbin)
-#library(ggVennDiagram)
+#interaction data
+zdat_file <- "cis_arch_plot_test_dat.txt"
+outprefix <- "test_cis_SNP_blood_pressure"
+cellsfile <- "cell_subset.txt"
+library(harrypotter)
+library(factoextra)
+library(hexbin)
+library(ggVennDiagram)
+library(UpSetR)
 
 #chrom info
 #re-order chroms based on chrom len
@@ -181,6 +183,13 @@ p1 <- (ggVennDiagram(inter_list,
 pdf(paste0(outprefix,"_vennDiagram_sig_Interactions.pdf"), width = 14, height = 4)
 p1
 dev.off()
+
+
+###########
+# UpSet plot (instead of venn diagram)
+###########
+head(zdat)
+
 
 print("# overlapping interactions between select cells")
 #long to wide format
@@ -296,7 +305,7 @@ for(i in unique(tp_dat_sum$chr)) {
 ######
 # number of inters per cells
 ######
-ncell_df = zdat %>% group_by(cell) %>% dplyr::summarize(numInters=n(),.groups = "keep")
+ncell_df = zdat %>% na.omit() %>% group_by(cell) %>% dplyr::summarize(numInters=n(),.groups = "keep")
 ncell_df
 summary(ncell_df)
 # bar plot of num inters per cell
@@ -305,10 +314,10 @@ p <- (ggplot(ncell_df, aes(y=cell, x=numInters))
       + labs(title = "",
              #         subtitle = "Plot of length by dose",
              #         caption = "Data source: ToothGrowth",
-             x = "Number of Interactions", y = "")
+             x = "Number of Significant Interactions overlapping with SNPs", y = "")
         #         tag = "A")
       + scale_x_continuous(expand = c(0, 0))
-      + scale_y_discrete(expand = c(0, 0))
+      + scale_y_discrete(expand = c(0, 0), limits = rev)
 )
 f_name <- gsub(" ","",paste(outprefix,"_bar_plot_num_inters.pdf"))
 pdf(f_name, width = 14, height = 8)
@@ -330,9 +339,9 @@ p <- (ggplot(zdat, aes(x=dist/1000000))
       + facet_grid(cell~. )
      + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
              strip.background = element_rect(fill = "white"),
-             panel.spacing = unit(0, "lines"),
-             axis.text.y = element_blank(),
-             axis.ticks.y = element_blank()) 
+             panel.spacing = unit(0, "lines"))
+             #axis.text.y = element_blank(),
+             #axis.ticks.y = element_blank()) 
      + scale_y_continuous(expand = c(0, 0))
      + scale_x_continuous(expand = c(0, 0))
 )
