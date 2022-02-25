@@ -28,7 +28,7 @@ library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 .libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
 library(ggVennDiagram)#for venn diagram
-library(UpSetR)
+library(ggupset) #for UpSet plot
 ##########
 
 #########################################################################
@@ -64,15 +64,15 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-#interaction data
-zdat_file <- "cis_arch_plot_test_dat.txt"
-outprefix <- "test_cis_SNP_blood_pressure"
-cellsfile <- "cell_subset.txt"
-library(harrypotter)
-library(factoextra)
-library(hexbin)
-library(ggVennDiagram)
-library(UpSetR)
+##interaction data
+#zdat_file <- "cis_arch_plot_test_dat.txt"
+#outprefix <- "test_cis_SNP_blood_pressure"
+#cellsfile <- "cell_subset.txt"
+#library(harrypotter)
+#library(factoextra)
+#library(hexbin)
+#library(ggVennDiagram)
+#library(ggupset)
 
 #chrom info
 #re-order chroms based on chrom len
@@ -159,7 +159,7 @@ summary(zdat)
 # overlap of interactions
 #########
 #create ID column
-zdat <- zdat %>% mutate(ID =paste0(chrA,".",st1,".",end1, ".",chrB,".",st2,".","end2"))
+zdat <- zdat %>% mutate(ID =paste0(chrA,".",st1,".",end1, ".",chrB,".",st2,".",end2))
 summary(zdat)
 inter_list <- vector("list", length(cells$V1))
 for (i in 1:length(cells$V1)) {
@@ -188,9 +188,34 @@ dev.off()
 ###########
 # UpSet plot (instead of venn diagram)
 ###########
-head(zdat)
-
-
+#make tf dataframe with interaction and cell info
+tf_dat <- zdat %>%
+  mutate(tf = (!is.na(zscore))) %>%
+  dplyr::select(ID,cell, tf) %>%
+  spread(ID, tf)%>%
+  replace(is.na(.), FALSE)%>%
+  `row.names<-`(.[, 1]) %>%
+  select(-cell)
+tidy_zdat <- tf_dat %>%
+  as_tibble(rownames = "cell") %>%
+  gather(ID, Member, -cell) %>%
+  filter(Member) %>%
+  select(- Member) %>%
+  group_by(ID) %>%
+  summarize(cell = list(cell))
+up <- (ggplot(tidy_zdat, aes(x=cell))
+  + geom_bar()
+  + geom_text(stat='count', aes(label=after_stat(count)), vjust=-1)
+  + scale_x_upset(n_intersections = 20)
+  + scale_y_continuous(breaks = NULL, name = "")
+  + labs(x = "",
+         y = "",
+         title = "# of significant Cis-chromosomal interactions overlapping with SNPs")
+)
+pdf(paste0(outprefix,"_UpSet_plot.pdf"), width = 14, height = 4)
+up
+dev.off()
+  
 print("# overlapping interactions between select cells")
 #long to wide format
 wdf <- zdat %>% spread(key=cell, value=zscore)
