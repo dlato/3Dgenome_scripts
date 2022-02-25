@@ -17,7 +17,7 @@ args <- commandArgs(trailingOnly = TRUE)
 CM_SNP_file <- args[1]
 VSMC_SNP_file <- args[2]
 outfile <- args[3]
-bin_size <- args[4]
+bin_size <- as.numeric(as.character(args[4]))
 
 ##########
 .libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.1.2")
