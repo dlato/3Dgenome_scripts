@@ -207,7 +207,7 @@ up <- (ggplot(tidy_zdat, aes(x=cell))
   + geom_bar()
   + geom_text(stat='count', aes(label=after_stat(count)), vjust=-1)
   #+ scale_x_upset(n_intersections = 90)
-  +theme(axis.text.y = element_text(size=10))
+  +theme(axis.text.y = element_text(size=5))
   + scale_x_upset()
   + scale_y_continuous(breaks = NULL, name = "", lim = c(0,20000),)
   + labs(x = "",
