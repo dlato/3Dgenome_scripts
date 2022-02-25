@@ -29,8 +29,8 @@ library(GenomicRanges)
 library(ggplot2)
 library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
-library(ggbiplot)#for PCA
-library(devtools)#for PCA
+#library(ggbiplot)#for PCA
+#library(devtools)#for PCA
 .libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2")
 library(circlize,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/") # for circos
 library(regioneR,lib = "/hpf/largeprojects/pmaass/programs/Rlib/R.4.0.2/")#for permutation
