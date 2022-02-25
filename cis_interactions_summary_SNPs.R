@@ -192,7 +192,7 @@ if ( "OmniC_pooled_M_0d" %in% cells$V1){
   write.table(tdat %>% select(-ID, -dist), file = as.character(paste0(outprefix,"_VSMC_SNPs_overlapping_interactions.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
 } else { # CM SNPs
   #find overlap only between day 80 and day 0 cells
-  tdat <- wdf %>% filter(cell == "H9hESC_day00_Zhang" | "Ventricular_cardiomyocyte_day80_Zhang") %>% na.omit()
+  tdat <- wdf %>% dplyr::select(chrA, st1, end1, chrB, st2, end2, H9hESC_day00_Zhang, Ventricular_cardiomyocyte_day80_Zhang) %>% na.omit()
   write.table(tdat %>% select(-ID, -dist), file = as.character(paste0(outprefix,"_CM_SNPs_overlapping_interactions.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
 }
 
