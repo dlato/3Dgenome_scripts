@@ -207,7 +207,8 @@ for (c in unique(dat$chrom)){
   tdat <- dat %>% filter(chrom == c)
   tp <- (ggplot(tdat, aes(start/1000000, y=1, fill = VSMC_num))
        + geom_tile(aes(fill = VSMC_num), width = 1, height = 1)
-       + scale_fill_gradient(low = "#C3BACA", high = "#800080", name = "# of vairants per bin")
+#       + scale_fill_gradient(low = "#FFD199", high = "#FF8C00", name = "# of vairants per bin")
+       + scale_fill_gradient(low = "#B8B8B8", high = "#000000", name = "# of vairants per bin")
        #+ scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "OR genes per bin", na.value = 0)
        + labs(x = paste0("Chromosome ", c_name, " position [Mb]"),
               y = "",
@@ -230,7 +231,8 @@ dev.off()
 #CM
 tp <- (ggplot(tdat, aes(start/1000000, y=1, fill = CM_num))
        + geom_tile(aes(fill = CM_num), width = 1, height = 1)
-       + scale_fill_gradient(low = "#FFD199", high = "#FF8C00", name = "# of vairants per bin")
+#       + scale_fill_gradient(low = "#C3BACA", high = "#800080", name = "# of vairants per bin")
+       + scale_fill_gradient(low = "#B8B8B8", high = "#000000", name = "# of vairants per bin")
        #+ scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "OR genes per bin", na.value = 0)
        + labs(x = paste0("Chromosome ", c_name, " position [Mb]"),
               y = "",
