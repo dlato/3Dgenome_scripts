@@ -192,10 +192,9 @@ print("#filter interactions for ones that contain SNPs (for circos plot)")
 print("#bins that SNPs are in")
 SNP_df$bin <- plyr::round_any(SNP_df$start_b38, as.numeric(as.character(bin_size)), f = floor)
 colnames(SNP_df) <- c("AllChr","SNPstart","SNPend","logFC","AllSt")
-#df for number of SNPs per bin
-num_SNPs <- SNP_df %>% dplyr::select(AllChr,AllSt) %>% group_by(AllChr,AllSt) %>% dplyr::summarise(numSNPs = n(), .groups = "keep") 
-head(num_SNPs)
-
+#print("#df for number of SNPs per bin")
+#num_SNPs <- SNP_df %>% dplyr::select(AllChr,AllSt) %>% group_by(AllChr,AllSt) %>% dplyr::summarise(numSNPs = n(), .groups = "keep") 
+#head(num_SNPs)
 SNP_ID_df <- SNP_df
 SNP_ID_df$ID <- format(SNP_ID_df$ID, scientific = FALSE)
 SNP_ID_df$ID <- paste0(SNP_ID_df$AllChr,".",format(SNP_ID_df$AllSt, scientific = FALSE),".",format(SNP_ID_df$AllSt + as.numeric(as.character(bin_size)),scientific = FALSE))
