@@ -205,10 +205,11 @@ tidy_zdat <- tf_dat %>%
   summarize(cell = list(cell))
 up <- (ggplot(tidy_zdat, aes(x=cell))
   + geom_bar()
-  + geom_text(stat='count', aes(label=after_stat(count)), vjust=-1,size=5)
+  #+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1,hjust=-1,size=3,angle = 90)
+  + geom_text(stat='count', aes(label=after_stat(count)),hjust=-0.2,size=3,angle = 90)
   #+ scale_x_upset(n_intersections = 90)
   + scale_x_upset(order_by = "freq")
-  + scale_y_continuous(breaks = NULL, name = "", lim = c(0,20000))
+  + scale_y_continuous(breaks = NULL, name = "", lim = c(0,30000))
   + labs(x = "",
          y = "",
          title = "# of significant Cis-chromosomal interactions overlapping with SNPs")
