@@ -103,8 +103,9 @@ bed
 
 #filter inters for ones within bed file region
 finters <- dat %>% filter(chr1 %in% bed$chr | chr2 %in% bed$chr) %>%
-           filter((st1 >= bed$bin_s && st1 <= bed$bin_e) | (st2 >= bed$bin_s && st2 <= bed$bin_e))
+           filter((st1 >= bed$bin_s & st1 <= bed$bin_e) | (st2 >= bed$bin_s & st2 <= bed$bin_e))
 head(finters)
+summary(finters)
 #write to table
 write.table(finters, file = as.character(paste0(outfile,"_inters.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
