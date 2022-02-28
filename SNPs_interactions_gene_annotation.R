@@ -78,19 +78,19 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-####interaction data
-##options(scipen = 999)
-#Atype <- "1_vs_All"
-##tissue_file <- "tissue_system_info.txt"
-#dat_file <- "test_1vsAll_dat.txt"
-#cells_file <- "cell_subset.txt"
-##germlayer_file <- "germlayer_info.txt"
-#bin_size <- 1000000
-#anno_file <- "hg38_p13_v32_annotation.txt"
-#outfile <- "test_cell_list"
-#SNP_file <- "VSMC_diff_snps_final.ranking.withinfo.eqtl.Repeat.txt"
-#library(factoextra)#for PCA
-#library(harrypotter) #for colours
+###interaction data
+#options(scipen = 999)
+Atype <- "1_vs_All"
+#tissue_file <- "tissue_system_info.txt"
+dat_file <- "test_1vsAll_dat.txt"
+cells_file <- "cell_subset.txt"
+#germlayer_file <- "germlayer_info.txt"
+bin_size <- 1000000
+anno_file <- "hg38_p13_v32_annotation.txt"
+outfile <- "test_cell_list"
+SNP_file <- "VSMC_diff_snps_final.ranking.withinfo.eqtl.Repeat.txt"
+library(factoextra)#for PCA
+library(harrypotter) #for colours
 
 #re-order chroms based on chrom len
 chrs_len_ord <- c("chr1","chr2",
@@ -192,6 +192,10 @@ print("#filter interactions for ones that contain SNPs (for circos plot)")
 print("#bins that SNPs are in")
 SNP_df$bin <- plyr::round_any(SNP_df$start_b38, as.numeric(as.character(bin_size)), f = floor)
 colnames(SNP_df) <- c("AllChr","SNPstart","SNPend","logFC","AllSt")
+#df for number of SNPs per bin
+num_SNPs <- SNP_df %>% dplyr::select(AllChr,AllSt) %>% group_by(AllChr,AllSt) %>% dplyr::summarise(numSNPs = n(), .groups = "keep") 
+head(num_SNPs)
+
 SNP_ID_df <- SNP_df
 SNP_ID_df$ID <- format(SNP_ID_df$ID, scientific = FALSE)
 SNP_ID_df$ID <- paste0(SNP_ID_df$AllChr,".",format(SNP_ID_df$AllSt, scientific = FALSE),".",format(SNP_ID_df$AllSt + as.numeric(as.character(bin_size)),scientific = FALSE))
