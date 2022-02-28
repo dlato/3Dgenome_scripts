@@ -106,10 +106,10 @@ kpAddMainTitle(kp, paste0("Number of variants per ",bin_size,"bp bin"), cex=0.8)
 kpAddBaseNumbers(kp)
 at <- autotrack(current.track = 1, total.tracks = 2, margin = 0.2)
 kpAddLabels(kp, labels = "VSMC", r0=at$r0, r1=at$r1, cex = 0.7)
-kpHeatmap(kp, data=gdat,y=gdat$VSMC_num, colors = c("#C3BACA","#800080"),r0=0, r1=0.305)
+kpHeatmap(kp, data=gdat,y=gdat$VSMC_num, colors = c("#FFD199","#FF8C00"),r0=0.355, r1=0.66)
 at <- autotrack(current.track = 2, total.tracks = 2, margin = 0.2)
 kpAddLabels(kp, labels = "CM", r0=at$r0, r1=at$r1, cex = 0.7)
-kpHeatmap(kp, data=gdat,y=gdat$CM_num, colors = c("#FFD199","#FF8C00"),r0=0.355, r1=0.66)
+kpHeatmap(kp, data=gdat,y=gdat$CM_num, colors = c("#C3BACA","#800080"),r0=0, r1=0.305)
 dev.off()
 
 for (c in unique(dat$chrom)){
