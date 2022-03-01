@@ -91,6 +91,10 @@ print("#read in files")
 #library(factoextra)#for PCA
 #library(harrypotter) #for colours
 
+#read in cells file
+cells_sub <- read.table(cell_file)
+head(cells_sub)
+
 dat <- read.table(dat_file, header = TRUE)
 print("summary of ALL sig zscores per cell type")
 summary(dat)
