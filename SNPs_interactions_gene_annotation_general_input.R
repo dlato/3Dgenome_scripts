@@ -92,7 +92,7 @@ print("#read in files")
 #library(harrypotter) #for colours
 
 #read in cells file
-cells_sub <- read.table(cell_file)
+cells_sub <- read.table(cells_file)
 head(cells_sub)
 
 dat <- read.table(dat_file, header = TRUE)
