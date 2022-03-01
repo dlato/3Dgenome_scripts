@@ -81,7 +81,7 @@ print("#read in files")
 ##options(scipen = 999)
 #Atype <- "1_vs_All"
 ##tissue_file <- "tissue_system_info.txt"
-#dat_file <- "test_1vsAll_dat.txt"
+#dat_file <- "VSMC_cis50Kb_all_SNP_OmniC_pooled_M_0d_cell_specific_interactions.txt"
 #cells_file <- "cell_subset.txt"
 ##germlayer_file <- "germlayer_info.txt"
 #bin_size <- 1000000
@@ -106,7 +106,7 @@ summary(dat)
 #dat$chrA <- gsub("A", "", dat$chrA)
 #dat$chrB <- gsub("B", "", dat$chrB)
 print("#wide to long format")
-ldat <- dat %>% gather(cell, zscore, 8:ncol(dat))
+ldat <- dat %>% gather(cell, zscore, 7:ncol(dat))
 
 print("#counting each interaction twice (once for each chrom in interaction)")
 anchD <- ldat
@@ -118,6 +118,7 @@ tarD$AllChr <- tarD$chrB
 tarD$AllSt <- tarD$st2
 tarD$AllEnd <- tarD$end2
 r_dat2 <- rbind(anchD,tarD)
+summary(r_dat2)
 #remove NA interactions
 noNAdat <- r_dat2 %>% dplyr::select(cell, zscore, AllChr, AllSt, AllEnd) %>% na.omit() %>% filter(cell %in% cells_sub$V1)
 
