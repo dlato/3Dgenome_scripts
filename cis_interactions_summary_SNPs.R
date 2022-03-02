@@ -353,6 +353,10 @@ dev.off()
 ###############
 # how far apart are interacting regions
 ##############
+print("# summary of distance between interacting regions between cells")
+for i in unique(zdat$cell){
+  zdat %>% filter(cell == i) %>% summary()
+}
 
 
 print("# histogram of how far apart interacting regions are")
