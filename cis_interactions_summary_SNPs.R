@@ -354,8 +354,9 @@ dev.off()
 # how far apart are interacting regions
 ##############
 print("# summary of distance between interacting regions between cells")
-for i in unique(zdat$cell){
-  zdat %>% filter(cell == i) %>% summary()
+for (i in unique(zdat$cell)){
+  print(i)
+  print(zdat %>% filter(cell == i) %>% summary(.groups = "keep"))
 }
 
 
