@@ -146,7 +146,7 @@ for (c in cells_sub$V1){
   print(length(common_genes))
   write.table(common_genes, file = as.character(paste0(outfile,"_",c,"_pos_zscores_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   write.table(common_genes_metascape, file = as.character(paste0(outfile,"_",c,"_pos_zscores_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-  
+ if (min(noNAdat2$zscore <0)){ 
   #negative zscores
   u_inters <- distinct(noNAdat2 %>% filter(zscore <0) %>% dplyr::select(chr, st, end))
   summary(u_inters)
@@ -166,7 +166,7 @@ for (c in cells_sub$V1){
   print(length(common_genes))
   write.table(common_genes, file = as.character(paste0(outfile,"_",c,"_neg_zscores_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   write.table(common_genes_metascape, file = as.character(paste0(outfile,"_",c,"_neg_zscores_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-  
+}#if negative zscores  
 }
 
 
