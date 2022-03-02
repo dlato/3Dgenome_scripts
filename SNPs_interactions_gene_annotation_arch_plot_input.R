@@ -135,7 +135,7 @@ for (c in cells_sub$V1){
   for(i in 1:nrow(u_inters)) {
     #i=1
     td <- u_inters[i,]
-    tgenes_df <- anno_df %>% filter(seqname == td$chr & td$st >= bin_start & td$st <= bin_end) %>% 
+    tgenes_df <- anno_df %>% filter(seqname == td$chr & bin_start == td$st | bin_end == td$st) %>% 
       filter(broad_class =="prot")
     common_genes <- append(common_genes,gsub("\\..*", "",tgenes_df$gene_id, perl=TRUE))
     common_genes_metascape <- append(common_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
@@ -148,14 +148,14 @@ for (c in cells_sub$V1){
   write.table(common_genes_metascape, file = as.character(paste0(outfile,"_",c,"_pos_zscores_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   
   #negative zscores
-  u_inters <- distinct(noNAdat2 %>% filter(zscore <0) %>% dplyr::select(chr, st, end))
+  u_inters <- distinct(noNAdat2 %>% filter(zscore >0) %>% dplyr::select(chr, st, end))
   summary(u_inters)
   common_genes <- c()
   common_genes_metascape <- c()
   for(i in 1:nrow(u_inters)) {
     #i=1
     td <- u_inters[i,]
-    tgenes_df <- anno_df %>% filter(seqname == td$chr & td$st >= bin_start & td$st <= bin_end) %>% 
+    tgenes_df <- anno_df %>% filter(seqname == td$chr & bin_start == td$st | bin_end == td$st) %>% 
       filter(broad_class =="prot")
     common_genes <- append(common_genes,gsub("\\..*", "",tgenes_df$gene_id, perl=TRUE))
     common_genes_metascape <- append(common_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
