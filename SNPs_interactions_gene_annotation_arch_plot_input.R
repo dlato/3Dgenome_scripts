@@ -81,13 +81,15 @@ print("#read in files")
 ##options(scipen = 999)
 #Atype <- "1_vs_All"
 ##tissue_file <- "tissue_system_info.txt"
-#dat_file <- "VSMC_cis50Kb_filtered_inters_SNP_MAP4_overlapping_intearctions_for_circos.txt"
-#cells_file <- "cell_subset2.txt"
+##dat_file <- "VSMC_cis50Kb_filtered_inters_SNP_MAP4_overlapping_intearctions_for_circos.txt"
+#dat_file <- "CardioMyo_cis50Kb_filtered_inters_SNP_CFDP1_overlapping_intearctions_for_circos.txt"
+##cells_file <- "cell_subset2.txt"
+#cells_file <- "CardioMyo_cells.txt"
 ##germlayer_file <- "germlayer_info.txt"
 #bin_size <- 1000000
-#anno_file <- "hg38_p13_v32_annotation.txt"
+#anno_file <- "hg38_p13_v32_50Kb_bin_annotation.txt"
 #outfile <- "test_cell_list"
-#SNP_file <- "VSMC_diff_snps_final.ranking.withinfo.eqtl.Repeat.txt"
+##SNP_file <- "VSMC_diff_snps_final.ranking.withinfo.eqtl.Repeat.txt"
 #library(factoextra)#for PCA
 #library(harrypotter) #for colours
 
@@ -101,11 +103,17 @@ dat <- dat %>% filter(cell %in% cells_sub$V1)
 print("summary of ALL sig zscores per cell type")
 summary(dat)
 unique(dat$cell)
+  #read in annotation file
+  anno_df <- read.table(anno_file, header = TRUE)
+  summary(anno_df)
+  head(anno_df)
 
 print("# gene anno per cell")
 for (c in cells_sub$V1){
+  c = "Cardiac_mesoderm_cell_day05_Zhang"
   print(c)
   tdat <- dat %>% filter(cell == c) %>% na.omit()
+  summary(tdat)
   print("#counting each interaction twice (once for each chrom in interaction)")
   anchD <- tdat
   anchD$AllChr <- anchD$chrA
@@ -116,19 +124,18 @@ for (c in cells_sub$V1){
   tarD$AllSt <- tarD$st2
   tarD$AllEnd <- tarD$end2
   r_dat2 <- rbind(anchD,tarD)
+  summary(r_dat2)
   #remove NA interactions
   noNAdat <- r_dat2 %>% dplyr::select(cell, zscore, AllChr, AllSt, AllEnd)
   #filter interactions for ones that contain SNPs
   noNAdat2 <- as.data.frame(noNAdat)
   noNAdat2$AllSt <- as.numeric(as.character(noNAdat2$AllSt))
-  #read in annotation file
-  anno_df <- read.table(anno_file, header = TRUE)
-  summary(anno_df)
-  head(anno_df)
+  summary(noNAdat2)
+  head(noNAdat2)
   #filter annotation for common interactions
   colnames(noNAdat2) <- c("cell", "zscore","chr","st","end")
   #positive zscores
- if (max(noNAdat2$zscore >0)){ 
+ if (max(noNAdat2$zscore) >0){ 
   u_inters <- distinct(noNAdat2 %>% filter(zscore >0) %>% dplyr::select(chr, st, end))
   summary(u_inters)
   common_genes <- c()
@@ -148,7 +155,7 @@ for (c in cells_sub$V1){
   write.table(common_genes, file = as.character(paste0(outfile,"_",c,"_pos_zscores_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   write.table(common_genes_metascape, file = as.character(paste0(outfile,"_",c,"_pos_zscores_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 }#if positive zscores
- if (min(noNAdat2$zscore <0)){ 
+ if (min(noNAdat2$zscore) <0){ 
   #negative zscores
   u_inters <- distinct(noNAdat2 %>% filter(zscore <0) %>% dplyr::select(chr, st, end))
   summary(u_inters)
