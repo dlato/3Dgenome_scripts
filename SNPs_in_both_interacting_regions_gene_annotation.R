@@ -288,6 +288,7 @@ write.table(common_genes_metascape, file = as.character(paste0(outfile,"_neg_zsc
 
 print("# cell specific interactions")
 for (c in cells_sub$V1){
+  print(c)
   #filter per cell type
   tdat <- noNAdat2 %>% filter(cell == c) %>% na.omit()
   #positive z-scores
@@ -305,8 +306,8 @@ for (c in cells_sub$V1){
   } #for
   common_genes <- unique(common_genes)
   #common_genes
-  print("#### number of genes in common interactions")
-  length(common_genes)
+  print("#### number of genes in pos interactions")
+  print(length(common_genes))
   write.table(common_genes, file = as.character(paste0(outfile,"_",c,"_pos_zscore_common_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   write.table(common_genes_metascape, file = as.character(paste0(outfile,"_",c,"_pos_zscore_common_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   
@@ -325,8 +326,8 @@ for (c in cells_sub$V1){
   } #for
   common_genes <- unique(common_genes)
   #common_genes
-  print("#### number of genes in common interactions")
-  length(common_genes)
+  print("#### number of genes neg interactions")
+  print(length(common_genes))
   write.table(common_genes, file = as.character(paste0(outfile,"_",c,"_neg_zscore_common_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   write.table(common_genes_metascape, file = as.character(paste0(outfile,"_",c,"_neg_zscore_common_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   
