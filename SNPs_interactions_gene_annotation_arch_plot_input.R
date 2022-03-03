@@ -110,7 +110,7 @@ unique(dat$cell)
 
 print("# gene anno per cell")
 for (c in cells_sub$V1){
-  c = "Cardiac_mesoderm_cell_day05_Zhang"
+  #c = "Cardiac_mesoderm_cell_day05_Zhang"
   print(c)
   tdat <- dat %>% filter(cell == c) %>% na.omit()
   summary(tdat)
