@@ -253,7 +253,7 @@ common_genes_metascape <- c()
 for(i in 1:nrow(u_inters)) {
   #i=1
   td <- u_inters[i,]
-  tgenes_df <- anno_df %>% filter(seqname == td$chr & bin_start == td$st | bin_end == td$st) %>% 
+  tgenes_df <- anno_df %>% filter(seqname == td$chr & td$st >= bin_start & td$st <= bin_end) %>%
     filter(broad_class =="prot")
   common_genes <- append(common_genes,gsub("\\..*", "",tgenes_df$gene_id, perl=TRUE))
   common_genes_metascape <- append(common_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
@@ -273,7 +273,7 @@ common_genes_metascape <- c()
 for(i in 1:nrow(u_inters)) {
   #i=1
   td <- u_inters[i,]
-  tgenes_df <- anno_df %>% filter(seqname == td$chr & bin_start == td$st | bin_end == td$st) %>% 
+  tgenes_df <- anno_df %>% filter(seqname == td$chr & td$st >= bin_start & td$st <= bin_end) %>%
     filter(broad_class =="prot")
   common_genes <- append(common_genes,gsub("\\..*", "",tgenes_df$gene_id, perl=TRUE))
   common_genes_metascape <- append(common_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
