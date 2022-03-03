@@ -285,6 +285,53 @@ length(common_genes)
 write.table(common_genes, file = as.character(paste0(outfile,"_neg_zscore_common_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 write.table(common_genes_metascape, file = as.character(paste0(outfile,"_neg_zscore_common_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
+
+print("# cell specific interactions")
+for (c in cells_sub$V1){
+  #filter per cell type
+  tdat <- noNAdat2 %>% filter(cell == c) %>% na.omit()
+  #positive z-scores
+  u_inters <- distinct(tdat %>% filter(zscore >0) %>% select(chr, st, end))
+  summary(u_inters)
+  common_genes <- c()
+  common_genes_metascape <- c()
+  for(i in 1:nrow(u_inters)) {
+    #i=1
+    td <- u_inters[i,]
+    tgenes_df <- anno_df %>% filter(seqname == td$chr & bin_start == td$st | bin_end == td$st) %>% 
+      filter(broad_class =="prot")
+    common_genes <- append(common_genes,gsub("\\..*", "",tgenes_df$gene_id, perl=TRUE))
+    common_genes_metascape <- append(common_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
+  } #for
+  common_genes <- unique(common_genes)
+  #common_genes
+  print("#### number of genes in common interactions")
+  length(common_genes)
+  write.table(common_genes, file = as.character(paste0(outfile,"_",c,"_pos_zscore_common_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+  write.table(common_genes_metascape, file = as.character(paste0(outfile,"_",c,"_pos_zscore_common_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+  
+  #negative z-scores
+  u_inters <- distinct(tdat %>% filter(zscore <0) %>% select(chr, st, end))
+  summary(u_inters)
+  common_genes <- c()
+  common_genes_metascape <- c()
+  for(i in 1:nrow(u_inters)) {
+    #i=1
+    td <- u_inters[i,]
+    tgenes_df <- anno_df %>% filter(seqname == td$chr & bin_start == td$st | bin_end == td$st) %>% 
+      filter(broad_class =="prot")
+    common_genes <- append(common_genes,gsub("\\..*", "",tgenes_df$gene_id, perl=TRUE))
+    common_genes_metascape <- append(common_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
+  } #for
+  common_genes <- unique(common_genes)
+  #common_genes
+  print("#### number of genes in common interactions")
+  length(common_genes)
+  write.table(common_genes, file = as.character(paste0(outfile,"_",c,"_neg_zscore_common_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+  write.table(common_genes_metascape, file = as.character(paste0(outfile,"_",c,"_neg_zscore_common_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+  
+}
+
 ##########
 ## top 3000 genes in common interactions (roughly top 50 interactions)
 ## calculate the mean zscore per interaction (mean across all cells), then taking the top 79 interactions
