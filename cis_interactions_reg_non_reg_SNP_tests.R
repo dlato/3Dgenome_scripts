@@ -134,8 +134,6 @@ SNP_inters_count <- full_join(regSNPs_inters_count,nonRegSNPs_inters_count, by =
 SNP_inters_count <- gather(SNP_inters_count, key="SNP", value="numInters", 4:5)
 head(SNP_inters_count)
 
-#merge 
-
 #read SNP files
 regSNPs <- read.table(regSNPs_file, sep = "\t", header = T)
 head(regSNPs)
@@ -161,10 +159,34 @@ SNPs_count <- SNPs_count %>% mutate(ratio = reg/nonReg)
 head(SNPs_count)
 summary(SNPs_count)
 
-#combine ratio with interaction z-score and num of interactions
+#combine ratio with num of interactions
+colnames(SNP_inters_count) <- c("chr_b38","bin","cell","SNP","numInters")
+count_SNPs_inters <- merge(SNPs_count,SNP_inters_count, by = c("chr_b38","bin"))
+head(count_SNPs_inters)
+summary(count_SNPs_inters)
 
-
-
+#line plot of data
+p <- (ggplot(count_SNPs_inters, aes(x=numInters, y=ratio, fill = SNP, colour = SNP))
+       + geom_point()
+       + geom_smooth()
+       #+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1,hjust=-1,size=3,angle = 90)
+       #+ geom_text(stat='count', aes(label=after_stat(count)),hjust=-0.2,size=3,angle = 90)
+       #+ scale_x_upset(n_intersections = 90)
+       #+ scale_x_upset(order_by = "freq")
+       #+ scale_y_continuous(breaks = NULL, name = "", lim = c(0,30000))
+       + labs(x = "# of significant Cis-chromosomal interactions overlapping with SNPs",
+              y = "# of regulatory SNPs : # of non-regulatory SNPs",
+              title = "")
+)
+pdf(paste0(outprefix,"_line_pt_plot.pdf"), width = 14, height = 4)
+p
+dev.off()
+print("# pearson correlation test between # inters and # of SNPs ratio: non-reg interactions")
+tdat <- count_SNPs_inters %>% filter(SNP == "numNonRegInters")
+cor.test(tdat$numInters,tdat$ratio,method="pearson")
+print("# pearson correlation test between # inters and # of SNPs ratio: reg interactions")
+tdat <- count_SNPs_inters %>% filter(SNP == "numRegInters")
+cor.test(tdat$numInters,tdat$ratio,method="pearson")
 
 
 
