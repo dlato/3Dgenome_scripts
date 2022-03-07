@@ -101,6 +101,22 @@ tarD <- regSNPs_inters
 tarD$AllChr <- tarD$chrB
 tarD$AllSt <- tarD$st2
 tarD$AllEnd <- tarD$end2
+regSNPs_inters_bin <- rbind(anchD,tarD) %>% select(cell,AllChr,AllSt, zscore)
+#separating pos and neg zscores
+regSNPs_inters_bin_pos <- regSNPs_inters_bin %>%
+  group_by(AllChr,AllSt,cell) %>%
+  filter(zscore >0) %>%
+  summarise(mPosZscore = mean(zscore), .groups = "keep")
+head(regSNPs_inters_bin_pos)
+regSNPs_inters_bin_neg <- regSNPs_inters_bin %>%
+  group_by(AllChr,AllSt,cell) %>%
+  filter(zscore <0) %>%
+  summarise(mNegZscore = mean(zscore), .groups = "keep")
+head(regSNPs_inters_bin_neg)
+regSNPs_inters_bin_all <- merge(regSNPs_inters_bin_pos, regSNPs_inters_bin_neg, by = c("AllChr","AllSt","cell"))
+regSNPs_inters_bin_all$SNP <- rep("reg",nrow(regSNPs_inters_bin_all))
+head(regSNPs_inters_bin_all)
+
 regSNPs_inters_count <- rbind(anchD,tarD) %>% select(cell,AllChr,AllSt) %>%
                         group_by(AllChr,AllSt,cell) %>%
                         summarise(numRegInters = n(), .groups = "keep")
@@ -124,6 +140,27 @@ tarD <- nonRegSNPs_inters
 tarD$AllChr <- tarD$chrB
 tarD$AllSt <- tarD$st2
 tarD$AllEnd <- tarD$end2
+nonRegSNPs_inters_bin <- rbind(anchD,tarD) %>% select(cell,AllChr,AllSt, zscore)
+#separating pos and neg zscores
+nonRegSNPs_inters_bin_pos <- nonRegSNPs_inters_bin %>%
+  group_by(AllChr,AllSt,cell) %>%
+  filter(zscore >0) %>%
+  summarise(mPosZscore = mean(zscore), .groups = "keep")
+head(nonRegSNPs_inters_bin_pos)
+nonRegSNPs_inters_bin_neg <- nonRegSNPs_inters_bin %>%
+  group_by(AllChr,AllSt,cell) %>%
+  filter(zscore <0) %>%
+  summarise(mNegZscore = mean(zscore), .groups = "keep")
+head(nonRegSNPs_inters_bin_neg)
+nonRegSNPs_inters_bin_all <- merge(nonRegSNPs_inters_bin_pos, nonRegSNPs_inters_bin_neg, by = c("AllChr","AllSt","cell"))
+nonRegSNPs_inters_bin_all$SNP <- rep("nonReg",nrow(nonRegSNPs_inters_bin_all))
+head(nonRegSNPs_inters_bin_all)
+
+#merge reg and non-reg inters
+SNP_inters_bin <- rbind(regSNPs_inters_bin_all,nonRegSNPs_inters_bin_all)
+head(SNP_inters_bin)
+
+
 nonRegSNPs_inters_count <- rbind(anchD,tarD) %>% select(cell,AllChr,AllSt) %>%
   group_by(AllChr,AllSt,cell) %>%
   summarise(numNonRegInters = n(), .groups = "keep")
