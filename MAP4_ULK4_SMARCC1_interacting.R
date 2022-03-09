@@ -40,10 +40,13 @@ library(harrypotter)
 print("#read in files")
 CM_dat_file <- "CardioMyo_cis50Kb_SNPs_MERGED_overlapping_intearctions_for_circos.txt"
 VSMC_dat_file <- "VSMC_cis50Kb_SNPs_MERGED_overlapping_intearctions_for_circos.txt"
+outprefix <- "test_MAP_ULK_SMARC"
 
 #CM SNPs interactions
 dat <- read.table(CM_dat_file)
 colnames(dat) <- c("chrA","st1","end1","chrB","st2","end2","cell","zscore")
+#dat$chrA <- as.factor(dat$chrA)
+#dat$chrB <- as.factor(dat$chrB)
 head(dat)
 
 MAP_ULK <- dat %>% filter(chrA == "chr3") %>%
@@ -93,13 +96,34 @@ ULK_SMARCC <- dat %>% filter(chrA == "chr3") %>%
   filter(((st1 >= 47700000 & st1 <= 47800000) | (st2 >= 47700000 & st2 <= 47800000)) | ((end1 >= 47700000 & end1 <= 47800000) | (end2 >= 47700000 & end2 <= 47800000)))
 ULK_SMARCC %>% dplyr::select(cell) %>% group_by(cell) %>% summarise(n = n(), .groups = "keep")
 
+#MAP_ULK <- dat %>% filter(chrA == "chr3") %>%
+#  #MAP4 filter
+#  filter(((st1 >= 47850000 & st1 <= 48100000) | (st2 >= 47850000 & st2 <= 48100000)) | ((end1 >= 47850000 & end1 <= 48100000) | (end2 >= 47850000 & end2 <= 48100000))) %>%
+#  #ULK4 filter
+#  filter(((st1 >= 41700000 & st1 <= 42000000) | (st2 >= 41700000 & st2 <= 42000000)) | ((end1 >= 41700000 & end1 <= 42000000) | (end2 >= 41700000 & end2 <= 42000000)))
+#MAP_ULK %>% dplyr::select(cell) %>% group_by(cell) %>% summarise(n = n(), .groups = "keep")
+#
+#MAP_SMARCC <- dat %>% filter(chrA == "chr3") %>%
+#  #MAP4 filter
+#  filter(((st1 >= 47850000 & st1 <= 48100000) | (st2 >= 47850000 & st2 <= 48100000)) | ((end1 >= 47850000 & end1 <= 48100000) | (end2 >= 47850000 & end2 <= 48100000))) %>%
+#  #SMARCC1 filter
+#  filter(((st1 >= 47700000 & st1 <= 47800000) | (st2 >= 47700000 & st2 <= 47800000)) | ((end1 >= 47700000 & end1 <= 47800000) | (end2 >= 47700000 & end2 <= 47800000)))
+#MAP_SMARCC %>% dplyr::select(cell) %>% group_by(cell) %>% summarise(n = n(), .groups = "keep")
+#
+#ULK_SMARCC <- dat %>% filter(chrA == "chr3") %>%
+#  #ULK4 filter
+#  filter(((st1 >= 41700000 & st1 <= 42000000) | (st2 >= 41700000 & st2 <= 42000000)) | ((end1 >= 41700000 & end1 <= 42000000) | (end2 >= 41700000 & end2 <= 42000000)))%>%
+#  #SMARCC1 filter
+#  filter(((st1 >= 47700000 & st1 <= 47800000) | (st2 >= 47700000 & st2 <= 47800000)) | ((end1 >= 47700000 & end1 <= 47800000) | (end2 >= 47700000 & end2 <= 47800000)))
+#ULK_SMARCC %>% dplyr::select(cell) %>% group_by(cell) %>% summarise(n = n(), .groups = "keep")
+
 #combine all dfs into one df for arch plot
 MAP_ULK$cellnum <- rep(1,nrow(MAP_ULK))
 MAP_SMARCC$cellnum <- rep(2,nrow(MAP_SMARCC))
 ULK_SMARCC$cellnum <- rep(3,nrow(ULK_SMARCC))
 merged_df <- rbind(MAP_ULK,MAP_SMARCC,ULK_SMARCC)
-colnames(merged_df) <- c("chrom1","start1","end1","chrom2","start2","end2","cell","zscore","cellnum")
-merged_df$cell <- as.factor(merged_df$cell)
+colnames(merged_df) <- c("chr1","st1","end1","chr2","st2","end2","cell","zscore","cellnum")
+#merged_df$cell <- as.factor(merged_df$cell)
 summary(merged_df)
 
 #arch plot with Sushi package
@@ -176,26 +200,24 @@ chromstart = 0
 chromend = chrInf$size[which(chrInf$chrom == "chr3")]
 # plot each cell separately
 for (i in unique(merged_df$cell)){
-  i = "Cardiac_mesoderm_cell_day05_Zhang"
+  #i = "Cardiac_mesoderm_cell_day05_Zhang"
   print(i)
   #positive z-scores
-  celldf <- merged_df %>% filter(cell == i)
   tdf <- merged_df %>% filter(cell == i) %>% filter(zscore >0)
-  head(tdf)
-  summary(tdf)
   if (length(unique(tdf$cellnum))==1){
     #figure out the colour
     cn <- unique(tdf$cellnum)
     ccol <- ifelse(cn == 1, "blue",ifelse(cn == 2, "red","orange"))
-    pdf(paste0(outprefix,"_cis_archplot_",chrom,"_",i,"_positive_zscore.pdf"), width = 14, height = 8)
-    pbpe = plotBedpe(tdf,chrom,chromstart,chromend,
+    pdf(paste0(outprefix,"_cis_archplot_chr3_",i,"_positive_zscore.pdf"), width = 14, height = 8)
+    pbpe = plotBedpe(tdf,"chr3",chromstart,chromend,
                      #  ylim=c(-1,2),
+                     #color = ccol,
                      color = ccol,
                      heights = tdf$zscore,plottype="loops"
     )
     #plot(col = alpha(0.5))
     #x-axis
-    labelgenome(chrom, chromstart,chromend,n=6,scale="Mb")
+    labelgenome("chr3", chromstart,chromend,n=6,scale="Mb")
     #y-axis
     axis(side=2,las=2,tcl=.2, cex=2)
     #y-axis title
@@ -204,7 +226,7 @@ for (i in unique(merged_df$cell)){
     mtext(i,side=3,line=1,cex=2,font=2)
     dev.off()
   } else {
-    pdf(paste0(outprefix,"_cis_archplot_",chrom,"_",i,"_positive_zscore.pdf"), width = 14, height = 8)
+    pdf(paste0(outprefix,"_cis_archplot_chr3_",i,"_positive_zscore.pdf"), width = 14, height = 8)
     pbpe = plotBedpe(tdf,chrom,chromstart,chromend,
                      #  ylim=c(-1,2),
                      #color = "blue",
@@ -214,7 +236,7 @@ for (i in unique(merged_df$cell)){
     )
     #plot(col = alpha(0.5))
     #x-axis
-    labelgenome(chrom, chromstart,chromend,n=6,scale="Mb")
+    labelgenome("chr3", chromstart,chromend,n=6,scale="Mb")
     #y-axis
     axis(side=2,las=2,tcl=.2, cex=2)
     #y-axis title
@@ -226,45 +248,54 @@ for (i in unique(merged_df$cell)){
            col=SushiColors(3)(3),pch=19,bty='n',text.font=2)
     dev.off()
   } #ifelse
-  pdf(paste0(outprefix,"_cis_archplot_",chrom,"_",i,"_positive_zscore.pdf"), width = 14, height = 8)
-  pbpe = plotBedpe(tdf,chrom,chromstart,chromend,
-                   #  ylim=c(-1,2),
-                   #color = "blue",
-                   heights = tdf$zscore,plottype="loops",
-                                    colorby=tdf$cellnum,
-                                   colorbycol=SushiColors(length(unique(tdf$cellnum)))
-  )
-  #plot(col = alpha(0.5))
-  #x-axis
-  labelgenome(chrom, chromstart,chromend,n=6,scale="Mb")
-  #y-axis
-  axis(side=2,las=2,tcl=.2, cex=2)
-  #y-axis title
-  mtext("Z-score (+)",side=2,line=3,cex=1,font=2)
-  #title
-  mtext(i,side=3,line=1,cex=2,font=2)
-  dev.off()
-  # negative z-scores
-  tdf <- merged_df %>% filter(cell == i) %>% filter(zscore < 0)
-  summary(tdf)
-  pdf(paste0(outprefix,"_cis_archplot_",chrom,"_",i,"_negative_zscore.pdf"), width = 14, height = 8)
-  pbpe = plotBedpe(tdf,chrom,chromstart,chromend,
-                   flip = TRUE,
-                   #color = opaque("black"),
-                   heights = tdf$zscore,plottype="loops",
-                                    colorby=tdf$cellnum,
-                                    colorbycol=SushiColors(length(unique(tdf$cellnum)))
-  )
-  #x-axis
-  labelgenome(chrom, chromstart,chromend,n=6,scale="Mb",side=3)
-  #y-axis
-  axis(side=2,las=2,tcl=.2)
-  #y-axis title
-  mtext("Z-score (-)",side=2,line=3,cex=1,font=2)
-  #title
-  mtext(i,side=1,line=1,cex=2,font=2)
-  #legend
-  legend("topright",inset =0.01,legend=c("MAP44","HeLa","GM12878"),
-         col=SushiColors(3)(3),pch=19,bty='n',text.font=2)
-  dev.off()
+  #negative zscores
+  tdf <- merged_df %>% filter(cell == i) %>% filter(zscore <0)
+  if (length(unique(tdf$cellnum))==1){
+    #figure out the colour
+    cn <- unique(tdf$cellnum)
+    ccol <- ifelse(cn == 1, "blue",ifelse(cn == 2, "red","orange"))
+    pdf(paste0(outprefix,"_cis_archplot_chr3_",i,"_negative_zscore.pdf"), width = 14, height = 8)
+    pbpe = plotBedpe(tdf,"chr3",chromstart,chromend,
+                     #  ylim=c(-1,2),
+                     #color = ccol,
+                     flip = TRUE,
+                     color = ccol,
+                     heights = tdf$zscore,plottype="loops"
+    )
+    #plot(col = alpha(0.5))
+    #x-axis
+    labelgenome("chr3", chromstart,chromend,n=6,scale="Mb")
+    #y-axis
+    axis(side=2,las=2,tcl=.2, cex=2)
+    #y-axis title
+    mtext("Z-score (-)",side=2,line=3,cex=1,font=2)
+    #title
+    mtext(i,side=3,line=1,cex=2,font=2)
+    dev.off()
+  } else {
+    pdf(paste0(outprefix,"_cis_archplot_chr3_",i,"_negative_zscore.pdf"), width = 14, height = 8)
+    pbpe = plotBedpe(tdf,"chr3",chromstart,chromend,
+                     #  ylim=c(-1,2),
+                     #color = "blue",
+                     flip = TRUE,
+                     heights = tdf$zscore,plottype="loops",
+                     colorby=tdf$cellnum,
+                     colorbycol=SushiColors(length(unique(tdf$cellnum)))
+    )
+    #plot(col = alpha(0.5))
+    #x-axis
+    labelgenome("chr3", chromstart,chromend,n=6,scale="Mb")
+    #y-axis
+    axis(side=2,las=2,tcl=.2, cex=2)
+    #y-axis title
+    mtext("Z-score (-)",side=2,line=3,cex=1,font=2)
+    #title
+    mtext(i,side=3,line=1,cex=2,font=2)
+    #legend
+    legend("topright",inset =0.01,legend=c("MAP4 & ULK4","MAP4 & SMARCC1","ULK4 & SMARCC1"),
+           col=SushiColors(3)(3),pch=19,bty='n',text.font=2)
+    dev.off()
+  } #ifelse
 }
+
+print("# DONE")
