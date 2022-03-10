@@ -51,7 +51,10 @@ MAP_ULK <- dat %>% filter(chrA == "chr3") %>%
     #ULK4 in chrA bins
     ((st1 >= 41700000 & st1 < 42000000) | (end1 >= 41700000 & end1 <= 42000000))
            )
-MAP_ULK %>% dplyr::select(cell) %>% group_by(cell) %>% summarise(n = n(), .groups = "keep")
+print("# MAP4 ULK4 num inters pos")
+MAP_ULK %>% filter(zscore >0) %>% dplyr::select(cell) %>% group_by(cell) %>% summarise(n = n(), .groups = "keep")
+print("# MAP4 ULK4 num inters neg")
+MAP_ULK %>% filter(zscore <0) %>% dplyr::select(cell) %>% group_by(cell) %>% summarise(n = n(), .groups = "keep")
 
 MAP_SMARCC <- dat %>% filter(chrA == "chr3") %>%
   filter(
@@ -64,7 +67,10 @@ MAP_SMARCC <- dat %>% filter(chrA == "chr3") %>%
       #SMARCC1 in chrA bins
       ((st1 >= 47700000 & st1 < 47800000) | (end1 >= 47700000 & end1 <= 47800000))
   )
-MAP_SMARCC %>% dplyr::select(cell) %>% group_by(cell) %>% summarise(n = n(), .groups = "keep")
+print("# MAP4 SMARCC1 num inters pos")
+MAP_SMARCC %>% filter(zscore >0) %>% dplyr::select(cell) %>% group_by(cell) %>% summarise(n = n(), .groups = "keep")
+print("# MAP4 SMARCC1 num inters neg")
+MAP_SMARCC %>% filter(zscore <0) %>% dplyr::select(cell) %>% group_by(cell) %>% summarise(n = n(), .groups = "keep")
 
 ULK_SMARCC <- dat %>% filter(chrA == "chr3") %>%
   filter(
@@ -77,7 +83,10 @@ ULK_SMARCC <- dat %>% filter(chrA == "chr3") %>%
       #SMARCC1 in chrA bins
       ((st1 >= 47700000 & st1 < 47800000) | (end1 >= 47700000 & end1 <= 47800000))
   )
-ULK_SMARCC %>% dplyr::select(cell) %>% group_by(cell) %>% summarise(n = n(), .groups = "keep")
+print("# ULK4 SMARCC1 num inters pos")
+ULK_SMARCC %>% filter(zscore >0) %>% dplyr::select(cell) %>% group_by(cell) %>% summarise(n = n(), .groups = "keep")
+print("# ULK4 SMARCC1 num inters neg")
+ULK_SMARCC %>% filter(zscore <0) %>% dplyr::select(cell) %>% group_by(cell) %>% summarise(n = n(), .groups = "keep")
 
 #MAP_ULK <- dat %>% filter(chrA == "chr3") %>%
 #  #MAP4 filter
