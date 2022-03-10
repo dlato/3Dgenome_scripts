@@ -213,8 +213,8 @@ p <- (ggplot(count_SNPs_inters, aes(y=numInters, x=ratio, fill = SNP, colour = S
        #+ scale_x_upset(n_intersections = 90)
        #+ scale_x_upset(order_by = "freq")
        #+ scale_y_continuous(breaks = NULL, name = "", lim = c(0,30000))
-       + labs(x = "# of significant Cis-chromosomal interactions overlapping with SNPs",
-              y = "# of regulatory SNPs : # of non-regulatory SNPs",
+       + labs(y = "# of significant Cis-chromosomal interactions overlapping with SNPs",
+              x = "# of regulatory SNPs : # of non-regulatory SNPs",
               title = "")
 )
 pdf(paste0(outprefix,"_num_inters_line_pt_plot.pdf"), width = 14, height = 4)
