@@ -30,7 +30,6 @@ library(tidyr)
 library(forcats)
 library(dplyr)
 library(ggplot2)
-library(harrypotter, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
 #library(nortest, lib="/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1") #for normality test with large sample size
 #library(hexbin)
 library(ggforce)#for ridgeline
