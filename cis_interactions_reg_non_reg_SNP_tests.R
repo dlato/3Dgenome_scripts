@@ -35,8 +35,6 @@ library(ggplot2)
 library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 .libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
-library(ggVennDiagram)#for venn diagram
-library(ggupset) #for UpSet plot
 ##########
 
 #########################################################################
