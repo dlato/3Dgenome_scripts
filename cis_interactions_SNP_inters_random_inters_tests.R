@@ -7,8 +7,6 @@
 ######
 # arguments: reg SNPs filtered interactions file (tab separated, first 6 columns are a bed-like format, last few columns are other info)
 #            z-scores, 3Dflow output, ALL sig interactions (tab separated,)
-#            bin size (bp)
-#            output file prefix (character)
 #            cell order for graphs (file with name of cells as it matches the data frame, one cell per line)
 ########################################
 
@@ -17,9 +15,7 @@ options(scipen = 999)
 args <- commandArgs(trailingOnly = TRUE)
 regSNPs_intersfile <- args[1]
 all_intersfile <- args[2]
-bin_size <- args[5]
-outprefix <- args[6]
-cellsfile <- args[7]
+cellsfile <- args[3]
 
 ##########
 library(tidyr)
