@@ -224,11 +224,15 @@ dat %>%
 
 pz <- dat %>%
   filter(zscore > 0) %>%
+  #remove inters that hit the same bin (not shown in arch plot)
+  filter(st1 != st2) %>%
   dplyr::select(cell, zscore) %>%
   group_by(cell) %>%
   dplyr::summarise(posZscore = n())
 nz <- dat %>%
   filter(zscore < 0) %>%
+  #remove inters that hit the same bin (not shown in arch plot)
+  filter(st1 != st2) %>%
   dplyr::select(cell, zscore) %>%
   group_by(cell) %>%
   dplyr::summarise(negZscore = n())
