@@ -88,26 +88,6 @@ colnames(SNP_inters) <- c("chrA","st1","end1","chrB","st2","end2","cell","zscore
 SNP_inters <- SNP_inters %>% filter(cell %in% cells_sub$V1)
 SNP_inters <- SNP_inters %>% mutate(ID = paste0("A",chrA,".",st1,".",end1,".B",chrB,".",st2,".",end2))
 head(SNP_inters)
-
-
-#read in all inters 3Dflow output file
-ALL_inters <- read.table(all_intersfile, header = T, sep = "\t")
-#split ID col
-colnm <- c("chrA", "st1", "end1","chrB","st2","end2")
-ALL_inters$ID <- sub("B", "\\.B", as.character(ALL_inters$ID))
-ALL_inters <- ALL_inters %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
-#remove A and B from chrom names
-ALL_inters$chrA <- gsub("A", "", ALL_inters$chrA)
-ALL_inters$chrB <- gsub("B", "", ALL_inters$chrB)
-#wide to long
-ALL_inters <- ALL_inters %>% gather(key = "cell", value = "zscore", 8:ncol(ALL_inters))
-head(ALL_inters)
-
-#random interactions pool/universe
-inters_univ <- ALL_inters %>% filter(!ID %in% unique(SNP_inters$ID)) 
-head(inters_univ)
-
-
 #num inters per bin
 print("#counting each interaction twice (once for each chrom in interaction)")
 anchD <- SNP_inters
@@ -137,6 +117,67 @@ SNP_inters_count <- rbind(anchD,tarD) %>% select(cell,AllChr,AllSt) %>%
   group_by(AllChr,AllSt,cell) %>%
   summarise(numInters = n(), .groups = "keep")
 head(SNP_inters_count)
+
+#read in all inters 3Dflow output file
+ALL_inters <- read.table(all_intersfile, header = T, sep = "\t")
+#split ID col
+colnm <- c("chrA", "st1", "end1","chrB","st2","end2")
+ALL_inters$ID <- sub("B", "\\.B", as.character(ALL_inters$ID))
+ALL_inters <- ALL_inters %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
+#remove A and B from chrom names
+ALL_inters$chrA <- gsub("A", "", ALL_inters$chrA)
+ALL_inters$chrB <- gsub("B", "", ALL_inters$chrB)
+#wide to long
+ALL_inters <- ALL_inters %>% gather(key = "cell", value = "zscore", 8:ncol(ALL_inters))
+head(ALL_inters)
+
+#random interactions pool/universe
+inters_univ <- ALL_inters %>% filter(!ID %in% unique(SNP_inters$ID)) 
+head(inters_univ)
+
+#test between random inters and SNP inters
+for (c in cells_sub$V1){
+  c = "Cardiac_mesoderm_cell_day05_Zhang"
+  print(c)
+  #num inters in SNPs df
+  numInters <- SNP_inters %>% filter(cell == c) %>% nrow()
+  #SNPs info
+  tSNP_inters_count <- SNP_inters_count %>% filter(cell == c)
+  tSNP_inters_bin_all <- SNP_inters_bin_all %>% filter(cell == c)
+  head(tSNP_inters_bin_all)
+  
+  set.seed(369)
+  #get same num of inters from univ
+  rinters <- sample_n(inters_univ %>% filter(cell == c) %>% na.omit(), numInters)
+  #calculate values per bin for random inters
+  anchD <- rinters
+  anchD$AllChr <- anchD$chrA
+  anchD$AllSt <- anchD$st1
+  anchD$AllEnd <- anchD$end1
+  tarD <- rinters
+  tarD$AllChr <- tarD$chrB
+  tarD$AllSt <- tarD$st2
+  tarD$AllEnd <- tarD$end2
+  rinters_bin <- rbind(anchD,tarD) %>% select(cell,AllChr,AllSt, zscore)
+  #separating pos and neg zscores
+  rinters_bin_pos <- rinters_bin %>%
+    group_by(AllChr,AllSt,cell) %>%
+    filter(zscore >0) %>%
+    summarise(mPosZscore = mean(zscore), .groups = "keep")
+  rinters_bin_neg <- rinters_bin %>%
+    group_by(AllChr,AllSt,cell) %>%
+    filter(zscore <0) %>%
+    summarise(mNegZscore = mean(zscore), .groups = "keep")
+  rinters_bin_all <- merge(rinters_bin_pos, rinters_bin_neg, by = c("AllChr","AllSt","cell"))
+  rinters_count <- rbind(anchD,tarD) %>% select(cell,AllChr,AllSt) %>%
+    group_by(AllChr,AllSt,cell) %>%
+    summarise(numInters = n(), .groups = "keep")
+}
+
+
+
+
+
 
 #read SNP files
 regSNPs <- read.table(regSNPs_file, sep = "\t", header = T)
