@@ -168,21 +168,21 @@ for (i in 1:length(cells$V1)) {
   inter_list[[i]] =  tdat$ID
 }
 inter_list
-#plot venn diagram
-p1 <- (ggVennDiagram(inter_list,
-                    category.names = cells$V1,
-                    label_alpha = 0)
-       + scale_fill_distiller(palette = "Reds", direction = 1)
-       + scale_color_manual(values = rep("black", length(cells$V1)))
-       + labs(title = "Cis-chromosomal interactions overlapping with SNPs (significant)",
-              subtitle = paste("N=",length(unique(zdat$ID))),
-              fill = "# of Interactions")
-       #below so you can read the cell names
-       + scale_x_continuous(expand = expansion(mult = .2))
-)
-pdf(paste0(outprefix,"_vennDiagram_sig_Interactions.pdf"), width = 14, height = 4)
-p1
-dev.off()
+##plot venn diagram
+#p1 <- (ggVennDiagram(inter_list,
+#                    category.names = cells$V1,
+#                    label_alpha = 0)
+#       + scale_fill_distiller(palette = "Reds", direction = 1)
+#       + scale_color_manual(values = rep("black", length(cells$V1)))
+#       + labs(title = "Cis-chromosomal interactions overlapping with SNPs (significant)",
+#              subtitle = paste("N=",length(unique(zdat$ID))),
+#              fill = "# of Interactions")
+#       #below so you can read the cell names
+#       + scale_x_continuous(expand = expansion(mult = .2))
+#)
+#pdf(paste0(outprefix,"_vennDiagram_sig_Interactions.pdf"), width = 14, height = 4)
+#p1
+#dev.off()
 
 
 ###########
