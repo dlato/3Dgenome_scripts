@@ -63,11 +63,11 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 ##interaction data
-#regSNPs_intersfile <- "CardioMyo_cis50Kb_filtered_inters_SNP_CFDP1_overlapping_intearctions_for_circos.txt"
+#regSNPs_intersfile <- "VSMC_cis50Kb_SNPs_in_both_inter_regions_overlapping_intearctions_for_circos.txt"
 #all_intersfile <- "test_3Dflow_zscores_cis_noCrossValid2.txt"
 #bin_size <- 50000
 #outprefix <- "test_cis_SNP_blood_pressure"
-#cellsfile <- "cell_subset_CM.txt"
+#cellsfile <- "cell_subset2.txt"
 #library(harrypotter)
 #library(factoextra)
 #library(hexbin)
@@ -95,9 +95,6 @@ tarD$AllChr <- tarD$chrB
 tarD$AllSt <- tarD$st2
 tarD$AllEnd <- tarD$end2
 SNP_inters_bin <- rbind(anchD,tarD) %>% select(cell,AllChr,AllSt, zscore)
-print("TEST SUMMARY")
-summary(SNP_inters_bin)
-SNP_inters_bin %>% filter(cell == "OmniC_pooled_M_0d") %>% summary()
 
 #separating pos and neg zscores
 SNP_inters_bin_pos <- SNP_inters_bin %>%
@@ -110,7 +107,7 @@ SNP_inters_bin_neg <- SNP_inters_bin %>%
   filter(zscore <0) %>%
   summarise(mNegZscore = mean(zscore), .groups = "keep")
 head(SNP_inters_bin_neg)
-SNP_inters_bin_all <- merge(SNP_inters_bin_pos, SNP_inters_bin_neg, by = c("AllChr","AllSt","cell"))
+SNP_inters_bin_all <- full_join(SNP_inters_bin_pos, SNP_inters_bin_neg, by = c("AllChr","AllSt","cell"))
 head(SNP_inters_bin_all)
 
 SNP_inters_count <- rbind(anchD,tarD) %>% select(cell,AllChr,AllSt) %>%
@@ -136,13 +133,9 @@ inters_univ <- ALL_inters %>% filter(!ID %in% unique(SNP_inters$ID))
 head(inters_univ)
 
 
-print("TEST OmniC dat")
-SNP_inters_count %>% filter(cell == "OmniC_pooled_M_0d") %>% na.omit()
-SNP_inters_bin_all %>% filter(cell == "OmniC_pooled_M_0d") %>% na.omit()
-
 #test between random inters and SNP inters
 for (c in cells_sub$V1){
-  #c = "Cardiac_mesoderm_cell_day05_Zhang"
+  #c = "OmniC_pooled_M_0d"
   print("############")
   print(c)
   print("############")
@@ -174,7 +167,7 @@ for (c in cells_sub$V1){
     group_by(AllChr,AllSt,cell) %>%
     filter(zscore <0) %>%
     summarise(mNegZscore = mean(zscore), .groups = "keep")
-  rinters_bin_all <- merge(rinters_bin_pos, rinters_bin_neg, by = c("AllChr","AllSt","cell"))
+  rinters_bin_all <- full_join(rinters_bin_pos, rinters_bin_neg, by = c("AllChr","AllSt","cell"))
   rinters_count <- rbind(anchD,tarD) %>% select(cell,AllChr,AllSt) %>%
     group_by(AllChr,AllSt,cell) %>%
     summarise(numInters = n(), .groups = "keep")
