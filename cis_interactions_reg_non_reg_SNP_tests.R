@@ -152,7 +152,10 @@ nonRegSNPs_count <- nonRegSNPs %>% dplyr::select(chr_b38,start_b38,end_b38,bin) 
   dplyr::summarise(nonReg = n(), .groups = "keep")
 head(nonRegSNPs_count)
 #merge reg and non reg SNPs counts per bin
-SNPs_count <- merge(regSNPs_count,nonRegSNPs_count, by = c("chr_b38","bin"))
+SNPs_count <- full_join(regSNPs_count,nonRegSNPs_count, by = c("chr_b38","bin"))
+#add constant to reg and non-reg cols
+SNPs_count <- SNPs_count %>% mutate(reg = reg +1) %>% mutate(nonReg = nonReg +1) %>%
+              replace(is.na(.),1)
 #calculate ratio of reg:non-reg SNPs per bin
 SNPs_count <- SNPs_count %>% mutate(ratio = reg/nonReg)
 head(SNPs_count)
