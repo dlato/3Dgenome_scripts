@@ -95,6 +95,10 @@ tarD$AllChr <- tarD$chrB
 tarD$AllSt <- tarD$st2
 tarD$AllEnd <- tarD$end2
 SNP_inters_bin <- rbind(anchD,tarD) %>% select(cell,AllChr,AllSt, zscore)
+print("TEST SUMMARY")
+summary(SNP_inters_bin)
+SNP_inters_bin %>% filter(cell == "OmniC_pooled_M_0d") %>% summary()
+
 #separating pos and neg zscores
 SNP_inters_bin_pos <- SNP_inters_bin %>%
   group_by(AllChr,AllSt,cell) %>%
@@ -130,6 +134,11 @@ head(ALL_inters)
 #random interactions pool/universe
 inters_univ <- ALL_inters %>% filter(!ID %in% unique(SNP_inters$ID)) 
 head(inters_univ)
+
+
+print("TEST OmniC dat")
+SNP_inters_count %>% filter(cell == "OmniC_pooled_M_0d") %>% na.omit()
+SNP_inters_bin_all %>% filter(cell == "OmniC_pooled_M_0d") %>% na.omit()
 
 #test between random inters and SNP inters
 for (c in cells_sub$V1){
