@@ -151,7 +151,7 @@ for (c in cells_sub$V1){
   #get same num of inters from univ
   rinters <- sample_n(inters_univ %>% filter(cell == c) %>% na.omit(), numInters)
   print("#write random inters to df")
-  write.table(rinters, file = as.character(paste0(outfile,"_",c,"_random_intearctions_for_circos.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+  write.table(rinters %>% select(-ID), file = as.character(paste0(outfile,"_",c,"_random_intearctions_for_circos.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   #calculate values per bin for random inters
   anchD <- rinters
   anchD$AllChr <- anchD$chrA
