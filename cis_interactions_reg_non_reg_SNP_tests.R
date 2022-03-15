@@ -175,9 +175,8 @@ for (c in cells_sub$V1){
   print(c)
   print("##############")
   tdat <- count_SNPs_inters %>% filter(cell == c)
-  head(tdat)
   #line plot of data
-  p <- (ggplot(count_SNPs_inters, aes(y=numInters, x=ratio))
+  p <- (ggplot(tdat, aes(y=numInters, x=ratio))
         + geom_point(alpha=0.5)
         + geom_smooth(method = 'loess', formula = y ~ x)
         #+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1,hjust=-1,size=3,angle = 90)
@@ -215,7 +214,7 @@ for (c in cells_sub$V1){
   tdat <- count_SNPs_inters_zscore %>% filter(cell == c)
   head(tdat)
 #line plot of data
-p <- (ggplot(count_SNPs_inters_zscore, aes(y=zscore, x=ratio))
+p <- (ggplot(tdat, aes(y=zscore, x=ratio))
       + geom_point(alpha=0.5)
       + geom_smooth(method = 'loess', formula = y ~ x)
       + facet_grid(Zsign ~ ., scales = "free")
