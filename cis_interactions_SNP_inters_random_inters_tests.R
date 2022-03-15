@@ -8,6 +8,7 @@
 # arguments: reg SNPs filtered interactions file (tab separated, first 6 columns are a bed-like format, last few columns are other info)
 #            z-scores, 3Dflow output, ALL sig interactions (tab separated,)
 #            cell order for graphs (file with name of cells as it matches the data frame, one cell per line)
+#            out file prefix
 ########################################
 
 options(echo=F)
@@ -16,6 +17,7 @@ args <- commandArgs(trailingOnly = TRUE)
 regSNPs_intersfile <- args[1]
 all_intersfile <- args[2]
 cellsfile <- args[3]
+outfile <- args[4]
 
 ##########
 library(tidyr)
@@ -148,6 +150,8 @@ for (c in cells_sub$V1){
   set.seed(369)
   #get same num of inters from univ
   rinters <- sample_n(inters_univ %>% filter(cell == c) %>% na.omit(), numInters)
+  print("#write random inters to df")
+  write.table(rinters, file = as.character(paste0(outfile,"_",c,"_random_intearctions_for_circos.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   #calculate values per bin for random inters
   anchD <- rinters
   anchD$AllChr <- anchD$chrA
