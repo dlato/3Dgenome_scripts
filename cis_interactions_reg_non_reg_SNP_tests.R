@@ -190,7 +190,7 @@ for (c in cells_sub$V1){
                title = c)
   )
   pdf(paste0(outprefix,"_",c,"_num_inters_line_pt_plot.pdf"), width = 14, height = 4)
-  p
+  print(p)
   dev.off()
   print("# pearson correlation test between # inters and # of SNPs ratio")
   print(cor.test(count_SNPs_inters$ratio,count_SNPs_inters$numInters,method="pearson"))
@@ -229,7 +229,7 @@ p <- (ggplot(count_SNPs_inters_zscore, aes(y=zscore, x=ratio))
              title = c)
 )
 pdf(paste0(outprefix,"_",c,"_zscore_line_pt_plot.pdf"), width = 14, height = 4)
-p
+print(p)
 dev.off()
 print("# pearson correlation test between # inters and # of SNPs ratio POS zscores")
 tdat <- count_SNPs_inters_zscore %>% filter(Zsign == "mPosZscore")
