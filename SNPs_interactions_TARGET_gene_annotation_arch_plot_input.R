@@ -113,8 +113,8 @@ unique(dat$cell)
   SNP_df <- read.table(SNP_file, header = T, sep = "\t")
 head(SNP_df)
 #accounting for merged SNP files
-if ("logFC_comp" %in% colnames(SNP)){
-  SNP_df <- SNP %>% dplyr::select(chr_b38, start_b38,end_b38, logFC_comp)
+if ("logFC_comp" %in% colnames(SNP_df)){
+  SNP_df <- SNP_df %>% dplyr::select(chr_b38, start_b38,end_b38, logFC_comp)
 } else {
   SNP_df$logFC_comp.x <- as.numeric(as.character(SNP_df$logFC_comp.x))
   SNP_df$logFC_comp.y <- as.numeric(as.character(SNP_df$logFC_comp.y))
