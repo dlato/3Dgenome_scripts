@@ -168,24 +168,33 @@ head(count_SNPs_inters)
 summary(count_SNPs_inters)
 
 
-#line plot of data
-p <- (ggplot(count_SNPs_inters, aes(y=numInters, x=ratio))
-      + geom_point(alpha=0.5)
-      + geom_smooth(method = 'loess', formula = y ~ x)
-      #+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1,hjust=-1,size=3,angle = 90)
-      #+ geom_text(stat='count', aes(label=after_stat(count)),hjust=-0.2,size=3,angle = 90)
-      #+ scale_x_upset(n_intersections = 90)
-      #+ scale_x_upset(order_by = "freq")
-      #+ scale_y_continuous(breaks = NULL, name = "", lim = c(0,30000))
-      + labs(y = "# of significant Cis-chromosomal interactions overlapping with SNPs",
-             x = "# of regulatory SNPs : # of non-regulatory SNPs",
-             title = "")
-)
-pdf(paste0(outprefix,"_num_inters_line_pt_plot.pdf"), width = 14, height = 4)
-p
-dev.off()
-print("# pearson correlation test between # inters and # of SNPs ratio")
-cor.test(count_SNPs_inters$ratio,count_SNPs_inters$numInters,method="pearson")
+#plot and correlation per cell
+for (c in cells_sub$V1){
+  #c = "Primitive_cardiomyocyte_day15_Zhang"
+  print("##############")
+  print(c)
+  print("##############")
+  tdat <- count_SNPs_inters %>% filter(cell == c)
+  head(tdat)
+  #line plot of data
+  p <- (ggplot(count_SNPs_inters, aes(y=numInters, x=ratio))
+        + geom_point(alpha=0.5)
+        + geom_smooth(method = 'loess', formula = y ~ x)
+        #+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1,hjust=-1,size=3,angle = 90)
+        #+ geom_text(stat='count', aes(label=after_stat(count)),hjust=-0.2,size=3,angle = 90)
+        #+ scale_x_upset(n_intersections = 90)
+        #+ scale_x_upset(order_by = "freq")
+        #+ scale_y_continuous(breaks = NULL, name = "", lim = c(0,30000))
+        + labs(y = "# of cis-interactions",
+               x = "# of regulatory SNPs : # of non-regulatory SNPs",
+               title = c)
+  )
+  pdf(paste0(outprefix,"_",c,"_num_inters_line_pt_plot.pdf"), width = 14, height = 4)
+  p
+  dev.off()
+  print("# pearson correlation test between # inters and # of SNPs ratio")
+  print(cor.test(count_SNPs_inters$ratio,count_SNPs_inters$numInters,method="pearson"))
+}
 
 #combine ratio with mean zscore of interactions
 colnames(SNP_inters_bin_all) <- c("chr_b38","bin","cell","mPosZscore","mNegZscore")
@@ -197,6 +206,14 @@ count_SNPs_inters_zscore <- count_SNPs_inters_zscore %>%
 head(count_SNPs_inters_zscore)
 summary(count_SNPs_inters_zscore)
 
+#plot and correlation per cell
+for (c in cells_sub$V1){
+  #c = "Primitive_cardiomyocyte_day15_Zhang"
+  print("##############")
+  print(c)
+  print("##############")
+  tdat <- count_SNPs_inters_zscore %>% filter(cell == c)
+  head(tdat)
 #line plot of data
 p <- (ggplot(count_SNPs_inters_zscore, aes(y=zscore, x=ratio))
       + geom_point(alpha=0.5)
@@ -209,18 +226,18 @@ p <- (ggplot(count_SNPs_inters_zscore, aes(y=zscore, x=ratio))
       #+ scale_y_continuous(breaks = NULL, name = "", lim = c(0,30000))
       + labs(y = "z-score",
              x = "# of regulatory SNPs : # of non-regulatory SNPs",
-             title = "")
+             title = c)
 )
-pdf(paste0(outprefix,"_zscore_line_pt_plot.pdf"), width = 14, height = 4)
+pdf(paste0(outprefix,"_",c,"_zscore_line_pt_plot.pdf"), width = 14, height = 4)
 p
 dev.off()
 print("# pearson correlation test between # inters and # of SNPs ratio POS zscores")
 tdat <- count_SNPs_inters_zscore %>% filter(Zsign == "mPosZscore")
-cor.test(tdat$ratio,tdat$zscore,method="pearson")
+print(cor.test(tdat$ratio,tdat$zscore,method="pearson"))
 print("# pearson correlation test between # inters and # of SNPs ratio NEG zscores")
 tdat <- count_SNPs_inters_zscore %>% filter(Zsign == "mNegZscore")
-cor.test(tdat$ratio,tdat$zscore,method="pearson")
-
+print(cor.test(tdat$ratio,tdat$zscore,method="pearson"))
+}
 
 
 #regSNPs_inters <- read.table(regSNPs_intersfile, header = F)
