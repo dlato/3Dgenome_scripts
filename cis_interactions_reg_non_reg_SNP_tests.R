@@ -192,7 +192,7 @@ for (c in cells_sub$V1){
   print(p)
   dev.off()
   print("# pearson correlation test between # inters and # of SNPs ratio")
-  print(cor.test(count_SNPs_inters$ratio,count_SNPs_inters$numInters,method="pearson"))
+  print(cor.test(tdat$ratio,tdat$numInters,method="pearson"))
 }
 
 #combine ratio with mean zscore of interactions
@@ -231,10 +231,10 @@ pdf(paste0(outprefix,"_",c,"_zscore_line_pt_plot.pdf"), width = 14, height = 4)
 print(p)
 dev.off()
 print("# pearson correlation test between # inters and # of SNPs ratio POS zscores")
-tdat <- count_SNPs_inters_zscore %>% filter(Zsign == "mPosZscore")
+tdat <- tdat %>% filter(Zsign == "mPosZscore")
 print(cor.test(tdat$ratio,tdat$zscore,method="pearson"))
 print("# pearson correlation test between # inters and # of SNPs ratio NEG zscores")
-tdat <- count_SNPs_inters_zscore %>% filter(Zsign == "mNegZscore")
+tdat <- tdat %>% filter(Zsign == "mNegZscore")
 print(cor.test(tdat$ratio,tdat$zscore,method="pearson"))
 }
 
