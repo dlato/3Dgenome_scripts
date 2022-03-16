@@ -15,9 +15,10 @@ options(echo=F)
 options(scipen = 999)
 args <- commandArgs(trailingOnly = TRUE)
 regSNPs_intersfile <- args[1]
-all_intersfile <- args[2]
-cellsfile <- args[3]
-outfile <- args[4]
+nonRegSNPs_intersfile <- args[2]
+all_intersfile <- args[3]
+cellsfile <- args[4]
+outfile <- args[5]
 
 ##########
 library(tidyr)
@@ -64,58 +65,68 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-##interaction data
-#regSNPs_intersfile <- "VSMC_cis50Kb_SNPs_in_both_inter_regions_overlapping_intearctions_for_circos.txt"
-#all_intersfile <- "test_3Dflow_zscores_cis_noCrossValid2.txt"
-#bin_size <- 50000
-#outprefix <- "test_cis_SNP_blood_pressure"
-#cellsfile <- "cell_subset2.txt"
-#library(harrypotter)
-#library(factoextra)
-#library(hexbin)
-#library(ggVennDiagram)
-#library(ggupset)
+#interaction data
+regSNPs_intersfile <- "VSMC_cis50Kb_SNPs_in_both_inter_regions_overlapping_intearctions_for_circos.txt"
+nonRegSNPs_intersfile <- "nonRegSNPs_all_cells_cis50Kb_SNPs_MERGED_overlapping_intearctions_for_circos.txt"
+all_intersfile <- "test_3Dflow_zscores_cis_noCrossValid2.txt"
+bin_size <- 50000
+outprefix <- "test_cis_SNP_blood_pressure"
+cellsfile <- "cell_subset2.txt"
+library(harrypotter)
+library(factoextra)
+library(hexbin)
+library(ggVennDiagram)
+library(ggupset)
 
 cells_sub <- read.table(cellsfile)
 cells_sub
 
 #read inters files
-SNP_inters <- read.table(regSNPs_intersfile, header = F)
-colnames(SNP_inters) <- c("chrA","st1","end1","chrB","st2","end2","cell","zscore")
+regSNP_inters <- read.table(regSNPs_intersfile, header = F)
+colnames(regSNP_inters) <- c("chrA","st1","end1","chrB","st2","end2","cell","zscore")
 #filter by desired cells
-SNP_inters <- SNP_inters %>% filter(cell %in% cells_sub$V1)
-SNP_inters <- SNP_inters %>% mutate(ID = paste0("A",chrA,".",st1,".",end1,".B",chrB,".",st2,".",end2))
-head(SNP_inters)
+regSNP_inters <- regSNP_inters %>% filter(cell %in% cells_sub$V1)
+regSNP_inters <- regSNP_inters %>% mutate(ID = paste0("A",chrA,".",st1,".",end1,".B",chrB,".",st2,".",end2))
+head(regSNP_inters)
+#read non-reg inters files
+nonRegSNP_inters <- read.table(nonRegSNPs_intersfile, header = F)
+colnames(nonRegSNP_inters) <- c("chrA","st1","end1","chrB","st2","end2","cell","zscore")
+#filter by desired cells
+nonRegSNP_inters <- nonRegSNP_inters %>% filter(cell %in% cells_sub$V1)
+nonRegSNP_inters <- nonRegSNP_inters %>% mutate(ID = paste0("A",chrA,".",st1,".",end1,".B",chrB,".",st2,".",end2))
+head(nonRegSNP_inters)
+
+
 #num inters per bin
 print("#counting each interaction twice (once for each chrom in interaction)")
-anchD <- SNP_inters
+anchD <- regSNP_inters
 anchD$AllChr <- anchD$chrA
 anchD$AllSt <- anchD$st1
 anchD$AllEnd <- anchD$end1
-tarD <- SNP_inters
+tarD <- regSNP_inters
 tarD$AllChr <- tarD$chrB
 tarD$AllSt <- tarD$st2
 tarD$AllEnd <- tarD$end2
-SNP_inters_bin <- rbind(anchD,tarD) %>% select(cell,AllChr,AllSt, zscore)
+regSNP_inters_bin <- rbind(anchD,tarD) %>% select(cell,AllChr,AllSt, zscore)
 
 #separating pos and neg zscores
-SNP_inters_bin_pos <- SNP_inters_bin %>%
+regSNP_inters_bin_pos <- regSNP_inters_bin %>%
   group_by(AllChr,AllSt,cell) %>%
   filter(zscore >0) %>%
   summarise(mPosZscore = mean(zscore), .groups = "keep")
-head(SNP_inters_bin_pos)
-SNP_inters_bin_neg <- SNP_inters_bin %>%
+head(regSNP_inters_bin_pos)
+regSNP_inters_bin_neg <- SNP_inters_bin %>%
   group_by(AllChr,AllSt,cell) %>%
   filter(zscore <0) %>%
   summarise(mNegZscore = mean(zscore), .groups = "keep")
-head(SNP_inters_bin_neg)
-SNP_inters_bin_all <- full_join(SNP_inters_bin_pos, SNP_inters_bin_neg, by = c("AllChr","AllSt","cell"))
-head(SNP_inters_bin_all)
+head(regSNP_inters_bin_neg)
+regSNP_inters_bin_all <- full_join(regSNP_inters_bin_pos, regSNP_inters_bin_neg, by = c("AllChr","AllSt","cell"))
+head(regSNP_inters_bin_all)
 
-SNP_inters_count <- rbind(anchD,tarD) %>% select(cell,AllChr,AllSt) %>%
+regSNP_inters_count <- rbind(anchD,tarD) %>% select(cell,AllChr,AllSt) %>%
   group_by(AllChr,AllSt,cell) %>%
   summarise(numInters = n(), .groups = "keep")
-head(SNP_inters_count)
+head(regSNP_inters_count)
 
 #read in all inters 3Dflow output file
 ALL_inters <- read.table(all_intersfile, header = T, sep = "\t")
@@ -131,7 +142,10 @@ ALL_inters <- ALL_inters %>% gather(key = "cell", value = "zscore", 8:ncol(ALL_i
 head(ALL_inters)
 
 #random interactions pool/universe
-inters_univ <- ALL_inters %>% filter(!ID %in% unique(SNP_inters$ID)) 
+#filtered so it does not contain reg inters (anchor and target)
+inters_univ <- ALL_inters %>% filter(!ID %in% unique(regSNP_inters$ID)) %>%
+  #filtered so it does not contain non-reg inters (anchor and target)
+  filter(!ID %in% unique(nonRegSNP_inters$ID))
 head(inters_univ)
 
 
@@ -142,10 +156,10 @@ for (c in cells_sub$V1){
   print(c)
   print("############")
   #num inters in SNPs df
-  numInters <- SNP_inters %>% filter(cell == c) %>% nrow()
+  numInters <- regSNP_inters %>% filter(cell == c) %>% nrow()
   #SNPs info
-  tSNP_inters_count <- SNP_inters_count %>% filter(cell == c)
-  tSNP_inters_bin_all <- SNP_inters_bin_all %>% filter(cell == c)
+  tSNP_inters_count <- regSNP_inters_count %>% filter(cell == c)
+  tSNP_inters_bin_all <- regSNP_inters_bin_all %>% filter(cell == c)
   
   set.seed(369)
   #get same num of inters from univ
