@@ -233,9 +233,11 @@ dev.off()
 print("# pearson correlation test between # inters and # of SNPs ratio POS zscores")
 tdat <- tdat %>% filter(Zsign == "mPosZscore")
 print(cor.test(tdat$ratio,tdat$zscore,method="pearson"))
-print("# pearson correlation test between # inters and # of SNPs ratio NEG zscores")
 tdat <- tdat %>% filter(Zsign == "mNegZscore")
+if (nrow(tdat) != 0){
+print("# pearson correlation test between # inters and # of SNPs ratio NEG zscores")
 print(cor.test(tdat$ratio,tdat$zscore,method="pearson"))
+}#if
 }
 
 
