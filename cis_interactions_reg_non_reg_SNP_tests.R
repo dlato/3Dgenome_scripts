@@ -71,13 +71,14 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 print("#read in files")
 ##interaction data
-#regSNPs_intersfile <- "CardioMyo_cis50Kb_filtered_inters_SNP_CFDP1_overlapping_intearctions_for_circos.txt"
-#nonRegSNPs_intersfile <- "CardioMyo_cis50Kb_filtered_inters_SNP_MAP4_overlapping_intearctions_for_circos.txt"
+#regSNPs_intersfile <- "VSMC_cis50Kb_SNPs_MERGED_overlapping_intearctions_for_circos.txt"
+#nonRegSNPs_intersfile <- "nonRegSNPs_all_cells_cis50Kb_SNPs_MERGED_overlapping_intearctions_for_circos.txt"
 #regSNPs_file <- "VSMC_diff_snps_final.ranking.withinfo.eqtl.Repeat.txt"
 #nonRegSNPs_file <- "sentinel_snps_not_reg_for_HiC_all.txt"
 #bin_size <- 50000
 #outprefix <- "test_cis_SNP_blood_pressure"
-#cellsfile <- "cell_subset_CM.txt"
+##cellsfile <- "cell_subset_CM.txt"
+#cellsfile <- "cell_subset2.txt"
 #library(harrypotter)
 #library(factoextra)
 #library(hexbin)
@@ -208,6 +209,7 @@ summary(count_SNPs_inters_zscore)
 #plot and correlation per cell
 for (c in cells_sub$V1){
   #c = "Primitive_cardiomyocyte_day15_Zhang"
+  c = "OmniC_pooled_M_0d"
   print("##############")
   print(c)
   print("##############")
@@ -231,12 +233,12 @@ pdf(paste0(outprefix,"_",c,"_zscore_line_pt_plot.pdf"), width = 14, height = 4)
 print(p)
 dev.off()
 print("# pearson correlation test between # inters and # of SNPs ratio POS zscores")
-tdat <- tdat %>% filter(Zsign == "mPosZscore")
-print(cor.test(tdat$ratio,tdat$zscore,method="pearson"))
-tdat <- tdat %>% filter(Zsign == "mNegZscore")
+pdat <- tdat %>% filter(Zsign == "mPosZscore")
+print(cor.test(pdat$ratio,pdat$zscore,method="pearson"))
+ndat <- tdat %>% filter(Zsign == "mNegZscore")
 if (nrow(tdat) != 0){
 print("# pearson correlation test between # inters and # of SNPs ratio NEG zscores")
-print(cor.test(tdat$ratio,tdat$zscore,method="pearson"))
+print(cor.test(ndat$ratio,ndat$zscore,method="pearson"))
 }#if
 }
 
