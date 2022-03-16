@@ -209,7 +209,7 @@ summary(count_SNPs_inters_zscore)
 #plot and correlation per cell
 for (c in cells_sub$V1){
   #c = "Primitive_cardiomyocyte_day15_Zhang"
-  c = "OmniC_pooled_M_0d"
+  #c = "OmniC_pooled_M_0d"
   print("##############")
   print(c)
   print("##############")
