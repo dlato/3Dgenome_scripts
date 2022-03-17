@@ -25,9 +25,11 @@ nonRegSNPs_intersfile <- args[3]
 all_intersfile <- args[4]
 cellsfile <- args[5]
 outfile <- args[6]
-permnum <- args[7]
-bin_size <- args[8]
+permnum <- as.numeric(as.character(args[7]))
+bin_size <- as.numeric(as.character(args[8]))
 SNP_file <- args[9]
+print("# SNP_file")
+SNP_file
 
 ##########
 library(tidyr)
@@ -174,7 +176,7 @@ inters_univ <- ALL_inters %>% filter(!ID %in% unique(regSNP_inters$ID)) %>%
 head(inters_univ)
 bin_inters_univ <- unique(c(inters_univ$idA, inters_univ$idB))
 
-#list of bin involved in interactions
+print("#list of bin involved in interactions")
 testSNP_inters <- testSNP_inters %>% mutate(idA = paste0(chrA, ".", st1,".",end1)) %>%
   mutate(idB = paste0(chrB, ".", st2,".",end2))
 list_SNP_bins <- c()
