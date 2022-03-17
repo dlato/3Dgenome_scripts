@@ -12,6 +12,7 @@
 #            cell order for graphs (file with name of cells as it matches the data frame, one cell per line)
 #            out file prefix
 #            permnum
+#            bin size (bp)
 #            original file with SNP info (tsv) ONLY needed when the test inters is inters with at least one SNP
 ########################################
 
@@ -25,7 +26,8 @@ all_intersfile <- args[4]
 cellsfile <- args[5]
 outfile <- args[6]
 permnum <- args[7]
-SNP_file <- args[8]
+bin_size <- args[8]
+SNP_file <- args[9]
 
 ##########
 library(tidyr)
