@@ -73,21 +73,21 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-#interaction data
-testSNPs_intersfile <- "VSMC_cis50Kb_SNPs_in_both_inter_regions_overlapping_intearctions_for_circos.txt"
-regSNPs_intersfile <- "VSMC_cis50Kb_SNPs_in_both_inter_regions_overlapping_intearctions_for_circos.txt"
-nonRegSNPs_intersfile <- "nonRegSNPs_all_cells_cis50Kb_SNPs_MERGED_overlapping_intearctions_for_circos.txt"
-all_intersfile <- "test_3Dflow_zscores_cis_noCrossValid2.txt"
-bin_size <- 50000
-outprefix <- "test_cis_SNP_blood_pressure"
-cellsfile <- "cell_subset2.txt"
-permnum <- 50
-SNP_file <- "VSMC_diff_snps_final.ranking.withinfo.eqtl.Repeat.txt"
-library(harrypotter)
-library(factoextra)
-library(hexbin)
-library(ggVennDiagram)
-library(ggupset)
+##interaction data
+#testSNPs_intersfile <- "VSMC_cis50Kb_SNPs_in_both_inter_regions_overlapping_intearctions_for_circos.txt"
+#regSNPs_intersfile <- "VSMC_cis50Kb_SNPs_in_both_inter_regions_overlapping_intearctions_for_circos.txt"
+#nonRegSNPs_intersfile <- "nonRegSNPs_all_cells_cis50Kb_SNPs_MERGED_overlapping_intearctions_for_circos.txt"
+#all_intersfile <- "test_3Dflow_zscores_cis_noCrossValid2.txt"
+#bin_size <- 50000
+#outfile <- "test_cis_SNP_blood_pressure"
+#cellsfile <- "cell_subset2.txt"
+#permnum <- 50
+#SNP_file <- "VSMC_diff_snps_final.ranking.withinfo.eqtl.Repeat.txt"
+#library(harrypotter)
+#library(factoextra)
+#library(hexbin)
+#library(ggVennDiagram)
+#library(ggupset)
 
 cells_sub <- read.table(cellsfile)
 cells_sub
@@ -216,7 +216,7 @@ permdat_poszscore <- function(x,y,z) {
 permdat_negzscore <- function(x,y,z) {
   rbins <- sample(x,y, replace = F)
   rinters <- z %>% filter(cell == c) %>% filter(idA %in% rbins | idB %in% rbins) %>% na.omit() %>%
-    filter(zscore > 0)
+    filter(zscore < 0)
   mean(rinters$zscore)
 }
 permdat_numInters <- function(x,y,z) {
@@ -240,8 +240,13 @@ permdat_numInters <- function(x,y,z) {
 
 
 #test between random inters and SNP inters
+#df to save pvals
+perm_pvals <- data.frame(cell=character(),
+                          pval=integer(),
+                          testType=character(),
+                          stringsAsFactors=FALSE)
 for (c in cells_sub$V1){
-  c = "OmniC_pooled_M_0d"
+  #c = "OmniC_pooled_M_0d"
   print("############")
   print(c)
   print("############")
@@ -267,26 +272,35 @@ for (c in cells_sub$V1){
         + scale_x_continuous(expand = c(0, 0))
         + scale_y_continuous(expand = c(0, 0))
   )
-  pdf(paste0(outprefix,"_",c,"_histogram_positive_zscore.pdf"), width = 14, height = 4)
+  pdf(paste0(outfile,"_",c,"_histogram_positive_zscore.pdf"), width = 14, height = 4)
   print(p)
   dev.off()
+  # p-value for positive zscore
+  pospval <- ((hisdat_posZ %>% filter(posZ >= mean(tSNP_inters_bin_all$mPosZscore, na.rm = T)) %>% nrow())+1) / (permnum+1)
+  #add to table
+  tr <- c(c,pospval,"posZscore")
+  perm_pvals[nrow(perm_pvals) + 1, ] <- tr
   hisdat_negZ <- as.data.frame(replicate(permnum,permdat_negzscore(bin_inters_univ, numBins,inters_univ)))
-  colnames(hisdat_posZ) <- c("negZ")
-  p <- (ggplot(hisdat_posZ,aes(x=negZ))
+  colnames(hisdat_negZ) <- c("negZ")
+  p <- (ggplot(hisdat_negZ,aes(x=negZ))
         + geom_histogram()
-        + geom_vline(aes(xintercept = mean(tSNP_inters_bin_all$mPosZscore, na.rm = T)), colour = "blue")
+        + geom_vline(aes(xintercept = mean(tSNP_inters_bin_all$mNegZscore, na.rm = T)), colour = "blue")
         + labs(y = "Frequency",
                x = "Mean negative z-score per interaction",
                title = c)
         + scale_x_continuous(expand = c(0, 0))
         + scale_y_continuous(expand = c(0, 0))
   )
-  pdf(paste0(outprefix,"_",c,"_histogram_negative_zscore.pdf"), width = 14, height = 4)
+  pdf(paste0(outfile,"_",c,"_histogram_negative_zscore.pdf"), width = 14, height = 4)
   print(p)
   dev.off()
+  # p-value for negative zscore
+  negpval <- ((hisdat_negZ %>% filter(negZ <= mean(tSNP_inters_bin_all$mNegZscore, na.rm = T)) %>% nrow())+1) / (permnum+1)
+  #add to table
+  tr <- c(c,negpval,"negZscore")
+  perm_pvals[nrow(perm_pvals) + 1, ] <- tr
   hisdat_num <- as.data.frame(replicate(permnum,permdat_numInters(bin_inters_univ,numBins,inters_univ)))
   colnames(hisdat_num) <- c("numInters")
-  hisdat_num
   p <- (ggplot(hisdat_num,aes(x=numInters))
         + geom_histogram()
         + geom_vline(aes(xintercept = mean(tSNP_inters_count$numInters)), colour = "blue")
@@ -296,26 +310,19 @@ for (c in cells_sub$V1){
         + scale_x_continuous(expand = c(0, 0))
         + scale_y_continuous(expand = c(0, 0))
   )
-  pdf(paste0(outprefix,"_",c,"_histogram_num_inters.pdf"), width = 14, height = 4)
+  pdf(paste0(outfile,"_",c,"_histogram_num_inters.pdf"), width = 14, height = 4)
   print(p)
   dev.off()
-#  print("#Mann-Whitney Test between num inters of SNP inters and random inters")
-#  print(wilcox.test(tSNP_inters_count$numInters, rinters_count$numInters))
-#  print("summary: SNP inters")
-#  print(summary(tSNP_inters_count))
-#  print("summary: random inters")
-#  print(summary(rinters_count))
-#  
-#  print("summary: SNP inters zscore")
-#  print(summary(tSNP_inters_bin_all))
-#  print("summary: random inters zscore")
-#  print(summary(rinters_bin_all))
-#  print("#Mann-Whitney Test between POSITIVE z-score of SNP inters and random inters")
-#  print(wilcox.test(tSNP_inters_bin_all$mPosZscore, rinters_bin_all$mPosZscore))
-#  print("#Mann-Whitney Test between NEGATIVE z-score of SNP inters and random inters")
-#  print(wilcox.test(tSNP_inters_bin_all$mNegZscore, rinters_bin_all$mNegZscore))
+  # p-value for number of inters per bin
+  numpval <- ((hisdat_num %>% filter(numInters >= mean(tSNP_inters_count$numInters, na.rm = T)) %>% nrow())+1) / (permnum+1)
+  #add to table
+  tr <- c(c,numpval,"numInters")
+  perm_pvals[nrow(perm_pvals) + 1, ] <- tr
 }
+perm_pvals
 
+#write permutation pvalues to df
+write.table(perm_pvals, file = as.character(paste0(outfile,"_permutation_pvalues.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = T)
 
 
 
