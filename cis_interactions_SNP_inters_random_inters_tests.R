@@ -180,7 +180,7 @@ print("#list of bin involved in interactions")
 testSNP_inters <- testSNP_inters %>% mutate(idA = paste0(chrA, ".", st1,".",end1)) %>%
   mutate(idB = paste0(chrB, ".", st2,".",end2))
 list_SNP_bins <- c()
-if (exists("SNP_file")){ #at least one inter region has a SNP
+if (!is.na(SNP_file)){ #at least one inter region has a SNP
   #read in SNP info
   SNP <- read.table(SNP_file, header = TRUE,sep = "\t")
   #accounting for merged SNP files
