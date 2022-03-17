@@ -12,7 +12,7 @@
 #            cell order for graphs (file with name of cells as it matches the data frame, one cell per line)
 #            out file prefix
 #            permnum
-#            original file with SNP info (tsv) ONLY needed when the test inters is inters with SNPs in both interacting regions
+#            original file with SNP info (tsv) ONLY needed when the test inters is inters with at least one SNP
 ########################################
 
 options(echo=F)
