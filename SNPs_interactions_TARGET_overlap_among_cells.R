@@ -202,6 +202,33 @@ head(VSMC_target)
 #format table for UpSet plot
 merged_target <- rbind(CM_target,VSMC_target) %>% mutate(cell=factor(cell))
 head(merged_target)
+allcells <- c(CMcells$V1,VSMCcells$V1)
+#allcells <- c("H9hESC_day00_Zhang","Ventricular_cardiomyocyte_day80_Zhang","OmniC_pooled_V_21d")
+allcells
+inter_list <- vector("list", length(allcells))
+for (i in 1:length(allcells)) {
+  tcell <- allcells[i]
+  tdat <- merged_target %>% filter(cell == tcell) %>% dplyr::select(ID)
+  inter_list[[i]] =  tdat$ID
+}
+inter_list
+#plot venn diagram
+p1 <- (ggVennDiagram(inter_list,
+                    category.names = allcells,
+                    label_alpha = 0)
+       + scale_fill_distiller(palette = "Reds", direction = 1)
+       + scale_color_manual(values = rep("black", length(allcells)))
+       + labs(title = "Cis-chromosomal interactions overlapping with SNPs (significant)",
+              subtitle = paste("N=",length(unique(merged_target$ID))),
+              fill = "# of Interactions")
+       #below so you can read the cell names
+       + scale_x_continuous(expand = expansion(mult = .2))
+)
+pdf(paste0(outprefix,"_vennDiagram_sig_Interactions.pdf"), width = 14, height = 4)
+p1
+dev.off()
+
+
 ###########
 # UpSet plot (instead of venn diagram)
 ###########
