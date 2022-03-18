@@ -38,6 +38,7 @@ library(ggplot2)
 library(ggforce)#for ridgeline
 library(ggridges)#for ridgeline
 .libPaths("/hpf/largeprojects/pmaass/programs/Rlib/R.3.6.1")
+library(ggupset) #for UpSet plot
 ##########
 
 #########################################################################
@@ -87,7 +88,7 @@ print("#read in files")
 #library(ggVennDiagram)
 #library(ggupset)
 
-#read in CM SNP inters
+print("#read in CM SNP inters")
 CMSNP_inters <- read.table(CMSNPs_intersfile, header = F)
 colnames(CMSNP_inters) <- c("chrA","st1","end1","chrB","st2","end2","cell","zscore")
 CMcells <- read.table(CM_cells_file)
@@ -115,10 +116,12 @@ colnames(noNAdat2) <- c("cell", "zscore","chr","st","end")
 CMSNP_inters_bin <- noNAdat2 %>% mutate(ID = paste0(chr,".",st, ".",end))
 head(CMSNP_inters_bin)
 
-#read in VSMC SNP inters
-VSMCSNP_inters <- read.table(VSMCSNPs_intersfile, header = F)
+print("#read in VSMC SNP inters")
+VSMCSNPs_intersfile
+VSMCSNP_inters <- read.table(VSMCSNPs_intersfile, header = FALSE,sep="\t")
 colnames(VSMCSNP_inters) <- c("chrA","st1","end1","chrB","st2","end2","cell","zscore")
-VSMCcells <- read.table(VSMC_cells_file)
+print("read in cells")
+VSMCcells <- read.table(VSMC_cells_file, sep="\t")
 #filter for cells
 VSMCSNP_inters <- VSMCSNP_inters %>% filter(cell %in% VSMCcells$V1)
 print("#counting each interaction twice (once for each chrom in interaction)")
@@ -143,7 +146,7 @@ colnames(noNAdat2) <- c("cell", "zscore","chr","st","end")
 VSMCSNP_inters_bin <- noNAdat2 %>% mutate(ID = paste0(chr,".",st, ".",end))
 head(VSMCSNP_inters_bin)
 
-# read in SNP file
+print("# read in CM SNP file")
 CMSNP_df <- read.table(CMSNPs_file, header = T, sep = "\t")
 #accounting for merged SNP files
 if ("logFC_comp" %in% colnames(CMSNP_df)){
@@ -166,8 +169,9 @@ CMSNP_uniq <- CMSNP_df %>%
   dplyr::summarise(mlogFC = mean(abs(logFC)))
 head(CMSNP_uniq)
 
-# read in SNP file
-VSMCSNP_df <- read.table(VSMCSNPs_file, header = T, sep = "\t")
+print("# read in VSMC SNP file")
+VSMCSNPs_file
+VSMCSNP_df <- read.table(VSMCSNPs_file, header = TRUE, sep = "\t")
 #accounting for merged SNP files
 if ("logFC_comp" %in% colnames(VSMCSNP_df)){
   VSMCSNP_df <- VSMCSNP_df %>% dplyr::select(chr_b38, start_b38,end_b38, logFC_comp)
