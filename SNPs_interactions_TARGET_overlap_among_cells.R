@@ -224,7 +224,7 @@ p1 <- (ggVennDiagram(inter_list,
        #below so you can read the cell names
        + scale_x_continuous(expand = expansion(mult = .2))
 )
-pdf(paste0(outprefix,"_vennDiagram_sig_Interactions.pdf"), width = 14, height = 4)
+pdf(paste0(outprefix,"_vennDiagram_TARGET.pdf"), width = 14, height = 4)
 p1
 dev.off()
 
