@@ -57,8 +57,8 @@ head(z_df)
 summary(z_df)
 
 #write to files
-write.table(pv_df, file = as.character(paste0(outfile,"_zscore_pvalue_cutoff_",pval,".txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
-write.table(z_df, file = as.character(paste0(outfile,"_pvalues_pvalue_cutoff_",pval,".txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+write.table(pv_df, file = as.character(paste0(outfile,"_pvalues_pvalue_cutoff_",pval,".txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+write.table(z_df, file = as.character(paste0(outfile,"_zscore_pvalue_cutoff_",pval,".txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
 
 ##################
 print("DONE")
