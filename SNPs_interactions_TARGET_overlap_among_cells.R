@@ -1,16 +1,18 @@
 ########################################
-# all genes present in TARGET interactions
+# determine overlap of TARGET interactions
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com
 #            github: https://github.com/dlato
 ######
-# arguments: interactions for arch plots (in modified bed file format)
-#            cells to look for SNPs in (text file with each cell name on a different row)
-#            annotation file (from python script) (tsv)
-#            output file prefix
-#            SNP file (tsv with SNP location and info)
+# arguments: CM interactions for arch plots (in modified bed file format)
+#            VSCM interactions for arch plots (in modified bed file format)
+#            CM cells to look for overlap in (text file with each cell name on a different row)
+#            VSMC cells to look for overlap in (text file with each cell name on a different row)
+#            CM SNP file (tsv with SNP location and info)
+#            VSMC SNP file (tsv with SNP location and info)
 #            bin size (numeric, bp)
+#            output file prefix
 ########################################
 
 
@@ -21,14 +23,10 @@ CMSNPs_intersfile <- args[1]
 VSMCSNPs_intersfile <- args[2]
 CM_cells_file <- args[3]
 VSMC_cells_file <- args[4]
-cellsfile <- args[5]
-outfile <- args[6]
-permnum <- as.numeric(as.character(args[7]))
-bin_size <- as.numeric(as.character(args[8]))
-SNP_file <- args[9]
-print("# SNP_file")
-SNP_file
-
+CMSNPs_file <- args[5]
+VSMCSNPs_file <- args[6]
+bin_size <- as.numeric(as.character(args[7]))
+outprefix <- args[8]
 ##########
 library(tidyr)
 library(purrr)
@@ -75,24 +73,19 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
-#interaction data
-CMSNPs_intersfile <- "CardioMyo_cis50Kb_filtered_inters_SNP_CFDP1_overlapping_intearctions_for_circos.txt"
-VSMCSNPs_intersfile <- "VSMC_cis50Kb_filtered_inters_SNP_MAP4_overlapping_intearctions_for_circos.txt"
-CM_cells_file <- "cell_subset_CM.txt"
-VSMC_cells_file <- "cell_subset2.txt"
-
-nonRegSNPs_intersfile <- "nonRegSNPs_all_cells_cis50Kb_SNPs_MERGED_overlapping_intearctions_for_circos.txt"
-all_intersfile <- "test_3Dflow_zscores_cis_noCrossValid2.txt"
-bin_size <- 50000
-outfile <- "test_cis_SNP_blood_pressure"
-cellsfile <- "cell_subset2.txt"
-permnum <- 50
-SNP_file <- "VSMC_diff_snps_final.ranking.withinfo.eqtl.Repeat.txt"
-library(harrypotter)
-library(factoextra)
-library(hexbin)
-library(ggVennDiagram)
-library(ggupset)
+##interaction data
+#CMSNPs_intersfile <- "CardioMyo_cis50Kb_filtered_inters_SNP_CFDP1_overlapping_intearctions_for_circos.txt"
+#VSMCSNPs_intersfile <- "VSMC_cis50Kb_filtered_inters_SNP_MAP4_overlapping_intearctions_for_circos.txt"
+#CM_cells_file <- "cell_subset_CM.txt"
+#VSMC_cells_file <- "cell_subset2.txt"
+#CMSNPs_file <- "CM_diff_snps_final.ranking.withinfo.eqtl.Repeat.txt"
+#VSMCSNPs_file <- "VSMC_diff_snps_final.ranking.withinfo.eqtl.Repeat.txt"
+#bin_size <- 50000
+#library(harrypotter)
+#library(factoextra)
+#library(hexbin)
+#library(ggVennDiagram)
+#library(ggupset)
 
 #read in CM SNP inters
 CMSNP_inters <- read.table(CMSNPs_intersfile, header = F)
@@ -100,129 +93,144 @@ colnames(CMSNP_inters) <- c("chrA","st1","end1","chrB","st2","end2","cell","zsco
 CMcells <- read.table(CM_cells_file)
 #filter for cells
 CMSNP_inters <- CMSNP_inters %>% filter(cell %in% CMcells$V1)
+print("#counting each interaction twice (once for each chrom in interaction)")
+anchD <- CMSNP_inters
+anchD$AllChr <- anchD$chrA
+anchD$AllSt <- anchD$st1
+anchD$AllEnd <- anchD$end1
+tarD <- CMSNP_inters
+tarD$AllChr <- tarD$chrB
+tarD$AllSt <- tarD$st2
+tarD$AllEnd <- tarD$end2
+r_dat2 <- rbind(anchD,tarD)
+summary(r_dat2)
+#remove NA interactions
+noNAdat <- r_dat2 %>% dplyr::select(cell, zscore, AllChr, AllSt, AllEnd)
+#filter interactions for ones that contain SNPs
+noNAdat2 <- as.data.frame(noNAdat)
+noNAdat2$AllSt <- as.numeric(as.character(noNAdat2$AllSt))
+#filter annotation for common interactions
+colnames(noNAdat2) <- c("cell", "zscore","chr","st","end")
+#ID col for easier filtering
+CMSNP_inters_bin <- noNAdat2 %>% mutate(ID = paste0(chr,".",st, ".",end))
+head(CMSNP_inters_bin)
 
-
+#read in VSMC SNP inters
+VSMCSNP_inters <- read.table(VSMCSNPs_intersfile, header = F)
+colnames(VSMCSNP_inters) <- c("chrA","st1","end1","chrB","st2","end2","cell","zscore")
 VSMCcells <- read.table(VSMC_cells_file)
-
-
-#read in cells file
-cells_sub <- read.table(cells_file)
-head(cells_sub)
-
-dat <- read.table(dat_file, header = FALSE) 
-colnames(dat) <- c("chrA","st1","end1","chrB","st2","end2","cell","zscore")
-dat <- dat %>% filter(cell %in% cells_sub$V1)
-print("summary of ALL sig zscores per cell type")
-summary(dat)
-unique(dat$cell)
-  #read in annotation file
-  anno_df <- read.table(anno_file, header = TRUE)
-  summary(anno_df)
-  head(anno_df)
+#filter for cells
+VSMCSNP_inters <- VSMCSNP_inters %>% filter(cell %in% VSMCcells$V1)
+print("#counting each interaction twice (once for each chrom in interaction)")
+anchD <- VSMCSNP_inters
+anchD$AllChr <- anchD$chrA
+anchD$AllSt <- anchD$st1
+anchD$AllEnd <- anchD$end1
+tarD <- VSMCSNP_inters
+tarD$AllChr <- tarD$chrB
+tarD$AllSt <- tarD$st2
+tarD$AllEnd <- tarD$end2
+r_dat2 <- rbind(anchD,tarD)
+summary(r_dat2)
+#remove NA interactions
+noNAdat <- r_dat2 %>% dplyr::select(cell, zscore, AllChr, AllSt, AllEnd)
+#filter interactions for ones that contain SNPs
+noNAdat2 <- as.data.frame(noNAdat)
+noNAdat2$AllSt <- as.numeric(as.character(noNAdat2$AllSt))
+#filter annotation for common interactions
+colnames(noNAdat2) <- c("cell", "zscore","chr","st","end")
+#ID col for easier filtering
+VSMCSNP_inters_bin <- noNAdat2 %>% mutate(ID = paste0(chr,".",st, ".",end))
+head(VSMCSNP_inters_bin)
 
 # read in SNP file
-  SNP_df <- read.table(SNP_file, header = T, sep = "\t")
-head(SNP_df)
+CMSNP_df <- read.table(CMSNPs_file, header = T, sep = "\t")
 #accounting for merged SNP files
-if ("logFC_comp" %in% colnames(SNP_df)){
-  SNP_df <- SNP_df %>% dplyr::select(chr_b38, start_b38,end_b38, logFC_comp)
+if ("logFC_comp" %in% colnames(CMSNP_df)){
+  CMSNP_df <- CMSNP_df %>% dplyr::select(chr_b38, start_b38,end_b38, logFC_comp)
 } else {
-  SNP_df$logFC_comp.x <- as.numeric(as.character(SNP_df$logFC_comp.x))
-  SNP_df$logFC_comp.y <- as.numeric(as.character(SNP_df$logFC_comp.y))
-  SNP_df$logFC_comp <- mean(c(abs(SNP_df$logFC_comp.x),abs(SNP_df$logFC_comp.y)))
+  CMSNP_df$logFC_comp.x <- as.numeric(as.character(CMSNP_df$logFC_comp.x))
+  CMSNP_df$logFC_comp.y <- as.numeric(as.character(CMSNP_df$logFC_comp.y))
+  CMSNP_df$logFC_comp <- mean(c(abs(CMSNP_df$logFC_comp.x),abs(CMSNP_df$logFC_comp.y)))
 }#if else
-head(SNP_df)
 print("#bins that SNPs are in")
-SNP_df$bin <- plyr::round_any(SNP_df$start_b38, as.numeric(as.character(bin_size)), f = floor)
-colnames(SNP_df) <- c("AllChr","SNPstart","SNPend","logFC","AllSt")
-#print("#df for number of SNPs per bin")
-#num_SNPs <- SNP_df %>% dplyr::select(AllChr,AllSt) %>% group_by(AllChr,AllSt) %>% dplyr::summarise(numSNPs = n(), .groups = "keep") 
-#head(num_SNPs)
-SNP_ID_df <- SNP_df
-SNP_ID_df$ID <- format(SNP_ID_df$ID, scientific = FALSE)
-SNP_ID_df$ID <- paste0(SNP_ID_df$AllChr,".",format(SNP_ID_df$AllSt, scientific = FALSE),".",format(SNP_ID_df$AllSt + as.numeric(as.character(bin_size)),scientific = FALSE))
+CMSNP_df$bin <- plyr::round_any(CMSNP_df$start_b38, as.numeric(as.character(bin_size)), f = floor)
+colnames(CMSNP_df) <- c("AllChr","SNPstart","SNPend","logFC","AllSt")
+CMSNP_df$ID <- format(CMSNP_df$ID, scientific = FALSE)
+CMSNP_df$ID <- paste0(CMSNP_df$AllChr,".",format(CMSNP_df$AllSt, scientific = FALSE),".",format(CMSNP_df$AllSt + as.numeric(as.character(bin_size)),scientific = FALSE))
 #unique chroms containing SNPs
-uSNP_chrs<- unique(SNP_ID_df$AllChr)
-SNP_ID_df$ID <- gsub(" ","", SNP_ID_df$ID)
+CMSNP_df$ID <- gsub(" ","", CMSNP_df$ID)
 #decrease SNP list to just unique IDs, find mean of |logFC|
-SNP_uniq <- SNP_ID_df %>%
+CMSNP_uniq <- CMSNP_df %>%
   group_by(ID) %>%
   dplyr::summarise(mlogFC = mean(abs(logFC)))
-head(SNP_uniq)
+head(CMSNP_uniq)
 
-print("# gene anno per cell")
-for (c in cells_sub$V1){
-  #c = "Cardiac_mesoderm_cell_day05_Zhang"
-  print(c)
-  tdat <- dat %>% filter(cell == c) %>% na.omit()
-  summary(tdat)
-  print("#counting each interaction twice (once for each chrom in interaction)")
-  anchD <- tdat
-  anchD$AllChr <- anchD$chrA
-  anchD$AllSt <- anchD$st1
-  anchD$AllEnd <- anchD$end1
-  tarD <- tdat
-  tarD$AllChr <- tarD$chrB
-  tarD$AllSt <- tarD$st2
-  tarD$AllEnd <- tarD$end2
-  r_dat2 <- rbind(anchD,tarD)
-  summary(r_dat2)
-  #remove NA interactions
-  noNAdat <- r_dat2 %>% dplyr::select(cell, zscore, AllChr, AllSt, AllEnd)
-  #filter interactions for ones that contain SNPs
-  noNAdat2 <- as.data.frame(noNAdat)
-  noNAdat2$AllSt <- as.numeric(as.character(noNAdat2$AllSt))
-  #filter annotation for common interactions
-  colnames(noNAdat2) <- c("cell", "zscore","chr","st","end")
-  #ID col for easier filtering
-  noNAdat2 <- noNAdat2 %>% mutate(ID = paste0(chr,".",st, ".",end))
-  noNAdat2 <- noNAdat2 %>% filter(!ID %in% SNP_uniq$ID)
-  head(noNAdat2)
-  #positive zscores
- if (max(noNAdat2$zscore) >0){ 
-  u_inters <- distinct(noNAdat2 %>% filter(zscore >0) %>% dplyr::select(chr, st, end))
-  summary(u_inters)
-  common_genes <- c()
-  common_genes_metascape <- c()
-  for(i in 1:nrow(u_inters)) {
-    #i=1
-    td <- u_inters[i,]
-    tgenes_df <- anno_df %>% filter(seqname == td$chr & td$st >= bin_start & td$st <= bin_end) %>% 
-      filter(broad_class =="prot")
-    common_genes <- append(common_genes,gsub("\\..*", "",tgenes_df$gene_id, perl=TRUE))
-    common_genes_metascape <- append(common_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
-  } #for
-  common_genes <- unique(common_genes)
-  #common_genes
-  print("#### number of genes in pos zscore interactions")
-  print(length(common_genes))
-  write.table(common_genes, file = as.character(paste0(outfile,"_",c,"_pos_zscores_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-  write.table(common_genes_metascape, file = as.character(paste0(outfile,"_",c,"_pos_zscores_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-}#if positive zscores
- if (min(noNAdat2$zscore) <0){ 
-  #negative zscores
-  u_inters <- distinct(noNAdat2 %>% filter(zscore <0) %>% dplyr::select(chr, st, end))
-  summary(u_inters)
-  common_genes <- c()
-  common_genes_metascape <- c()
-  for(i in 1:nrow(u_inters)) {
-    #i=1
-    td <- u_inters[i,]
-    tgenes_df <- anno_df %>% filter(seqname == td$chr & td$st >= bin_start & td$st <= bin_end) %>% 
-      filter(broad_class =="prot")
-    common_genes <- append(common_genes,gsub("\\..*", "",tgenes_df$gene_id, perl=TRUE))
-    common_genes_metascape <- append(common_genes_metascape,gsub("\\..*", "",tgenes_df$gene_name, perl=TRUE))
-  } #for
-  common_genes <- unique(common_genes)
-  #common_genes
-  print("#### number of genes in neg zscore interactions")
-  print(length(common_genes))
-  write.table(common_genes, file = as.character(paste0(outfile,"_",c,"_neg_zscores_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-  write.table(common_genes_metascape, file = as.character(paste0(outfile,"_",c,"_neg_zscores_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-}#if negative zscores  
-}
+# read in SNP file
+VSMCSNP_df <- read.table(VSMCSNPs_file, header = T, sep = "\t")
+#accounting for merged SNP files
+if ("logFC_comp" %in% colnames(VSMCSNP_df)){
+  VSMCSNP_df <- VSMCSNP_df %>% dplyr::select(chr_b38, start_b38,end_b38, logFC_comp)
+} else {
+  VSMCSNP_df$logFC_comp.x <- as.numeric(as.character(VSMCSNP_df$logFC_comp.x))
+  VSMCSNP_df$logFC_comp.y <- as.numeric(as.character(VSMCSNP_df$logFC_comp.y))
+  VSMCSNP_df$logFC_comp <- mean(c(abs(VSMCSNP_df$logFC_comp.x),abs(VSMCSNP_df$logFC_comp.y)))
+}#if else
+print("#bins that SNPs are in")
+VSMCSNP_df$bin <- plyr::round_any(VSMCSNP_df$start_b38, as.numeric(as.character(bin_size)), f = floor)
+colnames(VSMCSNP_df) <- c("AllChr","SNPstart","SNPend","logFC","AllSt")
+VSMCSNP_df$ID <- format(VSMCSNP_df$ID, scientific = FALSE)
+VSMCSNP_df$ID <- paste0(VSMCSNP_df$AllChr,".",format(VSMCSNP_df$AllSt, scientific = FALSE),".",format(VSMCSNP_df$AllSt + as.numeric(as.character(bin_size)),scientific = FALSE))
+#unique chroms containing SNPs
+VSMCSNP_df$ID <- gsub(" ","", VSMCSNP_df$ID)
+#decrease SNP list to just unique IDs, find mean of |logFC|
+VSMCSNP_uniq <- VSMCSNP_df %>%
+  group_by(ID) %>%
+  dplyr::summarise(mlogFC = mean(abs(logFC)))
+head(VSMCSNP_uniq)
 
+#filter for just target inters
+CM_target <- CMSNP_inters_bin %>% filter(!ID %in% CMSNP_uniq$ID)
+head(CM_target)
+VSMC_target <- VSMCSNP_inters_bin %>% filter(!ID %in% VSMCSNP_uniq$ID)
+head(VSMC_target)
 
+#format table for UpSet plot
+merged_target <- rbind(CM_target,VSMC_target) %>% mutate(cell=factor(cell))
+head(merged_target)
+###########
+# UpSet plot (instead of venn diagram)
+###########
+#make tf dataframe with interaction and cell info
+tf_dat <- merged_target %>%
+  group_by(ID,cell) %>%
+  summarise(mZscore = mean(zscore), .groups = "keep") %>%
+  mutate(tf = (!is.na(mZscore))) %>%
+  dplyr::select(ID,cell, tf) %>%
+  spread(ID, tf)%>%
+  replace(is.na(.), FALSE)
+tidy_zdat <- tf_dat %>%
+  as_tibble(rownames = "cell") %>%
+  gather(ID, Member, -cell) %>%
+  filter(Member) %>%
+  select(- Member) %>%
+  group_by(ID) %>%
+  summarize(cell = list(cell))
+head(tidy_zdat)
+up <- (ggplot(tidy_zdat, aes(x=cell))
+       + geom_bar()
+       #+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1,hjust=-1,size=3,angle = 90)
+       + geom_text(stat='count', aes(label=after_stat(count)),hjust=-0.2,size=3,angle = 90)
+       #+ scale_x_upset(n_intersections = 90)
+       + scale_x_upset(order_by = "freq")
+       + scale_y_continuous(breaks = NULL, name = "", lim = c(0,150))
+       + labs(x = "",
+              y = "",
+              title = "# of Cis-chromosomal interaction targets")
+)
+pdf(paste0(outprefix,"_TARGET_UpSet_plot.pdf"), width = 14, height = 4)
+up
+dev.off()
 ##########
 print("DONE")
 #
