@@ -200,10 +200,10 @@ head(CM_target)
 VSMC_target <- VSMCSNP_inters_bin %>% filter(!ID %in% VSMCSNP_uniq$ID)
 head(VSMC_target)
 
-#format table for UpSet plot
+print("#format table for UpSet plot")
 merged_target <- rbind(CM_target,VSMC_target) %>% mutate(cell=factor(cell))
 head(merged_target)
-allcells <- c(CMcells$V1,VSMCcells$V1)
+allcells <- c(as.character(CMcells$V1),as.character(VSMCcells$V1))
 #allcells <- c("H9hESC_day00_Zhang","Ventricular_cardiomyocyte_day80_Zhang","OmniC_pooled_V_21d")
 allcells
 inter_list <- vector("list", length(allcells))
@@ -213,7 +213,7 @@ for (i in 1:length(allcells)) {
   inter_list[[i]] =  tdat$ID
 }
 inter_list
-#plot venn diagram
+print("#plot venn diagram")
 p1 <- (ggVennDiagram(inter_list,
                     category.names = allcells,
                     label_alpha = 0)
