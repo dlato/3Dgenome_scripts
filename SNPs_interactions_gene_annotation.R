@@ -286,9 +286,10 @@ anno_df <- read.table(anno_file, header = TRUE)
 summary(anno_df)
 head(anno_df)
 
-#filter annotation for common interactions
-colnames(noNAdat2) <- c("cell", "zscore","chr","st","end","sNPstart","SNPend")
-#positive z-scores
+print("#filter annotation for common interactions")
+colnames(noNAdat2) <- c("cell", "zscore","chr","st","end","sNPstart","SNPend","mlogFC")
+print("#positive z-scores")
+head(noNAdat2)
 u_inters <- distinct(noNAdat2 %>% filter(zscore >0) %>% select(chr, st, end))
 summary(u_inters)
 common_genes <- c()
