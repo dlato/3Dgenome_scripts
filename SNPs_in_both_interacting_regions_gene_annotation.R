@@ -315,6 +315,8 @@ for (c in cells_sub$V1){
   
   #negative z-scores
   u_inters <- distinct(tdat %>% filter(zscore <0) %>% select(chr, st, end))
+#dealing with no neg zscores
+  if (nrow(u_inters) !=0){
   summary(u_inters)
   common_genes <- c()
   common_genes_metascape <- c()
@@ -332,7 +334,7 @@ for (c in cells_sub$V1){
   print(length(common_genes))
   write.table(common_genes, file = as.character(paste0(outfile,"_",c,"_neg_zscore_common_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   write.table(common_genes_metascape, file = as.character(paste0(outfile,"_",c,"_neg_zscore_common_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-  
+  }#if no neg zscores
 }
 
 ##########
