@@ -312,7 +312,7 @@ write.table(common_genes_metascape, file = as.character(paste0(outfile,"_pos_zsc
 #negative z-scores
 u_inters <- distinct(noNAdat2 %>% filter(zscore <0) %>% select(chr, st, end))
 #dealing with no neg zscores
-if (nrow(u_inters)==0){
+if (nrow(u_inters)!=0){
 summary(u_inters)
 common_genes <- c()
 common_genes_metascape <- c()
