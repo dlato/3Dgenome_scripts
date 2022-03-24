@@ -288,7 +288,7 @@ colnames(noNAdat2) <- c("cell", "zscore","chr","st","end")
 
 print("# cell specific interactions")
 for (c in cells_sub$V1){
-  c = "Aorta"
+  #c = "Aorta"
   print(c)
   #filter per cell type
   tdat <- noNAdat2 %>% filter(cell == c) %>% na.omit()
