@@ -154,7 +154,7 @@ print("# add interactions to plot")
 #rcols <- scales::alpha(ifelse(sign(nuc1$st1-nuc1$end1)!=sign(nuc2$st2-nuc2$end2),"#f46d43","#66c2a5"),alpha=0.4)
 #rcols <- scales::alpha(ifelse(sign(nuc1$st1-nuc1$end1)!=sign(nuc2$st2-nuc2$end2),"black","red"))
 #circos.genomicLink(nuc1,nuc2,col=rcols,border=NA)
-circos.genomicLink(dfA,dfB,transparency = 0.3)
+circos.genomicLink(dfA,dfB,col = add_transparency("black", 0.8))
 dev.off()
 #################
 print("DONE")
