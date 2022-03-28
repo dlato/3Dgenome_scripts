@@ -68,11 +68,11 @@ summary(dat)
 #compute correlation matrix
 corr <- round(cor(na.omit(dat %>% dplyr::select(-ID))))
 corr
-write.table(corr, file = as.character(paste0(outfile,"_correlation_coef.txt")), sep = "\t", quote = FALSE, row.names = T, col.names = T)
+write.table(corr, file = as.character(paste0(outprefix,"_correlation_coef.txt")), sep = "\t", quote = FALSE, row.names = T, col.names = T)
 #compute matrix of cor pvals
 p.mat <- cor_pmat(dat %>% dplyr::select(-ID))
 p.mat
-write.table(p.mat, file = as.character(paste0(outfile,"_correlation_pvalues.txt")), sep = "\t", quote = FALSE, row.names = T, col.names = T)
+write.table(p.mat, file = as.character(paste0(outprefix,"_correlation_pvalues.txt")), sep = "\t", quote = FALSE, row.names = T, col.names = T)
 
 #plot correlation matrix
 p <- ggcorrplot(corr,
