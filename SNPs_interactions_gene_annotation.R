@@ -244,20 +244,20 @@ pc_dat <- odat %>%
 #add in the logFC info to the df with interactions
 pc_dat$mlogFC_A <- lfc$mlogFC[match(pc_dat$IDa, lfc$ID)]
 pc_dat$mlogFC_B <- lfc$mlogFC[match(pc_dat$IDb, lfc$ID)]
-print("# Pearson Correlation for zscore and logFC for anchor interaction")
-for (i in unique(pc_dat$cell)){
-  #i = "Lung"
-  print(i)
-  tdf <- pc_dat %>% filter(cell == i)
-  print(cor.test(tdf$zscore, tdf$mlogFC_A))
-}
-print("# Pearson Correlation for zscore and logFC for target interaction")
-for (i in unique(pc_dat$cell)){
-  #i = "Lung"
-  print(i)
-  tdf <- pc_dat %>% filter(cell == i)
-  print(cor.test(tdf$zscore, tdf$mlogFC_A))
-}
+#print("# Pearson Correlation for zscore and logFC for anchor interaction")
+#for (i in unique(pc_dat$cell)){
+#  #i = "Lung"
+#  print(i)
+#  tdf <- pc_dat %>% filter(cell == i)
+#  print(cor.test(tdf$zscore, tdf$mlogFC_A))
+#}
+#print("# Pearson Correlation for zscore and logFC for target interaction")
+#for (i in unique(pc_dat$cell)){
+#  #i = "Lung"
+#  print(i)
+#  tdf <- pc_dat %>% filter(cell == i)
+#  print(cor.test(tdf$zscore, tdf$mlogFC_A))
+#}
 
 
 print("#counting each interaction twice (once for each chrom in interaction)")
