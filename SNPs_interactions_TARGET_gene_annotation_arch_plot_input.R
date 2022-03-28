@@ -155,16 +155,18 @@ for (c in cells_sub$V1){
   tarD$AllSt <- tarD$st2
   tarD$AllEnd <- tarD$end2
   r_dat2 <- rbind(anchD,tarD)
-  summary(r_dat2)
-  #remove NA interactions
-  noNAdat <- r_dat2 %>% dplyr::select(cell, zscore, AllChr, AllSt, AllEnd)
-  #filter interactions for ones that contain SNPs
+  print(summary(r_dat2))
+  print("#remove NA interactions")
+  noNAdat <- r_dat2 %>% dplyr::select(cell, zscore, AllChr, AllSt, AllEnd) %>% na.omit()
+  # dealing with all NA df
+  if (nrow(noNAdat) != 0){
+  print("#filter interactions for ones that contain SNPs")
   noNAdat2 <- as.data.frame(noNAdat)
   noNAdat2$AllSt <- as.numeric(as.character(noNAdat2$AllSt))
-  #filter annotation for common interactions
   colnames(noNAdat2) <- c("cell", "zscore","chr","st","end")
-  #ID col for easier filtering
+  print("#ID col for easier filtering")
   noNAdat2 <- noNAdat2 %>% mutate(ID = paste0(chr,".",st, ".",end))
+  print("#filter for inters not in SNP list (only targets of inters)")
   noNAdat2 <- noNAdat2 %>% filter(!ID %in% SNP_uniq$ID)
   head(noNAdat2)
   #positive zscores
@@ -209,6 +211,7 @@ for (c in cells_sub$V1){
   write.table(common_genes, file = as.character(paste0(outfile,"_",c,"_neg_zscores_inters_GO_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   write.table(common_genes_metascape, file = as.character(paste0(outfile,"_",c,"_neg_zscores_inters_metascape_analysis_gene_list.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 }#if negative zscores  
+}#if whole df is not NA
 }
 
 
