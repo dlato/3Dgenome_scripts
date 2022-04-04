@@ -10,6 +10,7 @@
 #            cells to look for SNPs in (text file with each cell name on a different row)
 #            output file prefix
 #            SNP file (tsv)
+#	     bin size (bp)
 ########################################
 
 options(echo=F)
@@ -20,6 +21,7 @@ pdat_file <- args[2]
 cells_file <- args[3]
 outfile <- args[4]
 SNP_file <- args[5]
+bin_size <- as.numeric(as.character(args[6]))
 
 ##########
 library(tidyr)
