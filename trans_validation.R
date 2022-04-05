@@ -10,6 +10,7 @@
 #            second interacting region bed file (tab separated)
 #            type of analysis/plot title. (words must be separated by underscore "_")
 #            3Dflow pvalue output data (ALL INTERACTIONS)
+#            pvalue cutoff (numeric)
 # NOTE: at the moment only ONE interacting region can be searched at a time
 #       i.e. chrA:1-10 interacting with chrB:40-50
 ########################################
@@ -21,6 +22,7 @@ roi1_file <- args[2]
 roi2_file <- args[3]
 Atype <- args[4]
 pdat_file <- args[5]
+pval_in <- as.numeric(as.character(args[6]))
 
 ##########
 library(tidyr)
@@ -91,10 +93,10 @@ summary(pdat)
 zdatL <- gather(zdat, key = "cell", value = "zscore", 2:length(colnames(zdat)))
 pdatL <- gather(pdat, key = "cell", value = "pvalue", 2:length(colnames(pdat)))
 dat <- merge(zdatL, pdatL, by=c("ID","cell"))
-max_zscore <- dat %>% filter(pvalue <= 0.05) %>% select(zscore) %>% max()
-min_zscore <- dat %>% filter(pvalue <= 0.05) %>% select(zscore) %>% min()
+max_zscore <- dat %>% filter(pvalue <= pval_in) %>% select(zscore) %>% max()
+min_zscore <- dat %>% filter(pvalue <= pval_in) %>% select(zscore) %>% min()
 
-datsigW <- dat %>% filter(pvalue <=0.05) %>% select(-pvalue) %>% spread(key = cell, value = zscore)
+datsigW <- dat %>% filter(pvalue <= pval_in) %>% select(-pvalue) %>% spread(key = cell, value = zscore)
 print("summary of ALL sig zscores per cell type")
 summary(datsigW)
 #roi1
@@ -232,7 +234,7 @@ dev.off()
 #sig interactions
 print("cells/datasets that have interactions btwn validated chromosomes")
 chrs_df2 <- chrs_df_allInters
-chrs_df2$zscore[as.numeric(chrs_df2$pvalue)<=0.05]  <- NA 
+chrs_df2$zscore[as.numeric(chrs_df2$pvalue)<=pval_in]  <- NA 
 chrs_df <- chrs_df2 %>% select(-pvalue) %>% spread(key = cell, value = zscore)
 summary(chrs_df)
 allmisscols <- sapply(chrs_df, function(x) all(is.na(x) | x == '' ))
@@ -481,7 +483,7 @@ wilcox.test(zscore ~ validType, data=plot_d, na.rm=TRUE, paired=FALSE, exact=FAL
 ######
 print("#df with ALL sig interaction btwn validated chroms")
 chrs_df <- dat2[grep(chrs[1], dat2$ID), ]
-chrs_df$zscore[as.numeric(chrs_df$pvalue)<=0.05]  <- NA 
+chrs_df$zscore[as.numeric(chrs_df$pvalue)<=pval_in]  <- NA 
 chrs_df <- chrs_df[grep(chrs[2],chrs_df$ID),]
 chrs_df <- chrs_df %>% select(-pvalue) %>% spread(key = cell, value = zscore)
 summary(chrs_df)
@@ -505,12 +507,12 @@ print("# only plot our 6 test cell types")
 sixcells_all <- filter(dat2, cell == "Dorsolateral_prefrontal_cortex" | cell == "Small_bowel_Schmitt" |
                          cell == "Aorta" | cell == "Right_ventricle_Schmitt" | cell == "Cardiomyocites_primitive_rep1" |
                          cell == "H1hESC_Oksuz")
-sixcells_all$zscore[as.numeric(sixcells_all$pvalue)<=0.05]  <- NA 
+sixcells_all$zscore[as.numeric(sixcells_all$pvalue)<=pval_in]  <- NA 
 head(sixcells_all)
 sixcells_Vinter <- filter(Vinter, cell == "Dorsolateral_prefrontal_cortex" | cell == "Small_bowel_Schmitt" |
                             cell == "Aorta" | cell == "Right_ventricle_Schmitt" | cell == "Cardiomyocites_primitive_rep1" |
                             cell == "H1hESC_Oksuz")
-sixcells_Vinter$zscore[as.numeric(sixcells_Vinter$pvalue)<=0.05]  <- NA 
+sixcells_Vinter$zscore[as.numeric(sixcells_Vinter$pvalue)<=pval_in]  <- NA 
 
 head(sixcells_Vinter)
 sixcells_chr <- select(chrs_df,c("ID",
@@ -764,7 +766,7 @@ dev.off()
 ##############
 # heatmap along chromosome positions: SIG INTERACTIONS (only sig)
 ##############
-hm_dfsig <- hm_df %>% filter(pvalue <= 0.05)
+hm_dfsig <- hm_df %>% filter(pvalue <= pval_in)
 #hm <- (ggplot(testdf, aes(x=st1, y=st2, fill= zscore)) 
 hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= zscore)) 
        + geom_tile(width = 1, height = 1)
@@ -823,7 +825,7 @@ dev.off()
 print("##########")
 print("# linear highly interacting regions between valid chrom pair")
 #only sig inters btwn that valid chroms
-hir_df <- hm_df %>% filter(pvalue <= 0.05) #filter for sig interactions
+hir_df <- hm_df %>% filter(pvalue <= pval_in) #filter for sig interactions
 length(hir_df$zscore)
 aorta_df <- hir_df %>% filter(cell == "Aorta")
 #p <- (ggplot(aorta_df, aes(x=st1, y=zscore)) 
@@ -1458,7 +1460,7 @@ colnames(tp_A) <- c("chr","st","end","cell","zscore","pvalue")
 tp_B <- hm_df %>% select(chrB,st2,end2,cell,zscore,pvalue) 
 colnames(tp_B) <- c("chr","st","end","cell","zscore","pvalue")
 #select only sig inters
-tp_dat <- rbind(tp_A,tp_B) %>% filter(pvalue <=0.05)
+tp_dat <- rbind(tp_A,tp_B) %>% filter(pvalue <=pval_in)
 tp_dat_sum = tp_dat %>% group_by(chr,st,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
 tp_dat_sum$chr <- gsub("chr", "", tp_dat_sum$chr)
 #tp_dat_sum <- tp_dat_sum %>% mutate(chr=factor(chr, levels=p_chr_ord))
@@ -1551,7 +1553,7 @@ colnames(tp_A) <- c("chr","st","end","cell","zscore","pvalue")
 tp_B <- hm_df %>% select(chrB,st2,end2,cell,zscore,pvalue) 
 colnames(tp_B) <- c("chr","st","end","cell","zscore","pvalue")
 #select only sig inters
-tp_dat <- rbind(tp_A,tp_B) %>% filter(pvalue <=0.05)
+tp_dat <- rbind(tp_A,tp_B) %>% filter(pvalue <=pval_in)
 tp_dat_sum = tp_dat %>% group_by(chr,st,cell) %>% dplyr::summarize(numSig=n())
 tp_dat_sum$chr <- gsub("chr", "", tp_dat_sum$chr)
 tp_dat_sum
@@ -1806,7 +1808,7 @@ ucells <- unique(sig_pts$cell)
 ##############
 # heatmap along chromosome positions: SIG INTERACTIONS (only sig)
 ##############
-hm_dfsig <- hm_df %>% filter(pvalue <= 0.05)
+hm_dfsig <- hm_df %>% filter(pvalue <= pval_in)
 #hm <- (ggplot(testdf, aes(x=st1, y=st2, fill= zscore)) 
 hm <- (ggplot(hm_dfsig, aes(x=st1, y=st2, fill= zscore)) 
        + geom_tile(width = 1, height = 1)
