@@ -19,7 +19,7 @@ args <- commandArgs(trailingOnly = TRUE)
 zdat_file <- args[1]
 pdat_file <- args[2]
 cells_file <- args[3]
-outfile <- args[4]
+outprefix <- args[4]
 SNP_file <- args[5]
 bin_size <- as.numeric(as.character(args[6]))
 
@@ -244,7 +244,7 @@ selection <- as.logical( # 7
 odat <- unique(ldat[selection,] %>% dplyr::select(-ID)) %>% na.omit()
 head(odat)
 print("#write to df")
-write.table(odat, file = as.character(paste0(outfile,"_overlapping_intearctions_zscore_pvalue.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(odat, file = as.character(paste0(outprefix,"_overlapping_intearctions_zscore_pvalue.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
 #calculate distance between each interaction
 odat$st1 <- as.numeric(as.character(odat$st1))
