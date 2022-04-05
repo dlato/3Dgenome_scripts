@@ -9,6 +9,7 @@
 #            3Dflow p-value output data (tsv) ** make sure it is ALL pvalues! (not just sig)
 #            germlayer df (tsv)
 #            all interactions df (tsv)
+#            p-value cutoff (numeric)
 ########################################
 
 options(echo=F)
@@ -17,6 +18,7 @@ zdat_file <- args[1]
 pdat_file <- args[2]
 germlayer_file <- args[3]
 allinters_file <- args[4]
+pval_in <- args[5]
 #Atype <- args[4]
 
 ##########
@@ -106,7 +108,7 @@ head(allinters)
 #dat <- read.table(dat_file, header = TRUE)
 #dat <- as.data.frame(dat)
 print("summary of ALL sig zscores per cell type")
-summary(dat %>% filter(pvalue <= 0.05))
+summary(dat %>% filter(pvalue <= pval_in))
 ###
 # ALL zscores
 ###
@@ -125,7 +127,7 @@ ans
 ###
 # SIG zscores
 ###
-sigD <- dat %>% filter(pvalue <= 0.05)
+sigD <- dat %>% filter(pvalue <= pval_in)
 print("highest zscore info per cell: SIG zscores")
 # sorting the cell and zscore.
 sorted_dat <- sigD[order(sigD$cell, -sigD$zscore),]
@@ -141,7 +143,7 @@ ans
 ###
 # NON-SIG zscores
 ###
-sigD <- dat %>% filter(pvalue >= 0.05)
+sigD <- dat %>% filter(pvalue >= pval_in)
 print("highest zscore info per cell: NON-SIG zscores")
 # sorting the cell and zscore.
 sorted_dat <- sigD[order(sigD$cell, -sigD$zscore),]
@@ -192,7 +194,7 @@ dat2$chrB <- gsub("B", "", dat2$chrB)
 dat2$sig <- dat2$pvalue
 dat2 <- dat2 %>% mutate(
   sig = if_else(
-    pvalue >= 0.05, 
+    pvalue >= pval_in, 
     true      = "nonsig", 
     false     = "sig"
   )
@@ -334,7 +336,7 @@ chrInf
 
 #######################
 print ("# chrom with highest proportional number of sig inters")
-sig_DF <- dat2 %>% filter(pvalue <= 0.05)
+sig_DF <- dat2 %>% filter(pvalue <= pval_in)
 # mark each interaction twice
 chrA_df <- sig_DF %>% select(chrA, st1, end1, cell, zscore)
 colnames(chrA_df) <- c("chrom","start","end","cell","zscore")
@@ -431,7 +433,7 @@ dev.off()
 
 #######################
 print ("# chrom pair with highest proportional number of sig inters")
-sigprop <- dat2 %>% filter(pvalue <= 0.05)
+sigprop <- dat2 %>% filter(pvalue <= pval_in)
 sigprop$chrpair <- paste0(sigprop$chrA,sigprop$chrB)
 head(sigprop)
 #df with total number of sig interactions per chrom (observed)
@@ -481,7 +483,7 @@ meanprop[order(meanprop$mProp, decreasing = TRUE),]
 #for(i in ucells) {
 #  print(i)
 #  #testC <- "Aorta"
-#  circos_df <- dat2 %>% filter(cell == i) %>% filter(pvalue <= 0.05)
+#  circos_df <- dat2 %>% filter(cell == i) %>% filter(pvalue <= pval_in)
 #  circos_df <- circos_df %>% select(chrA, st1, end1, chrB, st2,end2)
 #  circos_df$chrA <- gsub("chr","",circos_df$chrA)
 #  circos_df$chrB <- gsub("chr","",circos_df$chrB)
@@ -671,7 +673,7 @@ dev.off()
 #print("sig = reject normality null")
 ##chrClass_dat$chrClass <- as.factor(chrClass_dat$chrClass)
 #sig_rdat <- r_dat3 %>%
-#  filter(pvalue <= 0.05) 
+#  filter(pvalue <= pval_in) 
 #sig_rdat %>%
 #  group_by(germL) %>%
 #  summarise(W = shapiro.test(zscore)$statistic,
@@ -688,7 +690,7 @@ dev.off()
 #print("sig = reject normality null")
 ##chrClass_dat$chrClass <- as.factor(chrClass_dat$chrClass)
 #sig_rdat <- r_dat3 %>%
-#  filter(pvalue >= 0.05) 
+#  filter(pvalue >= pval_in) 
 #sig_rdat %>%
 #  group_by(germL) %>%
 #  summarise(W = shapiro.test(zscore)$statistic,
@@ -1000,7 +1002,7 @@ colnames(tp_A) <- c("chr","st","end","cell","zscore","pvalue")
 tp_B <- r_dat %>% select(chrB,st2,end2,cell,zscore,pvalue) 
 colnames(tp_B) <- c("chr","st","end","cell","zscore","pvalue")
 #select only sig inters
-tp_dat <- rbind(tp_A,tp_B) %>% filter(pvalue <=0.05)
+tp_dat <- rbind(tp_A,tp_B) %>% filter(pvalue <=pval_in)
 tp_dat_sum = tp_dat %>% group_by(chr,st,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
 tp_dat_sum$chr <- gsub("chr", "", tp_dat_sum$chr)
 tp_dat_sum <- tp_dat_sum %>% mutate(chr=factor(chr, levels=p_chr_ord2))
@@ -1050,7 +1052,7 @@ colnames(tp_A) <- c("chr","st","end","cell","zscore","pvalue")
 tp_B <- r_dat %>% select(chrB,st2,end2,cell,zscore,pvalue) 
 colnames(tp_B) <- c("chr","st","end","cell","zscore","pvalue")
 #select only sig inters
-tp_dat <- rbind(tp_A,tp_B) %>% filter(pvalue <=0.05)
+tp_dat <- rbind(tp_A,tp_B) %>% filter(pvalue <=pval_in)
 tp_dat_sum = tp_dat %>% group_by(chr,st,cell) %>% dplyr::summarize(numSig=n())
 tp_dat_sum$chr <- gsub("chr", "", tp_dat_sum$chr)
 tp_dat_sum
