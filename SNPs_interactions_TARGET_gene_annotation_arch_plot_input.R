@@ -1,5 +1,5 @@
 ########################################
-# all genes present in TARGET interactions
+# all genes present in TARGET interactions (blood pressure)
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com

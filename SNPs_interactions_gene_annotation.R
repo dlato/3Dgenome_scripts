@@ -1,5 +1,5 @@
 ########################################
-# all genes present in common trans-chromosomal interactions
+# all genes present in common interactions with SNPs (blood pressure)
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com

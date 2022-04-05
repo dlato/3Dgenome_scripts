@@ -1,16 +1,11 @@
 ########################################
-#validating known trans-chromosomal interactions
+# trans common interactions karyotype plot
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com
 #            github: https://github.com/dlato
 ######
-# arguments: 3Dflow output data (tsv)
-#            germlayer df (tsv)
-#            all interactions file (tsv)
-#            tissue/system df (tsv)
-#            bin size (bp)
-#            full path and name of output file
+# arguments: bed-like file with location of common interaction bin (chrom, start, end) and the mean zscore for that bin (tsv)
 ########################################
 
 options(echo=F)

@@ -1,5 +1,5 @@
 ########################################
-# all genes present in interactions
+# all genes present in interactions (blood pressure)
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com

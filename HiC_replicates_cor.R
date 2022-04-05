@@ -1,5 +1,6 @@
 ########################################
 # correlation between replicates for HiC (raw normalized data from cooler)
+# used as justification for pooling replicates
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com

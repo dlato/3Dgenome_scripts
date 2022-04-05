@@ -1,14 +1,10 @@
 ########################################
-# circos plot of interactions
+# circos plot of interactions TEST SCRIPT NOT ACTUALLY RUN ON CLUSTER!!
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com
 #            github: https://github.com/dlato
 ######
-# arguments: 3Dflow z-score output data (tsv) ** make sure it is ALL zscores! (not just sig)
-#            3Dflow p-value output data (tsv) ** make sure it is ALL pvalues! (not just sig)
-#            germlayer df (tsv)
-#            all interactions df (tsv)
 ########################################
 
 options(echo=F)

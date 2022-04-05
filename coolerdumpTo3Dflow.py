@@ -1,17 +1,17 @@
 #!/usr/local/bin/python3
 #####################################
 # 
-# Program will convert a cooler dumped file (plain text version of cooler)  output to 3Dflow input
+# Program will convert a cooler dumped file (plain text version of cooler) to 3Dflow input format
 #
 # Developed by Daniella F. Lato 
 # email: daniellalato@gmail.com
 # GitHub: https://github.com/dlato
 #
-# to run: hicproTo3Dflow.py COOLER_DUMPED_FILE OUTPUT_PATH RESOLUTION
+# to run: coolerdumpTo3Dflow.py COOLER_DUMPED_FILE OUTPUT_PATH RESOLUTION
 # input:
 #         - cooler dumped tab separated file (full path and file name)
 #         - output path
-#         - resolution
+#         - resolution (bp, numeric)
 # output: two files:
 #         - trans.RESOLUTION_iced.sorted.txt
 #         - cis.RESOLUTION_iced.sorted.txt

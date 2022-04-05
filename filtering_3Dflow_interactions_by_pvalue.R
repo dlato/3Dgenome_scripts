@@ -7,7 +7,7 @@
 ######
 # arguments: 3Dflow z-score output data (tsv) ** make sure it is ALL zscores! (not just sig)
 #            3Dflow p-value output data (tsv) ** make sure it is ALL pvalues! (not just sig)
-#            new p-value cutoff 
+#            new p-value cutoff (numeric)
 #            outfile prefix (character) 
 ########################################
 

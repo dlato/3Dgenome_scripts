@@ -1,5 +1,5 @@
 ########################################
-# all genes present in common trans-chromosomal interactions
+# all genes present in common trans-chromosomal interactions (blood pressure project)
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com

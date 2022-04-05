@@ -1,8 +1,22 @@
 #!/usr/local/bin/python3
 #
-# Program will go through the genbank file and will obtain the locus
-# ID for each gene as well as the start and end positions
-# run as "get_gene_pos_locus.py *.gbk > *gene_locus_location"
+#####################################
+#
+# go through gff file and create a new column to re-code the classification of the gene to match the GENCODE classification (https://ftp.ebi.ac.uk/pub/databases/gencode/_README_stats.txt)
+# used for "annotation" of common interactions
+#
+# Developed by Daniella F. Lato
+# email: DaniellaLato@GMail.com
+# GitHub: https://github.com/dlato
+#
+# to run: cod_non_cod_anno_per_bin.py GFF_FILE BIN_SIZE OUTPUT_FILE_PATH_AND_NAME
+# input:
+#         - gff file
+#         - bin size (bp, numeric)
+#         - full path and file name for output annotation file
+#
+#####################################
+
 #
 import sys, re
 import pdb # FOR DEBUGGING ONLY import pdb

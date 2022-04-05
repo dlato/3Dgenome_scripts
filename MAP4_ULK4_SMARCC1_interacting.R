@@ -1,5 +1,6 @@
 ########################################
-#plotting cis interactions in arch plot format
+#plotting cis interactions in arch plot format for MAP4, SMARCC1, and ULK4 
+###### DID NOT USE FOR ANALYSIS ####### not working perfectly, colours are not consistant when one of the three genes are missing
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com

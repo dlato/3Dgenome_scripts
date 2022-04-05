@@ -1,5 +1,5 @@
 ########################################
-#looking at replicated in 3Dflow pipeline
+#Originally used to look replicates in 3Dflow pipeline. I think a simple correlation of the zscores or interaction frequencies would be better (seems like what others are doing).
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com

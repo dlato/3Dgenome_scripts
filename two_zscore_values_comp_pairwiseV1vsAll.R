@@ -1,4 +1,16 @@
+########################################
 # test zscore difference between 1vsAll and pairwise 3Dflow calculation
+######## THIS WAS DEVELOPED FOR AN OLD VERSION OF 3DFLOW!!! I recommend carefully looking this script over if you want to use it
+######
+# Developer: Daniella F. Lato
+#            email:  daniellalato@gmail.com
+#            github: https://github.com/dlato
+######
+# arguments: 3Dflow zscore output data (1vsAll)
+#            3Dflow zscore output data (pairwise)
+########################################
+
+
 
 options(echo=F)
 args <- commandArgs(trailingOnly = TRUE)

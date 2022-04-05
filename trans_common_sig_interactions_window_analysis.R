@@ -1,5 +1,6 @@
 ########################################
-#validating known trans-chromosomal interactions
+# determining common trans-chromosomal interactions within a window
+######### DOES NOT WORK! needs to be fixed to use less memory ##########
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com

@@ -3,12 +3,13 @@
 # 
 # Program will calculate mapped read coverage per chromosome
 # can be used to identifiy biological sex
+# FOR READS ALIGNED WITH HiC-Pro
 #
 # Developed by Daniella F. Lato 
 # email: DaniellaLato@GMail.com
 # GitHub: https://github.com/dlato
 #
-# to run: gonosome_ident.py READ_LENGTH CHROM_LENGTH_FILE NUMBER_OF_MAPPED_READS_FILE
+# to run: gonosome_ident.py READ_LENGTH CHROM_LENGTH_FILE NUMBER_OF_MAPPED_READS_FILE > OUTPUT_FILE
 # input:
 #         - sequencing read length (number)
 #         - chromosome sizes file (full path, tab separated: chromosome length)

@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3
 #####################################
 # 
-# obtain all possible trans interactions for the genome
+# obtain all possible cis interactions for the genome
 #
 # Developed by Daniella F. Lato 
 # email: DaniellaLato@GMail.com
@@ -9,7 +9,7 @@
 #
 # to run: all_cis_interactions.py BED_FILE MATRIX_FILE > OUTPUT_PATH
 # input:
-#         - bed file (full path)
+#         - bed file (full path, file created by Sergio)
 # standard output:
 #         - tab separated file with columns: chrA startA endA chrB startB endB
 #

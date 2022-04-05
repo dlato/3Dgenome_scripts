@@ -1,5 +1,5 @@
 ########################################
-# looking at close range (<20Kb) interactions to see where the are located
+# looking at close range (<20Kb) interactions to see where the are located (blood pressure project)
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com

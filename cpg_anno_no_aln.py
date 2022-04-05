@@ -9,15 +9,10 @@
 #
 # to run: cpg_anno.py CLUSTALW_ALN_FILE
 # input:
-#         - clustalW alignment file, reference sequence MUST be first!
-#         - chromosome sizes file (full path, tab separated: chromosome length)
-#         - *created with script* number of mapped reads per chromosome file (full path, chromosome on one line, corresponding number of mapped reads on next)
+#         - multi-fasta alignment file, reference sequence MUST be first!
+#         - name of reference sequence
 #         - name of output file (full path, string)
 #         - strand (options: "top" or "bottom"
-# out to file:
-#         - comma separated file with columns:
-#                 NUCLEOTIDE_INDEX	REFERENCE_SEQ	REFERENCE_METHYLATION	SAMPLE1_METHYLATION	SAMPLE2_METHYLATION	...
-#         one column per sequence in alignment (reference seq will always be the first column)
 #
 #####################################
 

@@ -11,7 +11,7 @@
 #            z-scores, 3Dflow output, ALL sig interactions (tab separated,)
 #            cell order for graphs (file with name of cells as it matches the data frame, one cell per line)
 #            out file prefix
-#            permnum
+#            number of permutations to perform (numeric)
 #            bin size (bp)
 #            original file with SNP info (tsv) ONLY needed when the test inters is inters with at least one SNP
 ########################################

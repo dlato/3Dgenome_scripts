@@ -1,5 +1,5 @@
 ########################################
-# determine overlap of TARGET interactions
+# determine overlap of TARGET interactions (blood pressure)
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com

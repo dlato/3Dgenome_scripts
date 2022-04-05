@@ -1,5 +1,5 @@
 ########################################
-#validating known trans-chromosomal interactions
+# permutation test to determine if trans interactions are different than a random set of interactions (blood pressure)
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com
@@ -11,7 +11,7 @@
 #            z-scores, 3Dflow output, ALL sig interactions (tab separated,)
 #            cell order for graphs (file with name of cells as it matches the data frame, one cell per line)
 #            out file prefix
-#            permnum
+#            number of permutations to be performed (numeric)
 #            bin size (bp)
 #            original file with SNP info (tsv) ONLY needed when the test inters is inters with at least one SNP
 ########################################

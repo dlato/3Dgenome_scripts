@@ -9,7 +9,7 @@
 #
 # to run: hicproTo3Dflow.py BED_FILE MATRIX_FILE > OUTPUT_PATH
 # input:
-#         - bed file (full path)
+#         - bed file (full path, file created by Sergio)
 # standard output:
 #         - tab separated file with columns: chrA startA endA chrB startB endB
 #

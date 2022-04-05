@@ -1,5 +1,5 @@
 ########################################
-# all genes present in common trans-chromosomal interactions
+# all genes in interactions (blood pressure)
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com
@@ -9,6 +9,7 @@
 #            cells to look for SNPs in (text file with each cell name on a different row)
 #            annotation file (from python script) (tsv)
 #            output file prefix
+#            SNP file
 #            bin size (numeric, bp)
 ########################################
 

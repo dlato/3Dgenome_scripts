@@ -1,5 +1,5 @@
 ########################################
-# all genes present in common trans-chromosomal interactions
+# genes in all interactions containing non-regulatory SNPs (blood pressure)
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com

@@ -1,11 +1,11 @@
 ########################################
-#validating known trans-chromosomal interactions
+# determining trans-chromosomal common interactions
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com
 #            github: https://github.com/dlato
 ######
-# arguments: 3Dflow output data (tsv)
+# arguments: 3Dflow output data (tsv, significant zscores)
 #            germlayer df (tsv)
 #            all interactions file (tsv)
 #            tissue/system df (tsv)

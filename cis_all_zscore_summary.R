@@ -1,5 +1,5 @@
 ########################################
-#summarizing all trans zscores
+#summarizing all cis zscores
 ######
 # Developer: Daniella F. Lato
 #            email:  daniellalato@gmail.com
@@ -7,10 +7,11 @@
 ######
 # arguments: 3Dflow z-score output data (tsv) ** make sure it is ALL zscores! (not just sig)
 #            3Dflow p-value output data (tsv) ** make sure it is ALL pvalues! (not just sig)
-#            germlayer df (tsv)
-#            all interactions df (tsv)
+#            germlayer df (tsv, two columns: one with the cell name as it appears in the 3Dflow output files, and the second is the associated germ layer for that cell)
+#            all interactions df (tsv, all possible cis interactions, created with another R script)
 ########################################
 
+#read in command line args
 options(echo=F)
 args <- commandArgs(trailingOnly = TRUE)
 zdat_file <- args[1]
@@ -71,6 +72,7 @@ theme_set(theme_bw() + theme(strip.background =element_rect(fill="#e7e5e2")) +
 
 
 print("#read in files")
+######### for testing only ###########
 ##interaction data
 #zdat_file <- "test_cis_zscore.txt"
 #pdat_file <- "test_cis_pvalues.txt"
@@ -79,10 +81,7 @@ print("#read in files")
 #gl_df <- read.table("germlayer_info.txt",sep = "\t", header = TRUE)
 #library(harrypotter)
 #library(gtools)
-##Atype <- "1_vs_All"
-##dat <- read.table("23Jul21.primary.trans.1MB.zscores.txt", header = TRUE)
-##dat <- read.table("23Jul21.primary.trans.1MB.zscores.pairwise.txt", header = TRUE)
-##dat <- read.table(dat_file, header = TRUE)
+####################
 zdat <- read.table(zdat_file, header = TRUE)
 pdat <- read.table(pdat_file, header = TRUE)
 print("reading all inters")
@@ -101,8 +100,6 @@ head(dat)
 allinters <- read.table(allinters_file, header = FALSE)
 colnames(allinters) <- c("chrA", "startA", "endA", "chrB", "startB", "endB")
 head(allinters)
-#dat <- read.table(dat_file, header = TRUE)
-#dat <- as.data.frame(dat)
 print("summary of ALL sig zscores per cell type")
 summary(dat %>% filter(pvalue <= 0.05))
 ###
@@ -163,13 +160,6 @@ gl_ord <- c("ectoderm", "mesoderm", "endoderm", "bipotent", "ectoderm/mesoderm")
 #darker shades
 gl_colours <- c("#071F36","#F2CB40","#ED2E07","#517A7B","#EA7E1F")
 
-#remove interactions involving x and y chrs
-#dat <- dat[grep("chrY", df$ID, invert=TRUE), ]
-#dat2 <- dat[grep("chrY", df$ID), ]
-#dat <- dat[grep("chrX", df$ID, invert=TRUE), ]
-
-#select only rows with NO NAs in any cell type
-#df <- na.omit(dat)
 df <-dat
 print("Total number of interactions in celltypes")
 percellD <- df %>% filter(cell == "Aorta")
@@ -474,7 +464,6 @@ r_dat3 <- r_dat3[order(r_dat3$germL),]
 gl_cell_ord <- unique(r_dat3$cell)
 gl_cell_ord
 r_dat3$cell <- factor(r_dat3$cell, levels=rev(gl_cell_ord))
-#r_dat2 <- r_dat2 %>% mutate(cell = factor(cell,levels=cell))
 levels(r_dat3$germL)
 levels(r_dat3$cell)
 head(r_dat3)

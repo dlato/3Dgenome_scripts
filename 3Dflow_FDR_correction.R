@@ -26,11 +26,13 @@ library(tidyr)
 
 
 print("#read in files")
+#for testing only ########
 ###interaction data
 ##zdat_file <- "test_1vsAll_dat.txt"
 #pdat_file <- "test_1vsAll_pvalues.txt"
 ##pval <- 0.01
 ##outfile <- "test_outfile_filtering"
+#########
 
 pdat <- read.table(pdat_file, header = TRUE)
 head(pdat)
@@ -40,7 +42,7 @@ pdat[,c] <- p.adjust(as.vector(pdat[,c]),"BH")
 }#for
 head(pdat)
 
-#write to files
+#write to file
 write.table(pdat, file = as.character(paste0(gsub(".txt","",pdat_file),"_FDR_correction.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
 ##################
 print("DONE")
