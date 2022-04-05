@@ -26,3 +26,4 @@ dfargs <- args[-1]
 l_dfs <- lapply(dfargs, read.table,header =TRUE)
 mdat <- reduce(l_dfs, full_join, by = "ID")
 write.table(mdat, file = args[[1]], sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+print("DONE")
