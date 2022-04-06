@@ -220,6 +220,7 @@ uSNP_chrs<- unique(SNP_ID_df$AllChr)
 ldat <- ldat %>% filter(chrA %in% uSNP_chrs | chrB %in% uSNP_chrs)
 head(ldat)
 SNP_ID_df$ID <- gsub(" ","", SNP_ID_df$ID)
+head(SNP_ID_df)
 #decrease SNP list to just unique IDs, find mean of |logFC|
 SNP_uniq <- SNP_ID_df %>%
   group_by(ID) %>%
