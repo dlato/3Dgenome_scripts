@@ -454,11 +454,16 @@ for (i in unique(cat_num_interType$broad_class)){
     filter(broad_class == i) %>%
     summarise(W = shapiro.test(n)$statistic,
               p.value = shapiro.test(n)$p.value))
+  td <- cat_num_interType %>% filter(broad_class==i)
+  if (length(unique(td$inter) == 2){
   print("#Perform Mann-Whitney test (non-normal)")
   print("sig = mean is diff btwn common and non-common are diff")
   print(cat_num_interType %>%
     filter(broad_class == i) %>%
     wilcox.test(n ~ inter, data = .))
+} else {
+print("cannot perform Mann-Whitney test because improper grouping variables")
+}#ifelse
 }#for
 #plot box plot
 p <- (ggplot(cat_num_interType, aes(x=broad_class, y=n,fill=factor(inter)) )
