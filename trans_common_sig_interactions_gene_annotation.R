@@ -455,7 +455,7 @@ for (i in unique(cat_num_interType$broad_class)){
     summarise(W = shapiro.test(n)$statistic,
               p.value = shapiro.test(n)$p.value))
   td <- cat_num_interType %>% filter(broad_class==i)
-  if (length(unique(td$inter) == 2){
+  if (length(unique(td$inter) == 2)){
   print("#Perform Mann-Whitney test (non-normal)")
   print("sig = mean is diff btwn common and non-common are diff")
   print(cat_num_interType %>%
