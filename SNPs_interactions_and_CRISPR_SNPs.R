@@ -7,7 +7,9 @@
 ######
 # arguments: supplemental table with significant z-scrore interactions (from 3Dflow output) and SNP rsIDs
 #            SNP rsID for SNP to be examined
-#            window size,, numeric, bp, (to look for interactions within this window around the SNP)
+#            window size, numeric, bp, (to look for interactions within this window around the SNP)
+#            gene list (from winiona)
+#            bin size used for Hi-C data (numeric, bp)
 ########################################
 
 options(echo=F)
@@ -15,7 +17,9 @@ options(scipen = 999)
 args <- commandArgs(trailingOnly = TRUE)
 dat_file <- args[1]
 SNP <- args[2]
-window_size <- args[3]
+window_size <- as.numeric(as.character(args[3]))
+genes <- args[4]
+bin_size <- as.numeric(as.character(args[5]))
 
 
 ##########
@@ -32,17 +36,15 @@ library(stringr)
 #########################################################################
 #########################################################################
 print("#read in files")
-###interaction data
-#options(scipen = 999)
-dat_file <- "supp_tab_SNP_ID_test.txt"
-SNP <- "rs11191568"
-window_size <- 1000000
-#germlayer_file <- "germlayer_info.txt"
-bin_size <- 1000000
-outfile <- "test_cell_list"
-SNP_file <- "VSMC_diff_snps_final.ranking.withinfo.eqtl.Repeat.txt"
-library(factoextra)#for PCA
-library(harrypotter) #for colours
+####interaction data
+##options(scipen = 999)
+#dat_file <- "supp_tab_SNP_ID_test.txt"
+##SNP <- "rs11191568"
+#SNP <- "rs3824754"
+#window_size <- 1000000
+#genes <- "nearby_rs3824754genes.txt"
+##germlayer_file <- "germlayer_info.txt"
+#bin_size <- 50000
 
 #read in interaction df
 dat <- read.table(dat_file, header = TRUE)
@@ -71,68 +73,82 @@ wl <- as.numeric(as.character(SNP_inter_bin$st1[1])) - window_size
 wr <- as.numeric(as.character(SNP_inter_bin$end1[1])) + window_size
 #get inters within Xbp window of SNP, both regions have to be within window
 SNP_inters_window <- SNP_inters %>% filter((st1 >= wl && st1 <= wr) && (st2 >= wl && st2 <= wr))
-SNP_inters_window
+SNP_inters_window$st1 <- as.numeric(as.character(SNP_inters_window$st1))
+SNP_inters_window$st2 <- as.numeric(as.character(SNP_inters_window$st2))
+SNP_inters_window$end1 <- as.numeric(as.character(SNP_inters_window$end1))
+SNP_inters_window$end2 <- as.numeric(as.character(SNP_inters_window$end2))
 
 #read in gene list file from winona
+genes_df <- read.table(genes, sep = "\t", header = T)
+#bin start and end that genes are in, NOTE: they often overlap multiple bins!
+genes_df$bin_st <- plyr::round_any(genes_df$start, bin_size, f = floor)
+genes_df$bin_end <- plyr::round_any(genes_df$end, bin_size, f = ceiling)
+head(genes_df)
 
-
-
-dat <- dat %>% mutate(IDa = paste0(chrA,".",st1,".",end1)) %>%
-  mutate(IDb = paste0(chrB,".",st2,".",end2)) %>%
-  select(-chrA, -st1, -end1,-chrB, -st2, -end2)
-head(dat)
-
-
-
-
-#read in cells to filter
-cells_sub <- read.table(cells_file)
-cells_sub
-#read in SNP info
-SNP <- read.table(SNP_file, header = TRUE,sep = "\t")
-#accounting for merged SNP files
-head(SNP)
-print("#bins that SNPs are in")
-SNP$bin <- plyr::round_any(SNP$start_b38, bin_size, f = floor)
-SNP_df <- SNP %>% select(snp_info,chr_b38,bin) %>%
-          mutate(b_end = bin + bin_size) %>%
-          mutate(ID = paste0(chr_b38,".",bin,".",b_end))# %>%
-          #select(-chr_b38,-bin,-b_end)
-#list all SNP IDs in one column
-SNP_df <- SNP_df %>% 
-  select(ID,snp_info) %>%
-  group_by(ID) %>% 
-  dplyr::mutate(SNP_rsIDs = paste0(snp_info, collapse = ",")) %>%
-  select(-snp_info) %>%
+#list all gene IDs in one column
+genes_id_start <- genes_df %>% 
+  select(bin_st,gene_id) %>%
+  group_by(bin_st) %>% 
+  dplyr::mutate(gene_id_st = paste0(gene_id, collapse = ",")) %>%
+  select(-gene_id) %>%
   unique()
-head(SNP_df)
-#read in interaction df
-dat <- read.table(dat_file, header = TRUE)
-print("summary of ALL sig zscores per cell type")
-summary(dat)
-print("#split ID col")
-colnm <- c("chrA", "st1", "end1","chrB","st2","end2")
-dat$ID <- sub("B", "\\.B", as.character(dat$ID))
-dat <- dat %>% separate(ID, sep = "\\.", into = colnm, remove = FALSE)
-print("#remove A and B from chrom names")
-dat$chrA <- gsub("A", "", dat$chrA)
-dat$chrB <- gsub("B", "", dat$chrB)
-dat <- dat %>% mutate(IDa = paste0(chrA,".",st1,".",end1)) %>%
-       mutate(IDb = paste0(chrB,".",st2,".",end2)) %>%
-       select(-chrA, -st1, -end1,-chrB, -st2, -end2)
-head(dat)
-#combine SNPs to interaction df
-colnames(SNP_df) <- c("IDa","SNP_rsID_A")
-datC <- full_join(dat, SNP_df, by="IDa")
-colnames(SNP_df) <- c("IDb","SNP_rsID_B")
-datC <- full_join(datC, SNP_df, by="IDb") %>% select(-IDa, -IDb)
-head(datC)
-#select only the cells we are interested in
-datt <- datC[,c(1,which(colnames(datC) %in% cells_sub$V1),ncol(datC)-1,ncol(datC))]
-head(datt)
-print("#write to df")
-write.table(datt, file = as.character(paste0(outfile,"_interactions_and_SNP_rsID.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = T)
+genes_id_end <- genes_df %>% 
+  select(bin_end,gene_id) %>%
+  group_by(bin_end) %>% 
+  dplyr::mutate(gene_id_end = paste0(gene_id, collapse = ",")) %>%
+  select(-gene_id) %>%
+  unique()
+ensembl_start <- genes_df %>% 
+  select(bin_st,ensembl) %>%
+  group_by(bin_st) %>% 
+  dplyr::mutate(ensembl_st = paste0(ensembl, collapse = ",")) %>%
+  select(-ensembl) %>%
+  unique()
+ensembl_end <- genes_df %>% 
+  select(bin_end,ensembl) %>%
+  group_by(bin_end) %>% 
+  dplyr::mutate(ensembl_end = paste0(ensembl, collapse = ",")) %>%
+  select(-ensembl) %>%
+  unique()
+#merge above dfs
+genes_comb_st <- full_join(genes_id_start, ensembl_start, by = "bin_st")
+genes_comb_end <- full_join(genes_id_end, ensembl_end, by = "bin_end")
+#add gene names to interactions df
+#add genes in anchor interaction (chrA)
+colnames(genes_comb_st) <- c("st1","gene_id_st1","ensembl_st1")
+SNP_inters_window <- full_join(SNP_inters_window, genes_comb_st, by = "st1")
+colnames(genes_comb_end) <- c("end1","gene_id_end1","ensembl_end1")
+SNP_inters_window <- full_join(SNP_inters_window, genes_comb_end, by = "end1")
+#add genes in anchor interaction (chrA)
+colnames(genes_comb_st) <- c("st2","gene_id_st2","ensembl_st2")
+SNP_inters_window <- full_join(SNP_inters_window, genes_comb_st, by = "st2")
+colnames(genes_comb_end) <- c("end2","gene_id_end2","ensembl_end2")
+SNP_inters_window <- full_join(SNP_inters_window, genes_comb_end, by = "end2")
+#combin redundant cols
+SNP_inters_window <- SNP_inters_window %>% mutate(gene_idA = paste0(gene_id_st1,",",gene_id_end1)) %>% select(-gene_id_st1,-gene_id_end1)
+SNP_inters_window <- SNP_inters_window %>% mutate(gene_idB = paste0(gene_id_st2,",",gene_id_end2)) %>% select(-gene_id_st2,-gene_id_end2)
+SNP_inters_window <- SNP_inters_window %>% mutate(ensemblA = paste0(ensembl_st1,",",ensembl_end1)) %>% select(-ensembl_st1,-ensembl_end1)
+SNP_inters_window <- SNP_inters_window %>% mutate(ensemblB = paste0(ensembl_st2,",",ensembl_end2)) %>% select(-ensembl_st2,-ensembl_end2)
+head(SNP_inters_window)
+tail(SNP_inters_window)
 
-##########
+#rank/order interactions based on zscore (highest to lowest)
+#write to file per cell type
+cells <- colnames(SNP_inters_window)
+cells <- cells[8:(ncol(SNP_inters_window)-6)]
+cells
+for (c in cells){
+  #c = "H9hESC_day00_Zhang"
+  nc <- ncol(SNP_inters_window)
+  #select only cell of interest col
+  tmpd <- SNP_inters_window[,c(1,which(colnames(SNP_inters_window) %in% c), nc-5, nc-4, nc-3,nc-2,nc-1,nc)]
+  #make cell col numeric
+  tmpd[,2] <- as.numeric(as.character(tmpd[,2]))
+  summary(tmpd)
+  tmpd <- tmpd[order(tmpd[,2], decreasing = TRUE),]
+  #write to file
+  ws <- window_size /1000000
+  write.table(tmpd, file = as.character(paste0(SNP,"_",ws,"Mb_window_",c,"_ranked_interactions_SNP_rsID_genes.txt")), sep = "\t", quote = FALSE, row.names = FALSE, col.names = T)
+}#for
 print("DONE")
 #
