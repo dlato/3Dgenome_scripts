@@ -1253,7 +1253,7 @@ hm_dat$chrPair <- paste0(hm_dat$chrA,hm_dat$chrB)
 head(hm_dat)
 #calculate mean zscore per chrom pair per cell type so heat map is accutate
 #hm_dat2 = hm_dat %>% filter(cell != "fake_cell") %>% group_by(chrPair,cell,sig) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
-hm_dat2 = hm_dat %>% filter(cell != "fake_cell") %>% group_by(chrPair,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+hm_dat2 = hm_dat %>% filter(cell != "fake_cell") %>% group_by(chrPair,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE), .groups = "keep")
 hm_dat2$chrPair <- gsub("chr", "\\.chr", hm_dat2$chrPair)
 coln <- c("tmp","chrA", "chrB")
 hm_dat2 <- hm_dat2 %>% separate(chrPair, sep = "\\.", into = coln, remove = FALSE) %>% select(-tmp)
@@ -1289,46 +1289,46 @@ hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
 pdf("zscore_chrom_pair_mean_heatmap_AllInteractions.pdf", width = 14, height = 8)
 hm
 dev.off()
-#########
-# test one cell heat map
 ##########
-hm_dat2 = hm_dat %>% filter(cell == "Aorta") %>% group_by(chrPair) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
-hm_dat2$chrPair <- gsub("chr", "\\.chr", hm_dat2$chrPair)
-coln <- c("tmp","chrA", "chrB")
-hm_dat2 <- hm_dat2 %>% separate(chrPair, sep = "\\.", into = coln, remove = FALSE) %>% select(-tmp)
-hm_dat2$chrA <- gsub("chr", "", hm_dat2$chrA)
-hm_dat2$chrB <- gsub("chr", "", hm_dat2$chrB)
-head(hm_dat2)
-#  test_D <- hm_dat2 %>% filter(cell == "Hippocampus")
-#head(test_D)
-hm_dat2 <- hm_dat2 %>% mutate(chrA=factor(chrA, levels=p_chr_ord2))
-hm_dat2 <- hm_dat2 %>% mutate(chrB=factor(chrB, levels=p_chr_ord2))
-hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
-       + geom_tile(aes(fill = mzscore), width = 1, height = 1)
-       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per chromosomal pair", na.value = "grey")
-       #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
-       #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
-       + labs(x = "Chromosome",
-              y = "",
-              title = "Trans-chromosomal Interactions (all) z-scores")
-       + scale_y_discrete(expand = c(0, 0))
-       + scale_x_discrete(expand = c(0, 0))
-#       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
-#         c("nonsig" = "Non-significant", "sig" = "Significant"))))
-       #       + theme(axis.text.x = element_text(angle = 90))
-      + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
-              strip.background = element_rect(fill = "white"),
-              panel.background = element_rect(fill = "grey85", colour = NA),
-              panel.spacing = unit(0, "lines"))
-)
-pdf("TEST_Aorta_zscore_chrom_pair_mean_heatmap_AllInteractions.pdf", width = 14, height = 8)
-hm
-dev.off()
+## test one cell heat map
+###########
+#hm_dat2 = hm_dat %>% filter(cell == "Aorta") %>% group_by(chrPair) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE), .groups = "keep")
+#hm_dat2$chrPair <- gsub("chr", "\\.chr", hm_dat2$chrPair)
+#coln <- c("tmp","chrA", "chrB")
+#hm_dat2 <- hm_dat2 %>% separate(chrPair, sep = "\\.", into = coln, remove = FALSE) %>% select(-tmp)
+#hm_dat2$chrA <- gsub("chr", "", hm_dat2$chrA)
+#hm_dat2$chrB <- gsub("chr", "", hm_dat2$chrB)
+#head(hm_dat2)
+##  test_D <- hm_dat2 %>% filter(cell == "Hippocampus")
+##head(test_D)
+#hm_dat2 <- hm_dat2 %>% mutate(chrA=factor(chrA, levels=p_chr_ord2))
+#hm_dat2 <- hm_dat2 %>% mutate(chrB=factor(chrB, levels=p_chr_ord2))
+#hm <- (ggplot(hm_dat2, aes(chrA, chrB, fill = mzscore))
+#       + geom_tile(aes(fill = mzscore), width = 1, height = 1)
+#       + scale_fill_hp(discrete = FALSE, option = "ronweasley2", name = "Mean z-score per chromosomal pair", na.value = "grey")
+#       #       + scale_fill_hp_d(option = "Always", name = "Mean z-score") 
+#       #+ scale_fill_gradient(low = "white", high = "steelblue", name = "Mean z-score")
+#       + labs(x = "Chromosome",
+#              y = "",
+#              title = "Trans-chromosomal Interactions (all) z-scores")
+#       + scale_y_discrete(expand = c(0, 0))
+#       + scale_x_discrete(expand = c(0, 0))
+##       + facet_wrap(.~sig, labeller = labeller(sig= as_labeller(
+##         c("nonsig" = "Non-significant", "sig" = "Significant"))))
+#       #       + theme(axis.text.x = element_text(angle = 90))
+#      + theme(strip.text.y.right = element_text(angle = 0), #rotate facet labels
+#              strip.background = element_rect(fill = "white"),
+#              panel.background = element_rect(fill = "grey85", colour = NA),
+#              panel.spacing = unit(0, "lines"))
+#)
+#pdf("TEST_Aorta_zscore_chrom_pair_mean_heatmap_AllInteractions.pdf", width = 14, height = 8)
+#hm
+#dev.off()
 
 print("##############")
 print("# significant interactions")
 print("##############")
-hm_dat2 = hm_dat %>% filter(cell != "fake_cell") %>% filter(sig == "sig") %>% group_by(chrPair,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE))
+hm_dat2 = hm_dat %>% filter(cell != "fake_cell") %>% filter(sig == "sig") %>% group_by(chrPair,cell) %>% dplyr::summarize(mzscore=mean(zscore, na.rm = TRUE), .groups = "keep")
 hm_dat2$chrPair <- gsub("chr", "\\.chr", hm_dat2$chrPair)
 coln <- c("tmp","chrA", "chrB")
 hm_dat2 <- hm_dat2 %>% separate(chrPair, sep = "\\.", into = coln, remove = FALSE) %>% select(-tmp)
