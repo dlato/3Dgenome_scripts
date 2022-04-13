@@ -457,9 +457,10 @@ for (i in unique(cat_num_interType$broad_class)){
   td <- cat_num_interType %>% filter(broad_class==i)
   print(head(td))
   print(summary(td))
-  print(unique(td$broad_class))
-  print(unique(td$n))
-  if (length(unique(td$n) == 2)){
+  print(unique(td$inter))
+  print(length(unique(td$inter)))
+  print(class(length(unique(td$inter))))
+  if (as.numeric(length(unique(td$inter)) == 2)){
   print("#Perform Mann-Whitney test (non-normal)")
   print("sig = mean is diff btwn common and non-common are diff")
   print(cat_num_interType %>%
