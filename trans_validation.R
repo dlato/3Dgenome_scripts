@@ -295,7 +295,9 @@ print("# Validated interaction chromosomes (not specific region)")
 print("#######")
 #df with ALL interactions btwn validated chroms
 chrs_df <- dat2[grep(chrs[1], dat2$ID), ]
+head(chrs_df)
 chrs_df <- chrs_df[grep(chrs[2],chrs_df$ID),]
+head(chrs_df)
 chrs_df <- chrs_df %>% select(-pvalue) %>% spread(key = cell, value = zscore)
 summary(chrs_df)
 
