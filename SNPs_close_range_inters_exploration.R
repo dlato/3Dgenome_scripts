@@ -212,7 +212,7 @@ print("#bins that SNPs are in")
 summary(SNP_df)
 SNP_df$start_b38 <- as.numeric(as.character(SNP_df$start_b38))
 summary(SNP_df)
-SNP_df$bin <- plyr::round_any(SNP_df$start_b38, bin_size), f = floor)
+SNP_df$bin <- plyr::round_any((SNP_df$start_b38, bin_size), f = floor)
 colnames(SNP_df) <- c("AllChr","SNPstart","SNPend","logFC","AllSt")
 summary(SNP_df)
 SNP_ID_df <- SNP_df
