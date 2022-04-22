@@ -38,11 +38,11 @@ library(stringr)
 print("#read in files")
 ####interaction data
 ##options(scipen = 999)
-#dat_file <- "supp_tab_SNP_ID_test.txt"
+#dat_file <- "CM_cis50Kb_SNPs_zscoreSig_interactions_and_SNP_rsID.txt"
 ##SNP <- "rs11191568"
-#SNP <- "rs3824754"
+#SNP <- "rs4631439"
 #window_size <- 1000000
-#genes <- "nearby_rs3824754genes.txt"
+#genes <- "nearby_rs4631439genes.txt"
 ##germlayer_file <- "germlayer_info.txt"
 #bin_size <- 50000
 
@@ -83,28 +83,67 @@ genes_df <- read.table(genes, sep = "\t", header = T)
 #bin start and end that genes are in, NOTE: they often overlap multiple bins!
 genes_df$bin_st <- plyr::round_any(genes_df$start, bin_size, f = floor)
 genes_df$bin_end <- plyr::round_any(genes_df$end, bin_size, f = ceiling)
-head(genes_df)
+#splitting up genes that cover multiple bin (repeating them for join with interactions later)
+genes_df <- genes_df %>% mutate(dif = bin_end - bin_st)
+mgenes_df <- data.frame(seqnamess=character(),
+                        start=numeric(),
+                        end=numeric(),
+                        width=numeric(),
+                        strand=character(),
+                        gene_id=character(),
+                        ensembl=character(),
+                        bin_st=numeric(),
+                        bin_end=numeric(),
+                        diff=numeric(),
+                        stringsAsFactors=FALSE)
+for (r in 1:nrow(genes_df)){
+  #r=2
+  td <- genes_df[r,]
+  #if diff is the same as the bin size
+  if (td$dif[1] == bin_size){
+    mgenes_df <- rbind(mgenes_df, td)
+  } else {
+    #bin starts that cover gene
+    sseq <- seq(td$bin_st[1],td$bin_st[1]+td$dif[1]-bin_size, by=bin_size)
+    #bin ends that cover gene
+    eseq <- seq(td$bin_end[1]-td$dif[1]+bin_size,td$bin_end[1], by=bin_size)
+    #add each bin that covers the gene to the df
+    for (i in 1:length(sseq)){
+      trow <- as.data.frame(t(c(td$seqnames[1],td$start[1],td$end[1],td$width[1],td$strand[1],td$gene_id[1],td$ensembl[1],sseq[i],eseq[i],td$dif[1])))
+      trow$V2 <- as.numeric(as.character(trow$V2))
+      trow$V3 <- as.numeric(as.character(trow$V3))
+      trow$V4 <- as.numeric(as.character(trow$V4))
+      trow$V8 <- as.numeric(as.character(trow$V8))
+      trow$V9 <- as.numeric(as.character(trow$V9))
+      trow$V10 <- as.numeric(as.character(trow$V10))
+      colnames(trow) <- colnames(genes_df)
+      mgenes_df <- rbind(mgenes_df, trow)
+    }#for
+  }#if else
+}#for each nearby gene
+mgenes_df <- mgenes_df %>% select(-dif)
+head(mgenes_df)
 
 #list all gene IDs in one column
-genes_id_start <- genes_df %>% 
+genes_id_start <- mgenes_df %>% 
   select(bin_st,gene_id) %>%
   group_by(bin_st) %>% 
   dplyr::mutate(gene_id_st = paste0(gene_id, collapse = ",")) %>%
   select(-gene_id) %>%
   unique()
-genes_id_end <- genes_df %>% 
+genes_id_end <- mgenes_df %>% 
   select(bin_end,gene_id) %>%
   group_by(bin_end) %>% 
   dplyr::mutate(gene_id_end = paste0(gene_id, collapse = ",")) %>%
   select(-gene_id) %>%
   unique()
-ensembl_start <- genes_df %>% 
+ensembl_start <- mgenes_df %>% 
   select(bin_st,ensembl) %>%
   group_by(bin_st) %>% 
   dplyr::mutate(ensembl_st = paste0(ensembl, collapse = ",")) %>%
   select(-ensembl) %>%
   unique()
-ensembl_end <- genes_df %>% 
+ensembl_end <- mgenes_df %>% 
   select(bin_end,ensembl) %>%
   group_by(bin_end) %>% 
   dplyr::mutate(ensembl_end = paste0(ensembl, collapse = ",")) %>%
