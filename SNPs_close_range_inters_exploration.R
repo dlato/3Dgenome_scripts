@@ -332,7 +332,13 @@ wilcox.test(n~range, data=ninters_sig %>% filter(Sig == "nonSig"))
 print("#test between num of inters btwn short and long range interactions SIG POS INTERS")
 print("#Perform the Mann-Whitney test (when dists are not normal)")
 print("sig = mean is diff btwn short and long range")
+#dealing with less than 2 groups
+tmpd <- ninters_sign %>% filter(sign=="pos")
+if (length(unique(tmpd$range)) ==2) {
 wilcox.test(n~range, data=ninters_sign %>% filter(sign == "pos"))
+} else {
+print("can't compute mann-whitney test, two few groups")
+}#ifelse
 print("#test between num of inters btwn short and long range interactions SIG NEG INTERS")
 print("#Perform the Mann-Whitney test (when dists are not normal)")
 print("sig = mean is diff btwn short and long range")
